@@ -1,0 +1,14 @@
+Logs/
+jdbc-alerts.log
+Thumbs.db
+Thread Dumps/
+.settings/
+lib/
+build/
+dist/
+.idea/
+*.iml
+bin/
+${buildproperties}
+.classpath
+.project

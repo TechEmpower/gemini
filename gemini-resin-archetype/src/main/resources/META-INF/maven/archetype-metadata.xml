@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor name="basic">
+  <requiredProperties>
+    <requiredProperty key="geminiVersion">
+      <defaultValue>${project.parent.version}</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="groupId">
+      <defaultValue>com.techempower</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="app.properties">
+      <defaultValue>app.properties</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="machineName"></requiredProperty>
+  </requiredProperties>
+
+  <fileSets>
+    <fileSet filtered="true" packaged="false">
+      <directory>src</directory>
+        <includes>
+          <include>**/*.java</include>
+        </includes>
+    </fileSet>
+    <fileSet filtered="true" packaged="false">
+      <directory></directory>
+      <includes>
+        <exclude>pom.xml</exclude>
+        <include>database/**/*</include>
+        <include>src/main/webapp/WEB-INF/configuration/**/*</include>
+      </includes>
+    </fileSet>
+    <fileSet filtered="false" packaged="false">
+      <directory></directory>
+      <includes>
+        <include>src/main/webapp/css/**/*</include>
+        <include>src/main/webapp/html/**/*</include>
+        <include>src/main/webapp/images/**/*</include>
+        <include>src/main/webapp/js/**/*</include>
+        <include>src/main/webapp/WEB-INF/**/*</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</archetype-descriptor>

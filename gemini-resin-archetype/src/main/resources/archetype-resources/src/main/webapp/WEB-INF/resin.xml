@@ -1,0 +1,61 @@
+<!--
+
+  Sample configuration file for Resin 4.0.
+
+-->
+<resin xmlns="http://caucho.com/ns/resin"
+       xmlns:resin="http://caucho.com/ns/resin/core">
+
+  <cluster id="">
+
+    <web-app-default xmlns:resin="urn:java:com.caucho.resin" xmlns:gemini="urn:java:com.techempower.gemini">
+      <!--
+        [Compatibility] Other servlet containers think of "default" as a servlet that serves static files. Resin doesn't know about this, so we define it here.
+      -->
+      <servlet>
+        <servlet-name>default</servlet-name>
+        <servlet-class>com.caucho.servlets.FileServlet</servlet-class>
+      </servlet>
+
+      <!--
+        [Security] Prevent Resin from exposing the session ID non-securely.
+      -->
+      <session-config enable-url-rewriting="false" cookie-secure="false"/>
+      <!--
+        [Security] Prevent JavaScript from accessing server-set cookies.
+      -->
+      <cookie-http-only>true</cookie-http-only>
+
+      <!-- Enable GZIP compression. -->
+      <filter filter-name="gzip" filter-class="com.caucho.filters.GzipFilter"> 
+        <init> 
+          <use-vary>true</use-vary> 
+        </init> 
+      </filter> 
+      <filter-mapping url-pattern='*' filter-name="gzip" />
+    </web-app-default>
+
+    <resin:import path="${RESIN_HOME}/conf/app-default.xml" />
+    <log name="" level="config" path="stdout:" timestamp="[%H:%M:%S.%s] " />
+
+    <server id="">
+      <jvm-arg>-Xms1g</jvm-arg>
+      <jvm-arg>-Xmx1g</jvm-arg>
+      <http port="8080" />
+      <!--
+      <http port="443">
+       <jsse-ssl>
+         <key-store-type>jks</key-store-type>
+         <key-store-file>server.keystore</key-store-file>
+         <password>your-keystore-passphrase</password>
+       </jsse-ssl>
+      </http>
+      -->
+    </server>
+
+    <host id="">
+      <web-app id="/" root-directory="src/main/webapp"></web-app>
+    </host>
+    
+  </cluster>
+</resin>

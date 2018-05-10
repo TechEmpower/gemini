@@ -1,0 +1,86 @@
+//
+// This is a library of basic mix-ins suitable for import by other Less files.
+// This file defines no concrete styles.
+//
+
+.boxsizing(@size) {
+  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.gradient(@position, @color1, @color2) {
+  background-image: linear-gradient(@position, @color1, @color2);
+  background-image: -moz-linear-gradient(@position, @color1, @color2);
+  background-image: -webkit-linear-gradient(@position, @color1, @color2);
+}
+
+.gradient(@position, @color1, @color2, @perc2, @color3) {
+  background-image: linear-gradient(@position, @color1, @color2 @perc2, @color3);
+  background-image: -moz-linear-gradient(@position, @color1, @color2 @perc2, @color3);
+  background-image: -webkit-linear-gradient(@position, @color1, @color2 @perc2, @color3);
+}
+
+.gradient(@position, @color1, @color2, @perc2, @color3, @perc3, @color4) {
+  background-image: linear-gradient(@position, @color1, @color2 @perc2, @color3 @perc3, @color4);
+  background-image: -moz-linear-gradient(@position, @color1, @color2 @perc2, @color3 @perc3, @color4);
+  background-image: -webkit-linear-gradient(@position, @color1, @color2 @perc2, @color3 @perc3, @color4);
+}
+
+.borderradius(@tl, @tr, @br, @bl) {
+  border-radius: @arguments;
+  -moz-border-radius: @arguments;
+  -webkit-border-radius: @arguments;
+}
+
+.borderradius(@all) {
+  border-radius: @arguments;
+  -moz-border-radius: @arguments;
+  -webkit-border-radius: @arguments;
+}
+
+.boxshadow(@x, @y, @blur, @color) {
+  box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  -webkit-box-shadow: @arguments;
+}
+
+.boxshadow(@all) {
+  box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  -webkit-box-shadow: @arguments;
+}
+
+.insetboxshadow(@x, @y, @blur, @color) {
+  box-shadow: @arguments inset;
+  -moz-box-shadow: @arguments inset;
+  -webkit-box-shadow: @arguments inset;
+}
+
+.boxsizing(@model) {
+  box-sizing: @arguments;
+  -moz-box-sizing: @arguments;
+  -webkit-box-sizing: @arguments;
+}
+
+.transition(@prop, @time) {
+  transition: @arguments;
+  -moz-transition: @arguments;
+  -webkit-transition: @arguments;
+}
+ 
+.noselect() {
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+
+.columns(@count, @gap) {
+  columns: @count;
+  -moz-columns: @count;
+  -webkit-columns: @count;
+  column-gap: @gap;
+  -moz-column-gap: @gap;
+  -webkit-column-gap: @gap;
+}

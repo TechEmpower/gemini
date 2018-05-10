@@ -1,0 +1,27 @@
+{{</layout}}
+{{$title}}Error{{/title}}
+{{$headline}}Error{{/headline}}
+{{$css}}<style>
+.stack {
+  padding: 4px 8px;
+  background-color: rgb(242,242,242);
+  border: 1px solid rgb(222,222,222);
+  color: rgb(40,100,40);
+}
+</style>{{/css}}
+{{$nav}}<a href="/" class="active">Home</a>{{/nav}}
+{{$contentclasses}}{{/contentclasses}}
+{{$subnav}}{{/subnav}}
+{{$body}}
+
+<h3>Sorry, your request could not be processed due to an error.</h3>
+<p>
+  The request you submitted resulted in an error.  Your request cannot be processed at this time.
+{{#req}}{{#reveal}}Exception details below.</p><p><pre class="stack">
+{{{stackTrace}}}</pre>{{/reveal}}{{/req}}
+</p>
+
+<p>An email with the details of this error has been sent to the system administrator.</p>
+
+{{/body}}
+{{//layout}}

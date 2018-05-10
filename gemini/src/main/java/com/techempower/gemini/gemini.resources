@@ -1,0 +1,315 @@
+#############################################################################
+#
+# GEMINI USER INTERFACE RESOURCES
+# ---------------------------------------------------------------------------
+#  Copyright (c) 2018, TechEmpower, Inc.
+#  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name TechEmpower, Inc. nor the names of its
+#       contributors may be used to endorse or promote products derived from
+#       this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL TECHEMPOWER, INC. BE LIABLE FOR ANY DIRECT,
+# INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+# OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ---------------------------------------------------------------------------
+#
+# Note: this file is named gemini.resources, but should be
+# renamed to [product-name].resources for your application and placed
+# alongside the .conf file for your application.  When changes are made
+# to the user interface of Gemini, this file will need to be changed and
+# those changes will need to be mirrored in the .resources files of each
+# application using Gemini.  To be on the safe side, it's probably best to
+# not edit the Gemini-specific sections of this file, allowing you to
+# copy & paste any updates into your application-specific .resources file
+# easily.
+#
+# The naming convention of resources files is:
+#
+#   gemini.resources = "template" default Gemini UI resources, as stored in
+#     SourceSafe.  See the comments above.
+#
+#   gemini-en-US.resources = "template" Gemini UI for the US English locale.
+#
+#   gemini-fr-CA.resources = Example of Gemini UI for Canadian French.
+#
+#   tempest.resources = A default resources file for the application named
+#     Tempest.  The application author copies the Gemini UI resources from
+#     gemini.resources.
+#
+#   tempest-en-US.resources = If Tempest is locale-aware, additional
+#     resource files may exist for it.  Again, each shall contain the stock
+#     Gemini UI resources for the specific locale.
+#
+# The naming convention of keys used by Gemini is:
+#   g = indicates this key is for Gemini
+#   [class-abbreviation] = lowercase class abbreviation
+#   -identifier = A class-specific identifier for the resource
+#
+# For form elements, the following suffices are used:
+#   -e = Error text (for debugging)
+#   -i = Instructions text (for displaying in a bulleted list to the user)
+#   -l = Inline instructions text (for displaying alongside form elements)
+#
+#############################################################################
+
+# ---------------------------------------------------------------------------
+# FormTextField (ftf)
+
+gftf-empty-e=$S1 is empty.
+gftf-empty-i=Please provide input in the field named $S1.
+gftf-empty-l=Please provide input in this field.
+gftf-short-e=$S1 is too short.
+gftf-short-i=Please specify at least $S2 characters in the field named $S1.
+gftf-short-l=Please specify at least $S2 characters.
+gftf-long-e=$S1 is too long.
+gftf-long-i=Please keep the input in field $S1 to $S2 characters or less.
+gftf-long-l=Please keep the input in this field to $S2 characters or less.
+
+# ---------------------------------------------------------------------------
+# FormCheckBox (fcb)
+
+gfcb-unchecked-e=$S1 is unchecked.
+gfcb-unchecked-i=Please check the checkbox named $S1.
+gfcb-unchecked-l=This checkbox field must be checked.
+
+# ---------------------------------------------------------------------------
+# FormTextArea (fta)
+
+gfta-empty-e=$S1 is empty.
+gfta-empty-i=Please provide input in the field named $S1.
+gfta-empty-l=Please provide input in this field.
+gfta-short-e=$S1 is too short.
+gfta-short-i=Please specify at least $S2 characters in the field named $S1.
+gfta-short-l=Please specify at least $S2 characters.
+gfta-long-e=$S1 is too long.
+gfta-long-i=Please keep the input in field $S1 to $S2 characters or less.
+gfta-long-l=Please keep the input in this field to $S2 characters or less.
+
+# ---------------------------------------------------------------------------
+# FormIntegerField (fif)
+
+gfif-low-e=$S1 is lower than $S2.
+gfif-low-i=$S1 cannot be less than $S2.
+gfif-low-l=This field's value cannot be less than $S2.
+gfif-high-e=$S1 is higher than $S2.
+gfif-high-i=$S1 cannot be greater than $S2.
+gfif-high-l=This field's value cannot be greater than $S2.
+gfif-invalid-e=$S1 does not contain a valid integer value.
+gfif-invalid-i=$S1 requires a valid integer value to be entered.
+gfif-invalid-l=\"$S2\" is not a valid integer.
+
+# ---------------------------------------------------------------------------
+# FormFloatField (fff)
+
+gfff-low-e=$S1 is lower than $S2.
+gfff-low-i=$S1 cannot be less than $S2.
+gfff-low-l=This field's value cannot be less than $S2.
+gfff-high-e=$S1 is higher than $S2.
+gfff-high-i=$S1 cannot be greater than $S2.
+gfff-high-l=This field's value cannot be greater than $S2.
+gfff-invalid-e=$S1 does not contain a valid decimal/floating point value.
+gfff-invalid-i=$S1 requires a valid decimal/floating point value to be entered.
+gfff-invalid-l=\"$S2\" is not a valid decimal/floating point value.
+
+# ---------------------------------------------------------------------------
+# FormNumberField (fnf)
+
+gfnf-empty-e=$S1 is empty.
+gfnf-empty-i=Please provide input in the field named $S1.
+gfnf-empty-l=Please provide input in this field.
+gfnf-short-e=$S1 is too short.
+gfnf-short-i=Please specify at least $S2 characters in the field named $S1.
+gfnf-short-l=Please specify at least $S2 characters.
+gfnf-long-e=$S1 is too long.
+gfnf-long-i=Please keep the input in field $S1 to $S2 characters or less.
+gfnf-long-l=Please keep the input in this field to $S2 characters or less.
+gfnf-belowmin-e=$S1 is lower than $S2.
+gfnf-belowmin-i=$S1 cannot be less than $S2.
+gfnf-belowmin-l=This field's value cannot be less than $S2.
+gfnf-abovemax-e=$S1 is higher than $S2.
+gfnf-abovemax-i=$S1 cannot be greater than $S2.
+gfnf-abovemax-l=This field's value cannot be greater than $S2.
+gfnf-notanumber-e=$S1 does not contain a valid number.
+gfnf-notanumber-i=$S1 requires a valid number value to be entered.
+gfnf-notanumber-l=\"$S2\" is not a valid number.
+gfnf-outofstep-e=$S1 does not contain a valid number.
+gfnf-outofstep-i=$S1 requires a valid number value to be entered.
+gfnf-outofstep-l=\"$S2\" is not a valid number.
+
+# ---------------------------------------------------------------------------
+# FormRadioButtonGroup (frbg)
+
+gfrbg-empty-e=$S1 is unselected.
+gfrbg-empty-i=Please provide input in the area named $S1.
+gfrbg-empty-l=Please provide input in this field.
+
+# ---------------------------------------------------------------------------
+# FormMultiSelectBox (fmsb)
+
+gfmsb-lowsingular-e=$S1 does not have an option selected.
+gfmsb-lowsingular-i=Please select 1 option from the multi-select box named $S1.
+gfmsb-lowsingular-l=This multi-select box requires 1 selection.
+gfmsb-lowplural-e=$S1 does not have enough options selected.
+gfmsb-lowplural-i=Please select at least $S2 options from the multi-select box named $S1.
+gfmsb-lowplural-l=This multi-select box requires $S2 selections.
+gfmsb-highsingular-e=$S1 is too many selections.
+gfmsb-highsingular-i=Please limit yourself to 1 selection from the multi-select box named $S1.
+gfmsb-highsingular-l=This multi select box is limited to 1 selection.
+gfmsb-highplural-e=$S1 is too many selections.
+gfmsb-highplural-i=Please limit yourself to $S3 selections from the multi-select box named $S1.
+gfmsb-highplural-l=This multi-select box is limited to $S3 selections.
+
+# ---------------------------------------------------------------------------
+# FormDropDownMenu (fddm)
+
+gfddm-empty-e=$S1 is unselected.
+gfddm-empty-i=Please make a selection in the drop-down menu named $S1.
+gfddm-empty-l=This drop-down menu requires a selection.
+gfddm-invalid-e=$S1 value is invalid.
+gfddm-invalid-i=The selection in the drop-down menu named $S1 is invalid.
+gfddm-invalid-l=This selection is invalid.
+
+# ---------------------------------------------------------------------------
+# FormDropDownMenuCountry (fddmc)
+
+gfddmc-empty-e=$S1 is unselected.
+gfddmc-empty-i=Please make a selection in the drop-down menu named $S1.
+gfddmc-empty-l=This drop-down menu requires a selection.
+gfddmc-invalid-e=$S1 value is invalid.
+gfddmc-invalid-i=The selection in the drop-down menu named $S1 is invalid.
+gfddmc-invalid-l=This selection is invalid.
+
+# ---------------------------------------------------------------------------
+# FormDropDownMenuState (fddms)
+
+gfddms-empty-e=$S1 is unselected.
+gfddms-empty-i=Please make a selection in the drop-down menu named $S1.
+gfddms-empty-l=This drop-down menu requires a selection.
+gfddms-invalid-e=$S1 value is invalid.
+gfddms-invalid-i=The selection in the drop-down menu named $S1 is invalid.
+gfddms-invalid-l=This selection is invalid.
+
+# ---------------------------------------------------------------------------
+# FormFilePathField (ffpf)
+
+gffpf-empty-e=$S1 is empty.
+gffpf-empty-i=Please provide input in the field named $S1.
+gffpf-empty-l=Please provide input in this field.
+gffpf-badchars-e=$S1 contains one of the following invalid characters:  * : ? \" < > |
+gffpf-badchars-i=$S1 may not contain any of the following characters:  * : ? \" < > |
+gffpf-badchars-l=Please remove any of the following characters from your input:  * : ? \" < > |
+gffpf-format-e=$S1 is not in an acceptable file path format.
+gffpf-format-i=$S1 contains an incorrectly formatted file path.
+gffpf-format-l=This field contains an incorrectly formatted file path.
+gffpf-short-e=$S1 is too short to provide a meaningful file path.
+gffpf-short-i=Please provide a longer value in the field named $S1.
+gffpf-short-l=Please provide a longer value in this field.
+
+# ---------------------------------------------------------------------------
+# FormFileBrowse (ffb)
+
+gffb-empty-e=$S1 is empty.
+gffb-empty-i=Please provide input in the area named $S1.
+gffb-empty-l=Please provide input in this field.
+
+# ---------------------------------------------------------------------------
+# FormComplexDateField (fcdf)
+
+gfcdf-empty-e=$S1 is empty.
+gfcdf-empty-i=Please provide input in the field named $S1.
+gfcdf-empty-l=Please provide input in this field.
+gfcdf-before-e=$S1 is earlier than $S2.
+gfcdf-before-i=$S1 cannot be earlier than $S2.
+gfcdf-before-l=This field's value cannot be earlier than $S2.
+gfcdf-after-e=$S1 is later than $S2.
+gfcdf-after-i=$S1 cannot be later than $S2.
+gfcdf-after-l=This field's value cannot be later than $S2.
+gfcdf-invalid-e=$S1 is not in a valid format.
+gfcdf-invalid-i=$S1 contains an incorrectly formatted date.
+gfcdf-invalid-l=This field's value is incorrectly formatted.
+
+# ---------------------------------------------------------------------------
+# FormDateField (fdf)
+
+gfdf-empty-e=$S1 is empty.
+gfdf-empty-i=Please provide input in the field named $S1.
+gfdf-empty-l=Please provide input in this field.
+gfdf-long-e=$S1 is too long.
+gfdf-long-i=Please keep the input in field $S1 to $S2 characters or less.
+gfdf-long-l=Please keep the input in this field to $S2 characters or less.
+gfdf-invalidmonth-e=$S1 has an invalid month ($S2-$S3).
+gfdf-invalidmonth-i=$S1 has an invalid month.  Valid months are from $S2-$S3.
+gfdf-invalidmonth-l=This field's month must be in the range $S2-$S3.
+gfdf-invalidyear-e=$S1 has an invalid year ($S2-$S3).
+gfdf-invalidyear-i=$S1 has an invalid year.  Valid years are from $S2-$S3.
+gfdf-invalidyear-l=This field's year must be in the range $S2-$S3.
+gfdf-invalidday-e=$S1 has an invalid day ($S2-$S3).
+gfdf-invalidday-i=$S1 has an invalid day.  Valid days are from $S2-$S3.
+gfdf-invalidday-l=This field's day must be in the range $S2-$S3.
+gfdf-invalidformat-e=$S1 is incorrectly formatted.  Format: mm/dd/yy.
+gfdf-invalidformat-i=$S1 is incorrectly formatted.  The correct format is mm/dd/yy.
+gfdf-invalidformat-l=$S1 field's date is incorrectly formatterd.  The correct format is mm/dd/yy.
+
+# ---------------------------------------------------------------------------
+# FormEmailAddressField (feaf)
+
+gfeaf-empty-e=$S1 is empty.
+gfeaf-empty-i=Please provide input in the field named $S1.
+gfeaf-empty-l=Please provide input in this field.
+gfeaf-long-e=$S1 is too long.
+gfeaf-long-i=Please keep the input in field $S1 to $S2 characters or less.
+gfeaf-long-l=Please keep the input in this field to $S2 characters or less.
+gfeaf-invalidformat-e=$S1 is incorrectly formatted.  Format: username@domain.com
+gfeaf-invalidformat-i=$S1 is incorrectly formatted.  The correct format is username@domain.com
+gfeaf-invalidformat-l=$S1 field's email address is incorrectly formatterd.  The correct format is username@domain.com
+
+# ---------------------------------------------------------------------------
+# FormCheckBoxGroup (fcbg)
+
+gfcbg-lowsingular-e=$S1 does not have enough options selected.
+gfcbg-lowsingular-i=Please select at least 1 option from the check boxes named $S1.
+gfcbg-lowsingular-l=These check boxes require 1 selection.
+gfcbg-lowplural-e=$S1 does not have enough options selected.
+gfcbg-lowplural-i=Please select at least $S2 options from the check boxes named $S1.
+gfcbg-lowplural-l=These check boxes require $S2 selections.
+gfcbg-highsingular-e=$S1 is too many selections.
+gfcbg-highsingular-i=Please limit yourself to 1 selection from the check boxes named $S1.
+gfcbg-highsingular-l=These check boxes are limited to 1 selection.
+gfcbg-highplural-e=$S1 is too many selections.
+gfcbg-highplural-i=Please limit yourself to $S3 selections from the check boxes named $S1.
+gfcbg-highplural-l=These check boxes are limited to $S3 selections.
+
+# ---------------------------------------------------------------------------
+# FormPasswordField (fpf)
+
+gfpf-empty-e=$S1 is empty.
+gfpf-empty-i=Please provide input in the field named $S1.
+gfpf-empty-l=Please provide input in this field.
+gfpf-short-e=$S1 is too short.
+gfpf-short-i=Please specify at least $S2 characters in the field named $S1.
+gfpf-short-l=Please specify at least $S2 characters.
+gfpf-long-e=$S1 is too long.
+gfpf-long-i=Please keep the input in field $S1 to $S2 characters or less.
+gfpf-long-l=Please keep the input in this field to $S2 characters or less.
+gfpf-mismatch-e=$S1 doesn't match.
+gfpf-mismatch-i=The passwords you have entered do not match.
+gfpf-mismatch-l=The passwords you have entered do not match.
+gfpf-mismatchCase-e=$S1 doesn't match.
+gfpf-mismatchCase-i=The passwords you have entered do not match. Please pay attention to capitalization.
+gfpf-mismatchCase-l=The passwords you have entered do not match. Please pay attention to capitalization.
+    

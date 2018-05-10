@@ -1,0 +1,38 @@
+{{</layout}}
+{{$title}}Example App{{/title}}
+{{$headline}}Example App{{/headline}}
+{{$css}}{{/css}}
+{{$nav}}<a href="/" class="active">Home</a><a
+  href="/example">Example</a><a
+  href="/admin">Admin</a>{{/nav}}
+{{$contentclasses}}{{/contentclasses}}
+{{$subnav}}{{/subnav}}
+{{$body}}
+
+<h1 class="no-margin">Hello from
+  {{#app.env.prod}}PRODUCTION{{/app.env.prod}}
+  {{#app.env.test}}TEST{{/app.env.test}}
+  {{#app.env.dev}}DEVELOPMENT{{/app.env.dev}}
+Version</h1>
+<p>Your new web application is ready to be customized.</p>
+
+<p>This simple set of handlers and pages is provided by the application builder to get you started. Be experimental and don't feel hamstrung by these starter templates. You can use any Mustache templates, CSS, and JavaScript that you desire.</p>
+
+<h2>What's provided</h2>
+<p>These starter templates include this welcome page and another <a href="/example">example</a> of the CSS classes provided as a starting point.  In addition, templates for <a href="/login">login</a>, <a href="/logout">logout</a>, and <a href="/password-reset">password reset</a> functionality are included.</p>
+
+<p>A <a href="http://www.google.com/webfonts/">Google web font</a> is used to make the page look consistent across most browser targets.  You are obviously not required to use this font, but using a web font is encouraged.</p>
+
+<h2>This server</h2>
+
+<div class="inset section">
+  <p>Deployment descriptor: <i>{{app.env.descriptor}}</i></p>
+  <p>Based on the deployment descriptor, this server is configured as a <b>
+  {{#app.env.prod}}PRODUCTION{{/app.env.prod}}
+  {{#app.env.test}}TEST{{/app.env.test}}
+  {{#app.env.dev}}DEVELOPMENT{{/app.env.dev}}
+  </b> server.</p>
+</div>
+
+{{/body}}
+{{//layout}}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+
+  <multipart-form enable="true" />
+  
+  <!-- Force static assets to be served by the servlet container. -->
+  <servlet-mapping>
+    <url-pattern>/css/*</url-pattern>
+    <servlet-name>default</servlet-name>
+  </servlet-mapping>
+  <servlet-mapping>
+    <url-pattern>/js/*</url-pattern>
+    <servlet-name>default</servlet-name>
+  </servlet-mapping>
+  <servlet-mapping>
+    <url-pattern>/images/*</url-pattern>
+    <servlet-name>default</servlet-name>
+  </servlet-mapping>
+  <servlet-mapping>
+    <url-pattern>/html/*</url-pattern>
+    <servlet-name>default</servlet-name>
+  </servlet-mapping>
+  <servlet-mapping>
+    <url-pattern>/favicon.ico</url-pattern>
+    <servlet-name>default</servlet-name>
+  </servlet-mapping>
+  <servlet-mapping>
+    <url-pattern>/static/*</url-pattern>
+    <servlet-name>default</servlet-name>
+  </servlet-mapping>
+  
+  <!-- [Security] Require HTTPS for all requests.
+  <security-constraint>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+    <web-resource-collection>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+  </security-constraint> -->
+
+  <!-- Use UTF-8 for everything. -->
+  <character-encoding>UTF-8</character-encoding>
+  
+  <servlet>
+    <servlet-name>Server</servlet-name>
+    <servlet-class>com.techempower.Server</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Server</servlet-name>
+    <url-pattern>*</url-pattern>
+  </servlet-mapping>
+
+  <!-- Require HTTPS filter
+  <filter filter-name='RequireHttpsFilter' filter-class='com.techempower.gemini.filter.RequireHttpsFilter'>
+    <init-param>
+      <param-name>DebugEnabled</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping url-pattern='*' filter-name='RequireHttpsFilter' /> -->
+
+</web-app>

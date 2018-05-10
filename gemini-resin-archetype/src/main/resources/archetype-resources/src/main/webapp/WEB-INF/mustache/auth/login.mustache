@@ -1,0 +1,35 @@
+{{</layout}}
+{{$title}}Login{{/title}}
+{{$headline}}Login{{/headline}}
+{{$css}}<style>
+#lhlogin { width: 147px; }
+</style>{{/css}}
+{{$nav}}<a href="/">Home</a>{{/nav}}
+{{$contentclasses}}{{/contentclasses}}
+{{$subnav}}{{/subnav}}
+{{$body}}
+{{#req}}
+
+<p>Welcome! Please login below.</p>
+
+<form name="login-form" action="" method="post"><input type="hidden" name="r" id="r" value="{{query.r}}">
+<div class="form-container centered-400 peach">
+  {{>/auth/include-validation}}
+  <div class="form-row">
+    <input type="text" name="lhuser" id="lhuser" value="{{query.lhuser}}" length="100" maxlength="100"><label class="label" for="lhuser">Username</label>
+  </div>
+  <div class="form-row">
+    <input type="password" name="lhpass" id="lhpass" value="" length="30" maxlength="30"><label class="label" for="lhpass">Password</label>
+  </div>
+  <div class="form-row">
+    <span class="label"></span><input type="submit" name="lhlogin" id="lhlogin" value="Login">
+    <span class="modifier"><input type="checkbox" id="lhremember" name="lhremember" value="y"> Remember me</label></span>
+  </div>
+</div>
+</form>
+
+<p>Forgot your password?  <a href="/password-reset">Reset it</a>.</p>
+
+{{/req}}
+{{/body}}
+{{//layout}}

@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <organization>
+    <name>TechEmpower, Inc.</name>
+    <url>https://www.techempower.com/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Revised BSD License, 3-clause</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  
+  <parent>
+    <groupId>com.techempower</groupId>
+    <artifactId>gemini-parent</artifactId>
+    <version>2.21.0-SNAPSHOT</version>
+  </parent>
+  
+  <artifactId>gemini-resin-archetype</artifactId>
+  <name>Archetype - gemini-resin-archetype</name>
+  <description>
+    An archetype project for building Gemini applications.
+  </description>
+
+  <build>
+    <sourceDirectory>src/main/resources/archetype-resources/src/main/java</sourceDirectory>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>META-INF/maven/archetype-metadata.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>META-INF/maven/archetype-metadata.xml</exclude>
+        </excludes>
+      </resource>
+    </resources>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.techempower</groupId>
+      <artifactId>gemini</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.techempower</groupId>
+      <artifactId>gemini-resin</artifactId>
+    </dependency>
+  </dependencies>
+  
+</project>
