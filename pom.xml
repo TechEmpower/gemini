@@ -133,17 +133,17 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>gemini-public</artifactId>
+        <artifactId>gemini</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>gemini-resin-public</artifactId>
+        <artifactId>gemini-resin</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>gemini-resin-template-public</artifactId>
+        <artifactId>gemini-resin-archetype</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
