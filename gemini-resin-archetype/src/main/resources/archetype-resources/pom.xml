@@ -26,12 +26,12 @@
     <dependencies>
         <dependency>
             <groupId>com.techempower</groupId>
-            <artifactId>gemini-public</artifactId>
+            <artifactId>gemini</artifactId>
             <version>${geminiVersion}</version>
         </dependency>
         <dependency>
             <groupId>com.techempower</groupId>
-            <artifactId>gemini-resin-public</artifactId>
+            <artifactId>gemini-resin</artifactId>
             <version>${geminiVersion}</version>
         </dependency>
     </dependencies>
