@@ -1218,13 +1218,13 @@ public class EntityStore
             final Builder<?> builder = EntityGroup.of(
                 (Class<? extends Identifiable>)clazz);
 
-            if (StringHelper.isNonEmpty(annotation.table())) {
+            if (!annotation.table().isEmpty()) {
               builder.table(annotation.table());
             }
-            if (StringHelper.isNonEmpty(annotation.id())) {
+            if (!annotation.id().isEmpty()) {
               builder.id(annotation.id());
             }
-            if (StringHelper.isNonEmpty(annotation.comparator())) {
+            if (!annotation.comparator().isEmpty()) {
               builder.comparator(annotation.comparator());
             }
 
@@ -1255,15 +1255,15 @@ public class EntityStore
               builder = CacheGroup.of((Class<? extends Identifiable>)clazz);
             }
             
-            if (StringHelper.isNonEmpty(annotation.table()))
+            if (!annotation.table().isEmpty())
             {
               builder.table(annotation.table());
             }
-            if (StringHelper.isNonEmpty(annotation.id()))
+            if (!annotation.id().isEmpty())
             {
               builder.id(annotation.id());
             }
-            if (StringHelper.isNonEmpty(annotation.comparator()))
+            if (!annotation.comparator().isEmpty())
             {
               builder.comparator(annotation.comparator());
             }
@@ -1338,15 +1338,15 @@ public class EntityStore
                 final CachedRelation.Builder<?, ?> builder = CachedRelation.of(
                         (Class<? extends Identifiable>) left.getType(),
                         (Class<? extends Identifiable>) right.getType());
-                if (StringHelper.isNonEmpty(annotation.table()))
+                if (!annotation.table().isEmpty())
                 {
                   builder.table(annotation.table());
                 }
-                if (StringHelper.isNonEmpty(leftAnnotation.column()))
+                if (!leftAnnotation.column().isEmpty())
                 {
                   builder.leftColumn(leftAnnotation.column());
                 }
-                if (StringHelper.isNonEmpty(rightAnnotation.column()))
+                if (!rightAnnotation.column().isEmpty())
                 {
                   builder.rightColumn(rightAnnotation.column());
                 }
@@ -1373,7 +1373,7 @@ public class EntityStore
             {
               try
               {
-                register((TypeAdapter)clazz.getConstructor(NO_PARAMETERS).newInstance());
+                register(clazz.getConstructor(NO_PARAMETERS).newInstance());
               }
               catch (InstantiationException
                   | IllegalAccessException
