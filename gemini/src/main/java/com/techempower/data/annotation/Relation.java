@@ -29,9 +29,9 @@ package com.techempower.data.annotation;
 import java.lang.annotation.*;
 
 /**
- * This annotation attaches to a class that defines a CachedRelation. It is required
- * That the class also use the annotations &#064;Left and &#064;Right to specify the
- * Left class and Right class which describe the relationship.
+ * This annotation attaches to a class that defines a CachedRelation. It is
+ * required that the class also use the annotations &#064;Left and &#064;Right
+ * to specify the Left class and Right class which describe the relationship.
  * <p>
  * <pre>
  *   &#064;Relation
@@ -49,5 +49,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Relation
 {
-
+    /**
+     * The database table that stores the identifiers for the related entities.
+     *
+     * @return the database table that stores these entities
+     * @see com.techempower.cache.CachedRelation.Builder#table(String)
+     */
+    String table() default "";
 }

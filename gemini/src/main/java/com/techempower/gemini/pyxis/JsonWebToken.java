@@ -97,7 +97,8 @@ public class JsonWebToken
     this.application = application;
     this.issuedAt = issuedAt;
     bearerUserId = user.getId();
-    lastPasswordChange = user.getUserLastPasswordChange().getTime();
+    lastPasswordChange = user.getUserLastPasswordChange() == null ? 0L :
+            user.getUserLastPasswordChange().getTime();
     this.validationHash = validationHash;
     userId = bearerUserId;
   }
