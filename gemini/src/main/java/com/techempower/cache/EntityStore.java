@@ -1197,8 +1197,6 @@ public class EntityStore
   /**
    * Registers all entities, cached entities and cached relations in a given 
    * package. Uses the annotations in com.techempower.data.annotation.
-   * 
-   * @param packageName A String representing the package to search through
    */
   @SuppressWarnings("unchecked")
   public void register()
@@ -1220,13 +1218,13 @@ public class EntityStore
             final Builder<?> builder = EntityGroup.of(
                 (Class<? extends Identifiable>)clazz);
 
-            if (StringHelper.isNonEmpty(annotation.table())) {
+            if (!annotation.table().isEmpty()) {
               builder.table(annotation.table());
             }
-            if (StringHelper.isNonEmpty(annotation.id())) {
+            if (!annotation.id().isEmpty()) {
               builder.id(annotation.id());
             }
-            if (StringHelper.isNonEmpty(annotation.comparator())) {
+            if (!annotation.comparator().isEmpty()) {
               builder.comparator(annotation.comparator());
             }
 
@@ -1257,15 +1255,15 @@ public class EntityStore
               builder = CacheGroup.of((Class<? extends Identifiable>)clazz);
             }
             
-            if (StringHelper.isNonEmpty(annotation.table()))
+            if (!annotation.table().isEmpty())
             {
               builder.table(annotation.table());
             }
-            if (StringHelper.isNonEmpty(annotation.id()))
+            if (!annotation.id().isEmpty())
             {
               builder.id(annotation.id());
             }
-            if (StringHelper.isNonEmpty(annotation.comparator()))
+            if (!annotation.comparator().isEmpty())
             {
               builder.comparator(annotation.comparator());
             }
@@ -1298,6 +1296,7 @@ public class EntityStore
             // We check for the existence of any @Relation annotations.
             if (clazz.isAnnotationPresent(Relation.class))
             {
+              final Relation annotation = clazz.getAnnotation(Relation.class);
               // A class uses the @Relation annotation must specify 2 fields, one
               // with @Left and one with @Right. To help us determine which two 
               // Identifiable classes make up this relation.
@@ -1327,18 +1326,33 @@ public class EntityStore
                 throw new RuntimeException(
                     "Cannot create CachedRelation from @Relation definition class without specifying @Left and @Right Identifiables.");
               }
+
+              final Left leftAnnotation = left.getAnnotation(Left.class);
+              final Right rightAnnotation = right.getAnnotation(Right.class);
               
               // We're ready to register this CachedRelation.  The table name will
               // be inferred from the class name.  The left and right column names
               // will use the name of the parameters.
               // Don't register it more than once.
-              if (getRelation((Class<EntityRelationDescriptor<Identifiable, Identifiable>>)clazz) == null)
-              {
-                register(CachedRelation.of((Class<? extends Identifiable>)left.getType(), (Class<? extends Identifiable>)right.getType()).
-                    table(clazz.getSimpleName()).
-                    leftColumn(left.getName()).
-                    rightColumn(right.getName()),
-                    clazz);
+              if (getRelation((Class<EntityRelationDescriptor<Identifiable, Identifiable>>)clazz) == null) {
+                final CachedRelation.Builder<?, ?> builder = CachedRelation.of(
+                        (Class<? extends Identifiable>) left.getType(),
+                        (Class<? extends Identifiable>) right.getType());
+                if (!annotation.table().isEmpty())
+                {
+                  builder.table(annotation.table());
+                }
+                if (!leftAnnotation.column().isEmpty())
+                {
+                  builder.leftColumn(leftAnnotation.column());
+                }
+                if (!rightAnnotation.column().isEmpty())
+                {
+                  builder.rightColumn(rightAnnotation.column());
+                }
+
+                // Finally register the Relation
+                register(builder, clazz);
               }
             }
           }
@@ -1350,10 +1364,10 @@ public class EntityStore
         @Override
         public void run() {
           // Finally, look for any TypeAdapter classes that are annotated
-          for (@SuppressWarnings("rawtypes") Class<? extends TypeAdapter> clazz : 
+          for (Class<? extends TypeAdapter> clazz :
               reflections.getSubTypesOf(TypeAdapter.class))
           {
-            // We check for the existence of any known annotations, including 
+            // We check for the existence of any known annotations, including
             // @Entity, @Cached, @Relation
             if (clazz.isAnnotationPresent(EntityTypeAdapter.class))
             {
@@ -1361,9 +1375,9 @@ public class EntityStore
               {
                 register(clazz.getConstructor(NO_PARAMETERS).newInstance());
               }
-              catch (InstantiationException 
-                  | IllegalAccessException 
-                  | NoSuchMethodException 
+              catch (InstantiationException
+                  | IllegalAccessException
+                  | NoSuchMethodException
                   | InvocationTargetException e)
               {
                 throw new RuntimeException("Warn: Could not register TypeAdapter", e);
@@ -1372,7 +1386,7 @@ public class EntityStore
           }
         }
       });
-      
+
       try
       {
         service.shutdown();

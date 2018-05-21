@@ -62,5 +62,12 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Right
 {
-
+    /**
+     * The database column that stores the identifier for the related entity.
+     *
+     * @return the database column that stores the identifier for the related
+     * entity
+     * @see com.techempower.cache.CachedRelation.Builder#rightColumn(String)
+     */
+    String column() default "";
 }

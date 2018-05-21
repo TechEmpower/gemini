@@ -192,14 +192,14 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     this.leftType = leftType;
     this.rightType = rightType;
     this.table = (tableName == null)
-        ? "map" + leftType.getSimpleName().toLowerCase()
+        ? leftType.getSimpleName().toLowerCase()
             + "to" + rightType.getSimpleName().toLowerCase()
         : tableName;
     this.leftColumn = (leftColumn == null)
-        ? leftType.getSimpleName().toLowerCase()
+        ? leftType.getSimpleName().toLowerCase() + "id"
         : leftColumn;
     this.rightColumn = (rightColumn == null)
-        ? rightType.getSimpleName().toLowerCase()
+        ? rightType.getSimpleName().toLowerCase() + "id"
         : rightColumn;
     this.relation = (relation == null)
         ? new ManyToManyLongRelation(true)

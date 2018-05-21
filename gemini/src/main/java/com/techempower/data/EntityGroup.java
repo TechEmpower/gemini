@@ -110,29 +110,7 @@ public class EntityGroup<T extends Identifiable>
           return Long.compare(o1.getId(), o2.getId());
         }
       };
-      
-  /**
-   * Compare entities that implement Comparable using their built-in compareTo
-   * method.  This should only be needed until Java 1.8 gives us 
-   * Comparator.naturalOrder().
-   */
-  enum NaturalOrderComparator implements Comparator<Comparable<Object>> {
-        INSTANCE;
-   
-        @Override
-        public int compare(Comparable<Object> c1, Comparable<Object> c2) {
-          return c1.compareTo(c2);
-        }
-      }
-  
-  /**
-   * Gets a natural-ordering Comparator implementation for a Comparable.
-   */
-  @SuppressWarnings("unchecked")
-  public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() {
-      return (Comparator<T>) EntityGroup.NaturalOrderComparator.INSTANCE;
-  } 
-  
+
   /**
    * Gets a suitable default Comparator for the group, using the natural order
    * if the type is Comparable, and the IDs if not.
@@ -142,7 +120,7 @@ public class EntityGroup<T extends Identifiable>
   {
     if (Comparable.class.isAssignableFrom(type))
     {
-      return (Comparator<C>)naturalOrder();
+        return (Comparator<C>)Comparator.naturalOrder();
     }
     else
     {

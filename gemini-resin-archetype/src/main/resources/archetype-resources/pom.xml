@@ -16,13 +16,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>techempower</id>
-            <url>https://maven.techempower.com/releases</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.techempower</groupId>
