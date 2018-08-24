@@ -103,14 +103,17 @@ public class   DispatchSegment<C extends Context>
     this.baseUri = uri;
     
     // Fan out the notification to the child segments.
-    for (Map.Entry<String, DispatchSegment.MappedHandler<C>> entry
-        : handlers.entrySet())
+    if (handlers != null)
     {
-      final MappedHandler<C> mh = entry.getValue();
-      if (mh.handler instanceof UriAware)
+      for (Map.Entry<String, DispatchSegment.MappedHandler<C>> entry
+          : handlers.entrySet())
       {
-        final UriAware uriAware = (UriAware)mh.handler;
-        uriAware.setBaseUri(baseUri + "/" + entry.getKey());
+        final MappedHandler<C> mh = entry.getValue();
+        if (mh.handler instanceof UriAware)
+        {
+          final UriAware uriAware = (UriAware)mh.handler;
+          uriAware.setBaseUri(baseUri + "/" + entry.getKey());
+        }
       }
     }
     
