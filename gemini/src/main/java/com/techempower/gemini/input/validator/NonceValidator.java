@@ -58,14 +58,33 @@ public class NonceValidator
     message("Please use the form provided.");
   }
   
+  /**
+   * Constructor that assumes the element name is "nonce".
+   */
+  public NonceValidator()
+  {
+    this("nonce");
+  }
+  
   @Override
   public void process(Input input) 
   {
     final long userValue = NumberHelper.parseLong(getUserValue(input));
-    if (userValue != getNonce(input.context()))
+    if (!checkNonce(input.context(), userValue))
     {
       input.addError(getElementName(), getMessage());
     }
+  }
+  
+  /**
+   * Checks a user-provided nonce valud.
+   * 
+   * @param candidate The user-provided candidate nonce to check against the
+   *        session's valid nonce.
+   */
+  public static boolean checkNonce(Context context, long candidate)
+  {
+    return (getNonce(context) == candidate);
   }
   
   /**
