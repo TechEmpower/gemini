@@ -36,8 +36,6 @@ import java.util.concurrent.atomic.*;
 import com.techempower.*;
 import com.techempower.cache.*;
 import com.techempower.data.*;
-import com.techempower.data.jdbc.*;
-import com.techempower.gemini.data.*;
 import com.techempower.gemini.email.*;
 import com.techempower.gemini.email.inbound.*;
 import com.techempower.gemini.email.outbound.*;
@@ -513,14 +511,11 @@ public abstract class GeminiApplication
   protected abstract Dispatcher constructDispatcher();
 
   /**
-   * Construct a database ConnectorFactory reference.  Overload to return a 
-   * custom object.  The default behavior is to construct and return a 
-   * BasicConnectorFactory (which should be sufficient for most applications).
+   * Construct a database ConnectorFactory reference. E.g., BasicConnectorFactory
+   * from the gemini-jdbc package or HikariCPConnectorFactory from
+   * gemini-hikaricp.
    */
-  protected ConnectorFactory constructConnectorFactory()
-  {
-    return new BasicConnectorFactory(this, null);
-  }
+  protected abstract ConnectorFactory constructConnectorFactory();
   
   /**
    * Construct a Notifier for use by the application.  By default, a standard
