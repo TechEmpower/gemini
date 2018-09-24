@@ -34,5 +34,18 @@ package com.techempower.data;
  */
 public enum DatabaseAffinity
 {
-  MYSQL, MS_SQL_SERVER, POSTGRESQL
+  MYSQL, MS_SQL_SERVER, POSTGRESQL;
+
+  public static DatabaseAffinity getAffinityFromName(String databaseProductName)
+  {
+    switch (databaseProductName) {
+    case "PostgreSQL":
+      return DatabaseAffinity.POSTGRESQL;
+    case "Microsoft SQL Server":
+      return DatabaseAffinity.MS_SQL_SERVER;
+    case "MySQL":
+    default:
+      return DatabaseAffinity.MYSQL;
+    }
+  }
 }

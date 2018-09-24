@@ -27,6 +27,7 @@
 
 package com.techempower.data.mapping;
 
+import java.sql.*;
 import java.util.*;
 
 import com.techempower.data.*;
@@ -70,11 +71,11 @@ public class DatabaseTableMetaData
     this.columnData = null;
   }
 
-  public void loadColumnData(DatabaseConnector connector)
+  public void loadColumnData(DatabaseConnector connector) throws SQLException
   {
     if (StringHelper.isNonEmpty(this.tableName))
     {
-      this.columnData = connector.getColumnMetaDataForTable(this.tableName);
+      this.columnData = EntityGroup.getColumnMetaDataForTable(connector.getConnection(), this.tableName);
     }
   }
 

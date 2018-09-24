@@ -113,7 +113,6 @@ public class BasicConnectorFactory
   private final    AtomicLong   queryCount = new AtomicLong(0L);
   
   private boolean      enabled               = true;
-  private boolean      safeMode              = false;
   private boolean      queryCounting         = false;
   private long         queryCountFrequency   = DEFAULT_QUERY_COUNT_FREQUENCY;
   private int          maxRetries            = DEFAULT_MAX_RETRIES;
@@ -165,7 +164,6 @@ public class BasicConnectorFactory
     // Read parameters.
     final EnhancedProperties.Focus props = rawProps.focus(propertyPrefix);
     enabled             = props.getBoolean("Enabled", true);
-    safeMode            = props.getBoolean("SafeMode", false);
     queryCounting       = props.getBoolean("QueryCounting", false);
     queryCountFrequency = props.getLong("QueryCountFrequency", DEFAULT_QUERY_COUNT_FREQUENCY);
     maxRetries          = props.getInt("MaxRetries", DEFAULT_MAX_RETRIES);
@@ -229,9 +227,9 @@ public class BasicConnectorFactory
   public void determineIdentifierQuoteString()
   {
     debug("Determining identifier quote string from database.");
-    try (DatabaseConnector connector = getConnector())
+    try (ConnectionMonitor monitor = getConnectionMonitor())
     {
-      identifierQuoteString = connector.getConnection().getMetaData().getIdentifierQuoteString();
+      identifierQuoteString = monitor.getConnection().getMetaData().getIdentifierQuoteString();
     }
     catch (Exception e)
     {
@@ -355,90 +353,7 @@ public class BasicConnectorFactory
   {
     return getConnectionManager().getConnectionMonitor();
   }
-  
-  /**
-   * Gets a DatabaseConnector object for a query.  The default getConnector
-   * method assumes a read-only, forward-only result set is necessary.
-   *
-   * @param query the database query (typically, as SQL).
-   */
-  @Override
-  public DatabaseConnector getConnector(String query)
-  {
-    JdbcConnector connector = new JdbcConnector(getConnectionManager(), query);
-    connector.setSafeMode(safeMode);
 
-    count();
-
-    return connector;
-  }
-
-  /**
-   * Gets a DatabaseConnector object without initializing its query.  It
-   * is assumed, then, that the DatabaseConnector's setQuery method will
-   * be invoked later.
-   */
-  @Override
-  public DatabaseConnector getConnector()
-  {
-    JdbcConnector connector = new JdbcConnector(getConnectionManager(), "");
-    connector.setSafeMode(safeMode);
-
-    count();
-
-    return connector;
-  }
-
-  /**
-   * Gets a JdbcConnector object and ensures that the JdbcConnector is
-   * using a new and unique JDBC Connection to the database.  No other
-   * JdbcConnector will use the Connection given to this JdbcConnector.
-   * When this JdbcConnector is closed, the unique Connection will be
-   * closed as well.  If this JdbcConnector is reused, another <i>new</i>
-   * JDBC Connection will be established for each reuse.
-   *   <p>
-   * By default, the JdbcConnector returned will be a scrolling-resultset
-   * connector unless otherwise configured after the call to this method.
-   *   <p>
-   * This method is not part of the ConnectorFactory interface because
-   * other types of Connectors may not manage database Connections in the
-   * way that JdbcConnector does.
-   */
-  public JdbcConnector getUniqueConnector(String query)
-  {
-    JdbcConnector connector = new JdbcConnector(getConnectionManager(), query);
-    connector.setForceNewConnection(true);
-    connector.setForwardOnly(false);
-    connector.setSafeMode(safeMode);
-
-    return connector;
-  }
-
-  @Override
-  public DatabaseConnector getScrollingConnector(String query)
-  {
-    JdbcConnector connector = new JdbcConnector(getConnectionManager(), query);
-    connector.setForwardOnly(false);
-    connector.setSafeMode(safeMode);
-
-    count();
-
-    return connector;
-  }
-
-  @Override
-  public DatabaseConnector getScrollingConnector()
-  {
-    JdbcConnector connector = new JdbcConnector(getConnectionManager(), "");
-    connector.setForwardOnly(false);
-    connector.setSafeMode(safeMode);
-
-    count();
-
-    return connector;
-  }
-
-  @Override
   public void setDatabaseConnectionListener(
     DatabaseConnectionListener dbConnListener)
   {

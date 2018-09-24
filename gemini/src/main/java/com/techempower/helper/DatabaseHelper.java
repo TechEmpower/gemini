@@ -27,6 +27,7 @@
 
 package com.techempower.helper;
 
+import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
@@ -188,6 +189,16 @@ public final class DatabaseHelper
   private DatabaseHelper()
   {
     // Does nothing.
+  }
+
+  public static String getString(ResultSet resultSet, String fieldName, String defaultValue) throws SQLException
+  {
+    String result = resultSet.getString(fieldName);
+    if (result != null)
+    {
+      return result;
+    }
+    return defaultValue;
   }
 
 }  // End DatabaseHelper.

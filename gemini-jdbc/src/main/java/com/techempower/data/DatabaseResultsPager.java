@@ -418,18 +418,6 @@ public class DatabaseResultsPager
   {
     return this.dbConn.getTableMetaData(tableName);
   }
-  
-  @Override
-  public Collection<DatabaseColumnMetaData> getColumnMetaDataForTable(String tableName)
-  {
-    return this.dbConn.getColumnMetaDataForTable(tableName);
-  }
-  
-  @Override
-  public Collection<DatabaseColumnMetaData> getColumnMetaDataFromResultSet()
-  {
-    return this.dbConn.getColumnMetaDataFromResultSet();
-  }
 
   @Override
   public byte[] getBytes(String fieldName)

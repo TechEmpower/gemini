@@ -50,47 +50,6 @@ public interface ConnectorFactory
    * to a connection pool (and not in fact closed).
    */
   ConnectionMonitor getConnectionMonitor() throws SQLException;
-  
-  /**
-   * Gets a DatabaseConnector object for a query.  The default getConnector
-   * method assumes a read-only, forward-only result set is necessary.
-   *
-   * @param query The database query (typically, as SQL).
-   */
-  DatabaseConnector getConnector(String query);
-
-  /**
-   * Gets a DatabaseConnector object without initializing its query.  It
-   * is assumed that the DatabaseConnector's setQuery method will be 
-   * invoked later.
-   */
-  DatabaseConnector getConnector();
-
-  /**
-   * Gets a DatabaseConnector object for a query.  This method returns a
-   * connector that uses a scrolling resultset, allowing the use of the
-   * first and getRowCount methods.
-   *
-   * @param query The database query (typically, as SQL).
-   */
-  DatabaseConnector getScrollingConnector(String query);
-
-  /**
-   * Gets a DatabaseConnector object.  This method returns a connector 
-   * that uses a scrolling resultset, allowing the use of the first 
-   * and getRowCount methods.  The connector returned by this method
-   * will not have a query set.
-   */
-  DatabaseConnector getScrollingConnector();
-
-  /**
-   * Sets the DatabaseConnectionListener to use for all DatabaseConnector
-   * objects created by this Factory.  Attaching a connection listener
-   * to the connector factory should be considered optional.  Setting the
-   * value to null is permitted, and should effectively disable listening.
-   */
-  void setDatabaseConnectionListener(
-    DatabaseConnectionListener dbConnListener);
 
   /**
    * Attempt to communicate with the database to determine the database's 

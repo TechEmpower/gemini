@@ -27,19 +27,19 @@
 
 package com.techempower.gemini;
 
-import gnu.trove.map.*;
-import gnu.trove.map.hash.*;
-
 import java.io.*;
 import java.nio.charset.*;
+import java.sql.*;
 import java.util.*;
 
-import com.techempower.data.*;
 import com.techempower.data.util.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
 import com.techempower.log.*;
 import com.techempower.util.*;
+
+import gnu.trove.map.*;
+import gnu.trove.map.hash.*;
 
 /**
  * Provides some static helper functionality for Gemini applications.
@@ -135,22 +135,19 @@ public final class GeminiHelper
 
   /**
    * Reusable data dumping method for use with a database query.
+   * @throws SQLException
    */
   public static boolean dataDump(GeminiApplication application,
       Context context, List<? extends TabularColumn> fieldAttribs, String query,
-      String exportFilename, ComponentLog log)
+      String exportFilename, ComponentLog log) throws SQLException
   {
-    try (DatabaseConnector conn = application.getConnectorFactory().getConnector(
+    try (PreparedStatement statement = application.getConnectorFactory().getConnectionMonitor().getConnection().prepareStatement(
         query))
     {
-      conn.runQuery();
-
-      // Create this special type of Iterator.
-      DatabaseConnectorIterator dbConnIter = new DatabaseConnectorIterator(
-          conn);
+      ResultSet resultSet = statement.executeQuery();
 
       // Use the method below to fulfill the rest of the operation.
-      return dataDump(application, context, fieldAttribs, dbConnIter,
+      return dataDump(application, context, fieldAttribs, resultSet,
           exportFilename, log);
     }
   }
@@ -160,10 +157,11 @@ public final class GeminiHelper
    * of Objects (assuming ObjectDumpField specifications are provided in the
    * fieldAttribs list) or a DatabaseConnectorIterator (assuming normal
    * DumpField specifications are provided int he fieldAttribs list.)
+   * @throws SQLException
    */
   public static boolean dataDump(GeminiApplication application,
       Context context, List<? extends TabularColumn> fieldAttribs,
-      Iterator<?> sourceIterator, String exportFilename, ComponentLog log)
+      ResultSet resultSet, String exportFilename, ComponentLog log) throws SQLException
   {
     prepareDump(application, context, exportFilename);
     
@@ -181,15 +179,14 @@ public final class GeminiHelper
       String toWrite = line.toString() + UtilityConstants.CRLF;
       os.write(toWrite.getBytes(), 0, toWrite.length());
 
-      while (sourceIterator.hasNext())
+      while (resultSet.next())
       {
-        Object source = sourceIterator.next();
         line = new StringList();
 
         for (TabularColumn dumpField : fieldAttribs)
         {
           String dumpString = DatabaseHelper.prepareDoubleQuote(
-              dumpField.getValue(source));
+              dumpField.getValue(resultSet));
           dumpString = StringHelper.replaceSubstrings(dumpString, "\r\n",
               "\\n");
           line.add(dumpString);

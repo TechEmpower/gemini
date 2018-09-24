@@ -27,9 +27,11 @@
 
 package com.techempower.data.jdbc;
 
+import java.io.*;
 import java.sql.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+import java.util.logging.*;
 
 import com.techempower.data.*;
 import com.techempower.helper.*;
@@ -632,9 +634,58 @@ public class JdbcConnectionProfile
     }
 
     @Override
-    public void close()
+    public void close() throws SQLException
     {
       JdbcConnectionProfile.this.release();
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException
+    {
+      throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> iface) throws SQLException
+    {
+      throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    public boolean isWrapperFor(Class<?> iface) throws SQLException
+    {
+      throw new SQLFeatureNotSupportedException();
+    }
+
+
+    @Override
+    public Connection getConnection(String username, String password) throws SQLException
+    {
+      throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    public PrintWriter getLogWriter() throws SQLException
+    {
+      throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    public void setLogWriter(PrintWriter out) throws SQLException
+    {
+      throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    public void setLoginTimeout(int seconds) throws SQLException
+    {
+      throw new SQLFeatureNotSupportedException();
+    }
+
+    @Override
+    public int getLoginTimeout() throws SQLException
+    {
+      throw new SQLFeatureNotSupportedException();
     }
   }
 
