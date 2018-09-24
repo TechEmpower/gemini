@@ -25,14 +25,13 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
 
-package com.techempower.gemini.data;
+package com.techempower.data;
 
 import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
-import com.techempower.data.*;
 import com.techempower.data.jdbc.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.notification.*;
