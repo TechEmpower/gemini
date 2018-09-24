@@ -42,6 +42,8 @@
     <module>gemini</module>
     <module>gemini-resin</module>
     <module>gemini-resin-archetype</module>
+    <module>gemini-jdbc</module>
+    <module>gemini-hikaricp</module>
   </modules>
 
   <properties>
