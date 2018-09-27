@@ -145,11 +145,6 @@ public interface GeminiApplicationInterface
   Log getApplicationLog();
   
   /**
-   * Gets the DatabaseConnectionListener reference.
-   */
-  DatabaseConnectionListener getDatabaseConnectionListener();
-  
-  /**
    * Gets a reference to the PyxisSecurity object from an Application.
    * This method should either use lazy instantiation (that is, check to
    * see if the reference is null and then create a new reference, if

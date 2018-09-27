@@ -28,29 +28,23 @@ package com.techempower.data;
 
 import java.sql.*;
 
+import javax.sql.*;
+
 /**
  * Container for raw JDBC Connection references that, when combined with Java
  * 7 try-with-resources, allows a JDBC Connection to be released to the 
  * connection pool once its use is complete (rather than being closed).
  */
 public interface ConnectionMonitor
-    extends AutoCloseable
+    extends AutoCloseable, DataSource
 {
 
-  /**
-   * Gets the JDBC connection object.  Calling code should not close the
-   * Connection (that is, do not put the connection into its own try-with-
-   * resources block.  Only put the ConnectionMonitor into a try-with-
-   * resources.
-   */
-  Connection getConnection();
-  
   /**
    * Called by try-with-resources when the Connection is done being used.  
    * This does NOT close the Connection, but rather returns it to the database
    * connection pool to be used again. 
    */
   @Override
-  void close();
-  
+  void close() throws SQLException;
+
 }

@@ -36,8 +36,6 @@ import java.util.concurrent.atomic.*;
 import com.techempower.*;
 import com.techempower.cache.*;
 import com.techempower.data.*;
-import com.techempower.data.jdbc.*;
-import com.techempower.gemini.data.*;
 import com.techempower.gemini.email.*;
 import com.techempower.gemini.email.inbound.*;
 import com.techempower.gemini.email.outbound.*;
@@ -140,7 +138,6 @@ public abstract class GeminiApplication
   private final ImageHelper                imageHelper;
   private final EntityStore                entityStore;
   private final GeminiLocaleManager        localeManager;
-  private final DatabaseConnectionListener dbConnListener;
   private final EntityUpdater              entityUpdater;
   private final GeminiMonitor              monitor;
   private final PyxisSecurity              security;
@@ -214,7 +211,6 @@ public abstract class GeminiApplication
       this.sessionManager       = constructSessionManager();
       this.simSessionManager    = constructSimSessionManager();
       this.localeManager        = constructLocaleManager();
-      this.dbConnListener       = constructDatabaseConnectionListener();
       this.entityUpdater        = constructEntityUpdater();
   
       final InitDisplayBanner banner = new InitDisplayBanner(); 
@@ -223,9 +219,6 @@ public abstract class GeminiApplication
       
       // Add the start-up notification feature.
       getFeatureManager().add(FEATURE_STARTUP_NOTE, "Send application start-up notification", true);
-      
-      // Give the ConnectorFactory a reference to the database listener.
-      connectorFactory.setDatabaseConnectionListener(dbConnListener);
 
       // Add some configurables that do not add themselves.
       configurator.addConfigurable(connectorFactory);
@@ -518,14 +511,11 @@ public abstract class GeminiApplication
   protected abstract Dispatcher constructDispatcher();
 
   /**
-   * Construct a database ConnectorFactory reference.  Overload to return a 
-   * custom object.  The default behavior is to construct and return a 
-   * BasicConnectorFactory (which should be sufficient for most applications).
+   * Construct a database ConnectorFactory reference. E.g., BasicConnectorFactory
+   * from the gemini-jdbc package or HikariCPConnectorFactory from
+   * gemini-hikaricp.
    */
-  protected ConnectorFactory constructConnectorFactory()
-  {
-    return new BasicConnectorFactory(this, null);
-  }
+  protected abstract ConnectorFactory constructConnectorFactory();
   
   /**
    * Construct a Notifier for use by the application.  By default, a standard
@@ -658,23 +648,6 @@ public abstract class GeminiApplication
    * Constructs a GeminiMonitor reference.
    */
   protected abstract GeminiMonitor constructMonitor();
-  
-  /**
-   * Construct a DatabaseConnectionListener.  If this returns non-null,
-   * this listener object will be provided to the ConnectorFactory instance
-   * upon its creation.  By default, a list of two listeners is provided:
-   * 
-   * <ul>
-   * <li>A BasicConnectorListener.</li>
-   * <li>And the GeminiMonitor's listener.</li>
-   * </ul>
-   */
-  protected DatabaseConnectionListener constructDatabaseConnectionListener()
-  {
-    return new DatabaseConnectionListenerList(
-        new BasicConnectorListener(this),
-        getMonitor().getListener());
-  }
 
   /**
    * Construct an ImageHelper. Returns a JvnImageHelper by default but can
@@ -945,15 +918,6 @@ public abstract class GeminiApplication
   public String getAdministratorEmail()
   {
     return administratorEmail;
-  }
-  
-  /**
-   * Gets the DatabaseConnectionListener reference.
-   */
-  @Override
-  public DatabaseConnectionListener getDatabaseConnectionListener()
-  {
-    return dbConnListener;
   }
 
   /**

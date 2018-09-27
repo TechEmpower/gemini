@@ -1820,10 +1820,10 @@ public class EntityGroup<T extends Identifiable>
    */
   private void bindToDatabase(ResultSet resultSet)
   {
-    try (DatabaseConnector connector = this.cf.getConnector())
+    try (ConnectionMonitor monitor = this.cf.getConnectionMonitor())
     {
       // Query for the meta data of the DataEntity's table.
-      Collection<DatabaseColumnMetaData> metaData = connector.getColumnMetaDataForTable(table);
+      Collection<DatabaseColumnMetaData> metaData = EntityGroup.getColumnMetaDataForTable(monitor.getConnection(), table);
       
       // If the table is not found, but we have a ResultSet, attempt to
       // bind using the result set.  This can be useful when Entities are
@@ -1890,6 +1890,10 @@ public class EntityGroup<T extends Identifiable>
       final DataFieldToMethodMap[] gets = new DataFieldToMethodMap[getMethodList.size()];
       getMethodList.toArray(gets);
       this.getMethods = gets;
+    }
+    catch (SQLException e)
+    {
+      throw new EntityException("Unable to bind " + this.name() + " to result set.", e);
     }
   }
 
@@ -2013,6 +2017,58 @@ public class EntityGroup<T extends Identifiable>
   //
   // Static methods.
   //
+
+  public static Collection<DatabaseColumnMetaData> getColumnMetaDataForTable(Connection connection, String tableName)
+  {
+    if (connection != null)
+    {
+      try
+      {
+        // Get the meta data from the database
+        DatabaseMetaData metaData = connection.getMetaData();
+
+        // If no meta data is available then return null
+        if (metaData == null)
+        {
+          return null;
+        }
+
+        // Build the final meta objects
+        Collection<DatabaseColumnMetaData> columns = new ArrayList<>();
+
+        // Sometimes a table name is escaped with backquotes, but those
+        // break this call to getColumns.
+
+        ResultSet resultSet = metaData.getColumns(null, null, StringHelper.replaceSubstrings(tableName, "`", ""), "%");
+
+        while (resultSet.next())
+        {
+          DatabaseColumnMetaData columnInfo = new DatabaseColumnMetaData(DatabaseHelper.getString(resultSet, "COLUMN_NAME", ""), resultSet.getInt("DATA_TYPE"));
+
+          columnInfo.setCatalogName(DatabaseHelper.getString(resultSet, "TABLE_CAT", ""));
+          columnInfo.setSchemaName(DatabaseHelper.getString(resultSet, "TABLE_SCHEM", ""));
+          columnInfo.setTableName(DatabaseHelper.getString(resultSet, "TABLE_NAME", ""));
+          columnInfo.setColumnSize(resultSet.getInt("COLUMN_SIZE"));
+          columnInfo.setDecimalDigits(resultSet.getInt("DECIMAL_DIGITS"));
+          columnInfo.setRadix(resultSet.getInt("NUM_PREC_RADIX"));
+          columnInfo.setNullable(StringHelper.equalsIgnoreCase(DatabaseHelper.getString(resultSet, "IS_NULLABLE", ""), "yes"));
+          columnInfo.setOrdinalPosition(resultSet.getInt("ORDINAL_POSITION"));
+
+          columns.add(columnInfo);
+        }
+
+        return columns;
+      }
+      catch (SQLException e)
+      {
+        throw new EntityException("Failed to get meta data for columns of table '" + tableName + "'.", e);
+      }
+    }
+    else
+    {
+      throw new EntityException("No valid connection available, aborting query.");
+    }
+  }
 
   /**
    * Creates a new {@link Builder}, which is used to construct an

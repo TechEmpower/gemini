@@ -26,6 +26,8 @@
  *******************************************************************************/
 package com.techempower.gemini.lifecycle;
 
+import java.sql.*;
+
 import com.techempower.data.*;
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
@@ -69,14 +71,13 @@ public class InitDatabaseConnectionTest
       log.log("Testing database connectivity.");
       log.log("Running test query: " + testQuery);
       try (
-          DatabaseConnector dbConn = cf.getConnector(testQuery)
+          PreparedStatement statement = cf.getConnectionMonitor().getConnection().prepareStatement(testQuery)
           )
       {
-        dbConn.setForceNewConnection(true);
-        dbConn.runQuery();
-        if (dbConn.more())
+        ResultSet resultSet = statement.executeQuery();
+        if (resultSet.next())
         {
-          final String returnValue = dbConn.getField(testColumn, "");
+          final String returnValue = DatabaseHelper.getString(resultSet, testColumn, "");
           if (testValue.equals(returnValue))
           {
             log.log("Successfully communicated with database.");

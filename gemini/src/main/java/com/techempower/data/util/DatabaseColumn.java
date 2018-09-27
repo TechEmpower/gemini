@@ -27,9 +27,9 @@
 
 package com.techempower.data.util;
 
-import gnu.trove.map.*;
+import java.sql.*;
 
-import com.techempower.data.*;
+import gnu.trove.map.*;
 
 /**
  * An implementation of TabularColumn that extracts field values from a
@@ -102,65 +102,73 @@ public class DatabaseColumn
   @SuppressWarnings("unchecked")
   public String getValue(Object source)
   {
-    // This particular class only can get values from DatabaseConnectors.    
-    if (source instanceof DatabaseConnector)
+    try
     {
-      String dbValue;
-      DatabaseConnector conn = (DatabaseConnector)source;
-      
-      // If we've been given a set of Strings that are mapped to database
-      // integers, let's grab the integer and use the mapped String.
-      if (labelFields != null)
+      // This particular class only can get values from ResultSets.
+      if (source instanceof ResultSet)
       {
-        if (labelFields instanceof TIntObjectMap)
+        String dbValue;
+        ResultSet conn = (ResultSet)source;
+
+        // If we've been given a set of Strings that are mapped to database
+        // integers, let's grab the integer and use the mapped String.
+        if (labelFields != null)
         {
-          final int dbInt = conn.getInt(dbFieldName);
-          TIntObjectMap<String> labelFieldsMap = (TIntObjectMap<String>)labelFields;
-          dbValue = labelFieldsMap.get(dbInt);
-          if (dbValue == null)
+          if (labelFields instanceof TIntObjectMap)
           {
-            dbValue = defaultValue;
+            final int dbInt = conn.getInt(dbFieldName);
+            TIntObjectMap<String> labelFieldsMap = (TIntObjectMap<String>)labelFields;
+            dbValue = labelFieldsMap.get(dbInt);
+            if (dbValue == null)
+            {
+              dbValue = defaultValue;
+            }
           }
-        }
-        else if (labelFields instanceof TLongObjectMap)
-        {
-          final long dbLong = conn.getLong(dbFieldName);
-          TLongObjectMap<String> labelFieldsMap = (TLongObjectMap<String>)labelFields;
-          dbValue = labelFieldsMap.get(dbLong);
-          if (dbValue == null)
+          else if (labelFields instanceof TLongObjectMap)
           {
-            dbValue = defaultValue;
-          }
-        }
-        else
-        {
-          final int dbInt = conn.getInt(dbFieldName);
-          String[] labelFieldsString = (String[])labelFields;
-          if ( (dbInt >= 0)
-            && (dbInt < labelFieldsString.length)
-            )
-          {
-            dbValue = labelFieldsString[dbInt];
+            final long dbLong = conn.getLong(dbFieldName);
+            TLongObjectMap<String> labelFieldsMap = (TLongObjectMap<String>)labelFields;
+            dbValue = labelFieldsMap.get(dbLong);
+            if (dbValue == null)
+            {
+              dbValue = defaultValue;
+            }
           }
           else
           {
+            final int dbInt = conn.getInt(dbFieldName);
+            String[] labelFieldsString = (String[])labelFields;
+            if ( (dbInt >= 0)
+              && (dbInt < labelFieldsString.length)
+              )
+            {
+              dbValue = labelFieldsString[dbInt];
+            }
+            else
+            {
+              dbValue = defaultValue;
+            }
+          }
+        }
+        // Otherwise, get the value from the database directly.
+        else
+        {
+          dbValue = conn.getString(dbFieldName);
+          if (dbValue == null)
+          {
             dbValue = defaultValue;
           }
         }
+
+        return dbValue;
       }
-      // Otherwise, get the value from the database directly.
-      else
-      {
-        dbValue = conn.getField(dbFieldName, defaultValue);
-      }
-      
-      return dbValue;
     }
-    else
+    catch (SQLException exc)
     {
-      // If the source is not a DatabaseConnector, return the default value.
-      return defaultValue;
+      // No need to log, use the defaultValue.
     }
+    // If the source is not a Connection or there was a SQLException, return the default value.
+    return defaultValue;
   }
 
   /**

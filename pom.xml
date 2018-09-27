@@ -42,6 +42,8 @@
     <module>gemini</module>
     <module>gemini-resin</module>
     <module>gemini-resin-archetype</module>
+    <module>gemini-jdbc</module>
+    <module>gemini-hikaricp</module>
   </modules>
 
   <properties>
@@ -73,6 +75,8 @@
     <trove4j.version>3.0.3</trove4j.version>
     <jsonwebtoken.version>0.9.0</jsonwebtoken.version>
     <jms.version>2.0.1</jms.version>
+    <hikaricp.version>3.1.0</hikaricp.version>
+    <slf4j.version>1.7.25</slf4j.version>
   </properties>
 
   <scm>
@@ -126,6 +130,16 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>gemini-resin-archetype</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>gemini-jdbc</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>gemini-hikaricp</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -239,6 +253,17 @@
         <artifactId>javax.jms-api</artifactId>
         <version>${jms.version}</version>
       </dependency>
+      <dependency>
+        <groupId>com.zaxxer</groupId>
+        <artifactId>HikariCP</artifactId>
+        <version>${hikaricp.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 

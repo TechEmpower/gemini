@@ -1,5 +1,7 @@
 package com.techempower;
 
+import com.techempower.data.*;
+import com.techempower.data.jdbc.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.exceptionhandler.*;
 import com.techempower.gemini.path.*;
@@ -120,5 +122,13 @@ public class Application
     return new AppEmailTemplater(this);
   }
 
+  @Override
+  protected ConnectorFactory constructConnectorFactory()
+  {
+    return new BasicConnectorFactory(this, null);
+    // Alternatively, HikariCP can be used if gemini-hikaricp is added as a
+    // depenency in pom.xml.
+    //return new HikariCPConnectorFactory(this, null);
+  }
 }
 

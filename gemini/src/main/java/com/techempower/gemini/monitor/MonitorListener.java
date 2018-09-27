@@ -27,20 +27,12 @@
 
 package com.techempower.gemini.monitor;
 
-import java.sql.*;
-
-import com.techempower.data.*;
-import com.techempower.data.jdbc.*;
 import com.techempower.gemini.*;
 import com.techempower.log.*;
-import com.techempower.util.*;
 
 /**
  * Listens to database and Dispatcher events for the Gemini application-
- * monitoring functionality.  For database monitoring, this class sends "do
- * nothing" signals in response to exception notifications since this is 
- * a passive listener.  Should be used with a DatabaseConnectionListenerList
- * so that an existing listener can be used as well.
+ * monitoring functionality.
  *   <p>
  * To be clear: the MonitorListener is a component used by the GeminiMonitor
  * to listen to events occurring within the web application.  This is 
@@ -50,8 +42,7 @@ import com.techempower.util.*;
  * @see GeminiMonitorListener
  */
 public class MonitorListener 
-  implements DatabaseConnectionListener,
-             DispatchListener,
+  implements DispatchListener,
              RequestListener
 {
 
@@ -65,8 +56,8 @@ public class MonitorListener
   // Member variables.
   //
   
-  private final GeminiMonitor monitor;
-  private final ComponentLog  log;
+  protected final GeminiMonitor monitor;
+  protected final ComponentLog  log;
   
   //
   // Member methods.
@@ -79,72 +70,6 @@ public class MonitorListener
   {
     this.monitor = monitor;
     this.log = monitor.getApplication().getLog(COMPONENT_CODE);
-  }
-  
-  //
-  // DatabaseConnectionListener interface.
-  //
-  
-  @Override
-  public int exceptionInExecuteBatch(SQLException exc, JdbcConnector conn)
-  {
-    if (monitor.isEnabled())
-    {
-      MonitorSample.get().queryException();
-    }
-    return INSTRUCT_DO_NOTHING;
-  }
-
-  @Override
-  public int exceptionInRunQuery(SQLException exc, JdbcConnector conn)
-  {
-    if (monitor.isEnabled())
-    {
-      MonitorSample.get().queryException();
-    }
-    return INSTRUCT_DO_NOTHING;
-  }
-
-  @Override
-  public int exceptionInRunUpdateQuery(SQLException exc, JdbcConnector conn)
-  {
-    if (monitor.isEnabled())
-    {
-      MonitorSample.get().queryException();
-    }
-    return INSTRUCT_DO_NOTHING;
-  }
-
-  @Override
-  public void queryStarting()
-  {
-    if (monitor.isEnabled())
-    {
-      // Notify the performance monitor sample.
-      MonitorSample.get().queryStarting();
-  
-      // Notify the health monitor.
-      monitor.queryStarting();
-    }
-  }
-
-  @Override
-  public void queryCompleting()
-  {
-    if (monitor.isEnabled())
-    {
-      // Notify the performance monitor sample.
-      MonitorSample.get().queryCompleting();
-      
-      // Notify the health monitor.
-      monitor.queryCompleting();
-    }
-  }
-
-  @Override
-  public void configure(EnhancedProperties props)
-  {
-    // Does nothing.
   }
 
   //

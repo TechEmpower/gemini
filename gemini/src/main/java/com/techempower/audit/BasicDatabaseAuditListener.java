@@ -27,11 +27,11 @@
 
 package com.techempower.audit;
 
+import java.sql.*;
 import java.util.*;
 
 import com.techempower.*;
 import com.techempower.data.*;
-import com.techempower.data.jdbc.*;
 import com.techempower.helper.*;
 import com.techempower.log.*;
 import com.techempower.util.*;
@@ -156,14 +156,16 @@ public class BasicDatabaseAuditListener
     String query = "INSERT INTO " + auditTable
       + " (" + fields + ") VALUES (" + values + ");";
 
-    try (DatabaseConnector dbConn = connFactory.getConnector())
+    try (ConnectionMonitor monitor = this.connFactory.getConnectionMonitor())
     {
-      dbConn.setQuery(query);
-      dbConn.runUpdateQuery(true);
+      try (PreparedStatement statement = monitor.getConnection().prepareStatement(query))
+      {
+        statement.executeUpdate();
+      }
     }
-    catch (JdbcConnectorError jdbcerror)
+    catch (SQLException exc)
     {
-      log.log("Unable to persist audit.", jdbcerror);
+      log.log("Unable to persist audit.", exc);
     }
   }
 

@@ -389,23 +389,7 @@ public interface DatabaseConnector
    *         or null if no meta data could be found
    */
   DatabaseTableMetaData getTableMetaData(String tableName);
-  
-  /**
-   * Gets the meta data for all columns for the given table if available
-   * 
-   * @return A Collection containing a DatabaseColumnMetaData object for each column
-   *         in the table or null if no meta data could be found
-   */
-  Collection<DatabaseColumnMetaData> getColumnMetaDataForTable(String tableName);
-  
-  /**
-   * Gets the meta data for all columns of the current result set if available
-   * 
-   * @return A Collection containing a DatabaseColumnMetaData object for each column
-   *         in the result set or null if no meta data could be found
-   */
-  Collection<DatabaseColumnMetaData> getColumnMetaDataFromResultSet();
-  
+
   /**
    * Reports whether the last column read had a value of SQL NULL. Note that you 
    * must first call one of the getter methods on a column to try to read its 
