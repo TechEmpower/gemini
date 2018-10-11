@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.*;
 import com.techempower.*;
 import com.techempower.cache.*;
 import com.techempower.data.*;
+import com.techempower.gemini.data.*;
 import com.techempower.gemini.email.*;
 import com.techempower.gemini.email.inbound.*;
 import com.techempower.gemini.email.outbound.*;
@@ -132,6 +133,7 @@ public abstract class GeminiApplication
   private final SimSessionManager          simSessionManager;
   private final Dispatcher                 dispatcher;
   private final ConnectorFactory           connectorFactory;
+  private final DatabaseMigrator           databaseMigrator;
   private final EmailServicer              emailServicer;
   private final EmailTemplater             emailTemplater;
   private final EmailTransport             emailTransport;
@@ -197,6 +199,7 @@ public abstract class GeminiApplication
       this.standardJsw          = constructJavaScriptWriter();
       this.featureManager       = constructFeatureManager();
       this.connectorFactory     = constructConnectorFactory();
+      this.databaseMigrator     = constructDatabaseMigrator();
       this.notifier             = constructNotifier();
       this.monitor              = constructMonitor();
       this.infrastructure       = constructInfrastructure();
@@ -516,7 +519,25 @@ public abstract class GeminiApplication
    * gemini-hikaricp.
    */
   protected abstract ConnectorFactory constructConnectorFactory();
-  
+
+  /**
+   * Get a reference to the DatabaseMigrator implementation.
+   */
+  public DatabaseMigrator getDatabaseMigrator()
+  {
+    return databaseMigrator;
+  }
+
+  /**
+   * Construct a DatabaseMigrator to use in the InitDatabaseMigrations
+   * initialization task. By default Flyway is used. Overload to provide another
+   * implementation.
+   */
+  protected DatabaseMigrator constructDatabaseMigrator()
+  {
+    return new FlywayMigrator(this);
+  }
+
   /**
    * Construct a Notifier for use by the application.  By default, a standard
    * Notifier is constructed with an EmailNotificationListener attached.  
@@ -1148,6 +1169,7 @@ public abstract class GeminiApplication
       addInitializationTask(new InitPrepareForSoftKill());
       addInitializationTask(new InitConfigurationCheck());    
       addInitializationTask(new InitDatabaseConnectionTest(app));
+      addInitializationTask(new InitDatabaseMigrations(app));
       addInitializationTask(new InitEntityStore());
       addInitializationTask(register);
       addInitializationTask(new InitStartupNotification());
