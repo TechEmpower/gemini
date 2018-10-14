@@ -35,7 +35,7 @@
       <filter-mapping url-pattern='*' filter-name="gzip" />
     </web-app-default>
 
-    <resin:import path="${RESIN_HOME}/conf/app-default.xml" />
+    <resin:import path="${resin.home}/conf/app-default.xml" />
     <log name="" level="config" path="stdout:" timestamp="[%H:%M:%S.%s] " />
 
     <server id="">
@@ -54,7 +54,8 @@
     </server>
 
     <host id="">
-      <web-app id="/" root-directory="src/main/webapp"></web-app>
+      <web-app id="/" root-directory="src/main/webapp">
+      </web-app>
     </host>
     
   </cluster>
