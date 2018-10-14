@@ -30,9 +30,11 @@ package com.techempower.gemini.pyxis;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.sun.mail.handlers.*;
 import com.techempower.cache.*;
 import com.techempower.data.*;
 import com.techempower.gemini.*;
+import com.techempower.gemini.messaging.*;
 import com.techempower.gemini.pyxis.authorization.*;
 import com.techempower.gemini.pyxis.crypto.*;
 import com.techempower.gemini.pyxis.listener.*;
@@ -435,6 +437,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
       }
       else
       {
+        context.messages().put("You need to be logged in to perform this action. Please login and try again.", MessageType.ERROR);
         // Otherwise, compose a redirect that embeds the current URI as a 
         // request parameter.
         context.redirect(redirectUrl + (redirectWarranted 

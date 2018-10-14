@@ -505,6 +505,8 @@ public abstract class BasicPathHandler<C extends Context>
         + delivery().size());
     delivery().copyTo(response);
     response.put(GeminiConstants.GEMINI_ERROR, errorMessage);
+    response.put(GeminiConstants.GEMINI_ERROR_CODE, httpStatusCode);
+    response.put(GeminiConstants.GEMINI_ERROR_NAME, errorMessage);
     
     context().setStatus(httpStatusCode);
     defaultTemplate("/common/error");

@@ -5,24 +5,21 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="shortcut icon" href="{{app.path.img}}icon.png">
     {{#app.env.testOrProd}}
-      <link rel="stylesheet" type="text/css" href="{{app.path.css}}app.css" />
+    <link rel="stylesheet" type="text/css" href="{{app.path.css}}app.css" />
     {{/app.env.testOrProd}}
     {{#app.env.dev}}
-      <link rel="stylesheet" type="text/less" href="{{app.path.css}}app.less" />
+    <link rel="stylesheet" type="text/less" href="{{app.path.css}}app.less" />
     {{/app.env.dev}}
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300,700,800,300italic,400italic,700italic,800italic" type="text/css" />
 
     {{$css}}{{/css}}
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     {{#app.env.testOrProd}}
-      <script src="{{app.path.js}}head.min.js"></script>
+    <script src="{{app.path.js}}head.min.js"></script>
     {{/app.env.testOrProd}}
     {{#app.env.dev}}
-      <!-- Add javascript that is required prior to page load here -->
-      <!-- IF YOU ADD ANYMORE JS FILES ABOVE THIS LINE, PLEASE ADD IT
-      TO THE concatjs SECTION OF BUILD.XML -->
-      <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.7.3/less.min.js"></script>
+    {{! Add JavaScript that is required prior to page load here. }}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.7.3/less.min.js"></script>
     {{/app.env.dev}}
 </head>
 <body>
@@ -49,12 +46,10 @@
         </div>
     </div>
     {{#app.env.testOrProd}}
-        <script src="{{app.path.js}}footer.min.js"></script>
+    <script src="{{app.path.js}}footer.min.js"></script>
     {{/app.env.testOrProd}}
     {{#app.env.dev}}
-        <script src="{{app.path.js}}app.js"></script>
-        <!-- IF YOU ADD ANY JS HERE, PLEASE ADD IT INTO build.xml INTO THE
-             footer.min.js SECTION -->
+    <script src="{{app.path.js}}app.js"></script>
     {{/app.env.dev}}
 
     {{$js}}{{/js}}

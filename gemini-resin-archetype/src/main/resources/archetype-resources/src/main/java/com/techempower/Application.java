@@ -101,6 +101,8 @@ public class Application
     // Handlers
     config
       .setDefault(new HomeHandler(this))
+      .add("user", new UserHandler(this))
+      .add("admin", new AdminHandler(this))
       .add("login", new LoginHandler<Context>(this))
       .add("logout", new LogoutHandler<Context>(this))
       .add("password-reset", new PasswordResetHandler<>(this));
@@ -126,8 +128,7 @@ public class Application
   protected ConnectorFactory constructConnectorFactory()
   {
     return new BasicConnectorFactory(this, null);
-    // Alternatively, HikariCP can be used if gemini-hikaricp is added as a
-    // depenency in pom.xml.
+    // To use HikariCP, also add gemini-hikaricp to the pom.xml.
     //return new HikariCPConnectorFactory(this, null);
   }
 }
