@@ -30,7 +30,6 @@ package com.techempower.gemini.pyxis;
 import java.util.*;
 import java.util.concurrent.*;
 
-import com.sun.mail.handlers.*;
 import com.techempower.cache.*;
 import com.techempower.data.*;
 import com.techempower.gemini.*;
