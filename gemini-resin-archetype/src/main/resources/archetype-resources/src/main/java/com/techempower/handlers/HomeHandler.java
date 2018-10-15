@@ -12,7 +12,6 @@ public class HomeHandler extends MethodSegmentHandler<Context>
     super(app);
   }
 
-  //@Path
   @PathRoot
   @Get
   public boolean home()
@@ -20,7 +19,6 @@ public class HomeHandler extends MethodSegmentHandler<Context>
     return mustache("home");
   }
 
-  //@Path("example")
   @PathSegment("example")
   @Get
   public boolean example()
@@ -31,7 +29,6 @@ public class HomeHandler extends MethodSegmentHandler<Context>
   @PathDefault
   public boolean notFound()
   {
-    //mustache("common/error");
     return notFound("Not found");
   }
 }
