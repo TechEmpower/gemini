@@ -51,17 +51,16 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <im4java.version>1.4.0</im4java.version>
-    <jackson.version>2.9.5</jackson.version>
+    <jackson.version>2.9.7</jackson.version>
     <java-image-scaling.version>0.8.6</java-image-scaling.version>
     <javaee.version>8.0</javaee.version>
-    <javassist.version>3.22.0-GA</javassist.version>
+    <javassist.version>3.24.0-GA</javassist.version>
     <javax-activation.version>1.1.1</javax-activation.version>
-    <javax-mail.version>1.6.1</javax-mail.version>
+    <javax-mail.version>1.6.2</javax-mail.version>
     <jbcrypt.version>0.4</jbcrypt.version>
-    <jsp.version>2.2</jsp.version>
+    <jsp.version>2.2.1-b03</jsp.version>
     <junit.version>4.12</junit.version>
-    <kryo.version>4.0.2</kryo.version>
-    <lucene.version>2.9.4</lucene.version>
+    <kryo.version>5.0.0-RC1</kryo.version>
     <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
     <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -74,11 +73,11 @@
     <reflections.version>0.9.11</reflections.version>
     <resin.version>4.0.46</resin.version>
     <trove4j.version>3.0.3</trove4j.version>
-    <jsonwebtoken.version>0.9.0</jsonwebtoken.version>
+    <jsonwebtoken.version>0.9.1</jsonwebtoken.version>
     <jms.version>2.0.1</jms.version>
-    <hikaricp.version>3.1.0</hikaricp.version>
-    <slf4j.version>1.7.25</slf4j.version>
-    <flyway.version>5.1.4</flyway.version>
+    <hikaricp.version>3.2.0</hikaricp.version>
+    <slf4j.version>1.8.0-beta2</slf4j.version>
+    <flyway.version>5.2.1</flyway.version>
   </properties>
 
   <scm>
@@ -214,26 +213,6 @@
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-core</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-analyzers</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-highlighter</artifactId>
-        <version>${lucene.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.lucene</groupId>
-        <artifactId>lucene-snowball</artifactId>
-        <version>${lucene.version}</version>
       </dependency>
       <dependency>
         <groupId>com.caucho</groupId>

@@ -33,6 +33,7 @@ import javax.sql.*;
 
 import org.flywaydb.core.*;
 import org.flywaydb.core.api.*;
+import org.flywaydb.core.api.configuration.*;
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
@@ -44,7 +45,8 @@ import com.techempower.util.*;
  */
 public class FlywayMigrator implements DatabaseMigrator
 {
-  private Flyway flyway;
+
+  private FluentConfiguration flywayConfig;
   private ComponentLog log;
   private GeminiApplication app;
 
@@ -61,9 +63,6 @@ public class FlywayMigrator implements DatabaseMigrator
   @Override
   public void configure(EnhancedProperties props)
   {
-    // Create the Flyway instance
-    flyway = new Flyway();
-
     // Build a map of Flyway-specific configuration
     final String confPrefix = "flyway.";
     Map<String, String> conf = new HashMap<>();
@@ -81,14 +80,13 @@ public class FlywayMigrator implements DatabaseMigrator
       log.log("Flyway configuration customization: " + e.getKey() + ": " + e.getValue());
     }
 
-    // Default outOfOrder to true. This will usually be wanted.
-    flyway.setOutOfOrder(true);
-
-    // Apply configuration
-    flyway.configure(conf);
+    // Create the Flyway configuration
+    flywayConfig = Flyway.configure()
+        .outOfOrder(true)
+        .configuration(conf);
 
     // Log migration locations being used
-    for (Location l : flyway.getLocations())
+    for (Location l : flywayConfig.getLocations())
     {
       log.log("Flyway location: " + l);
     }
@@ -97,10 +95,9 @@ public class FlywayMigrator implements DatabaseMigrator
   @Override
   public int migrate(DataSource dataSource)
   {
-    if (flyway != null)
+    if (flywayConfig != null)
     {
-      flyway.setDataSource(dataSource);
-      return flyway.migrate();
+      return flywayConfig.dataSource(dataSource).load().migrate();
     }
     log.log("Flyway not initialized. Skipping database migrations.");
     return 0;
