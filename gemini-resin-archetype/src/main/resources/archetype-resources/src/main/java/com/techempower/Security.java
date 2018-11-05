@@ -2,9 +2,7 @@ package com.techempower;
 
 import com.techempower.cache.*;
 import com.techempower.entities.*;
-import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
-import com.techempower.gemini.pyxis.authorization.*;
 
 /**
  * Security provides Pyxis-based security services for the
@@ -48,19 +46,6 @@ public class Security extends BasicSecurity<User,Group>
     @Override
     public Group getUserGroup(long identity) {
         return this.store.get(Group.class, identity);
-    }
-    
-    @Override
-    public Rejector getForceLoginRejector()
-    {
-      return new Rejector()
-      {
-        @Override
-        public void reject(Context context, PyxisUser user)
-        {
-          context.setStatus(401);
-        }
-      };
     }
 
 }

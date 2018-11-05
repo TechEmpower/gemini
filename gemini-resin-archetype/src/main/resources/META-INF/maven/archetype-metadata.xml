@@ -11,6 +11,21 @@
       <defaultValue>app.properties</defaultValue>
     </requiredProperty>
     <requiredProperty key="machineName"></requiredProperty>
+    <requiredProperty key="databaseHost">
+      <defaultValue>localhost</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="databaseName">
+      <defaultValue>gemini_dev</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="databaseUsername">
+      <defaultValue>gemini</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="databasePassword">
+      <defaultValue>password</defaultValue>
+    </requiredProperty>
+    <requiredProperty key="databasePort">
+      <defaultValue>5432</defaultValue>
+    </requiredProperty>
   </requiredProperties>
 
   <fileSets>
@@ -24,13 +39,16 @@
       <directory></directory>
       <includes>
         <exclude>pom.xml</exclude>
-        <include>database/**/*</include>
+        <include>README.md</include>
+        <include>db/migration/**/*</include>
         <include>src/main/webapp/WEB-INF/configuration/**/*</include>
       </includes>
     </fileSet>
     <fileSet filtered="false" packaged="false">
       <directory></directory>
       <includes>
+        <include>src/main/resources/**/*</include>
+        <include>src/test/resources/**/*</include>
         <include>src/main/webapp/css/**/*</include>
         <include>src/main/webapp/html/**/*</include>
         <include>src/main/webapp/images/**/*</include>
