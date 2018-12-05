@@ -247,7 +247,7 @@ public class CacheMessageManager
     log.log("Sending 'remove from cache': " + type.getSimpleName() + "/" + identifier);
 
     final CacheMessage message = new CacheMessage();
-    message.setAction(CacheMessage.ACTION_GROUP_RESET);
+    message.setAction(CacheMessage.ACTION_OBJECT_REMOVE);
     message.setGroupId(group.getGroupNumber());
     message.setObjectId(identifier);
     send(message);
