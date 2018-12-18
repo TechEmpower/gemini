@@ -786,6 +786,22 @@ public final class CollectionHelper
   }
 
   /**
+   * Converts a Collection of String objects to a simple long[] by parsing each
+   * String using NumberHelper.parseLong.
+   */
+  public static long[] toLongArrayFromStrings(Collection<String> collectionOfStrings)
+  {
+    long[] toReturn = new long[collectionOfStrings.size()];
+    int position = 0;
+    for (String s : collectionOfStrings)
+    {
+      toReturn[position++] = NumberHelper.parseLong(s);
+    }
+
+    return toReturn;
+  }
+
+  /**
    * Converts a Collection of Strings to a String array.
    */
   public static String[] toStringArray(Collection<String> collectionOfStrings)
