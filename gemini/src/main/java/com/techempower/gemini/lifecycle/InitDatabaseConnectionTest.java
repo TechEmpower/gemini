@@ -71,7 +71,8 @@ public class InitDatabaseConnectionTest
       log.log("Testing database connectivity.");
       log.log("Running test query: " + testQuery);
       try (
-          PreparedStatement statement = cf.getConnectionMonitor().getConnection().prepareStatement(testQuery)
+          Connection c = cf.getConnectionMonitor().getConnection();
+          PreparedStatement statement = c.prepareStatement(testQuery)
           )
       {
         ResultSet resultSet = statement.executeQuery();
