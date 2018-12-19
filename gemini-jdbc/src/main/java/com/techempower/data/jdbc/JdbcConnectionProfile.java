@@ -101,7 +101,7 @@ public class JdbcConnectionProfile
   /**
    * A reference to the connection.
    */
-  private volatile Connection connection;
+  private volatile ConnectionWrapper connection;
   
   /**
    * Should the Connection be closed immediately once the client releases this
@@ -152,7 +152,7 @@ public class JdbcConnectionProfile
   protected synchronized void establishDatabaseConnection()
   {
     // Close any existing connection.
-    close();
+    close(false);
 
     if (this.connection == null)
     {
@@ -179,8 +179,8 @@ public class JdbcConnectionProfile
             + attributes.getUsername() + "]", 
             LogLevel.MINIMUM);
           
-          connection = DriverManager.getConnection(connectionUrl, 
-            attributes.getUsername(), attributes.getPassword());
+          connection = new ConnectionWrapper(this, DriverManager.getConnection(connectionUrl,
+            attributes.getUsername(), attributes.getPassword()));
         }
         catch (SQLException sqlexc)
         {
@@ -206,7 +206,6 @@ public class JdbcConnectionProfile
     {
       establishDatabaseConnection();
     }
-
     return connection;
   }
   
@@ -291,7 +290,7 @@ public class JdbcConnectionProfile
             finally
             {                
               // Release the profile for use by clients.
-              release();
+              close();
             }
           }
         };
@@ -303,7 +302,7 @@ public class JdbcConnectionProfile
         catch (RejectedExecutionException rje)
         {
           log("Cannot keep alive connection: ", rje);
-          release();
+          close();
         }
       }
       else
@@ -401,7 +400,7 @@ public class JdbcConnectionProfile
    * we are called by the proper client.  This allows for "failsafe" 
    * extraneous calls to release.
    */
-  public void release()
+  public void close()
   {
     final boolean close = closeOnRelease;
 
@@ -411,7 +410,7 @@ public class JdbcConnectionProfile
     {
       if (close)
       {
-        close();
+        close(false);
       }
     }
     finally
@@ -468,7 +467,7 @@ public class JdbcConnectionProfile
       {
         if (checkConnection)
         {
-          return connection.isClosed();
+          return connection.isClosedUnderlyingConnection();
         }
         else
         {
@@ -488,14 +487,6 @@ public class JdbcConnectionProfile
     return true;
   }
 
-  /**
-   * Closes the connection.
-   */
-  protected void close()
-  {
-    close(false);
-  }
-  
   /**
    * Closes the connection.
    * 
@@ -530,9 +521,9 @@ public class JdbcConnectionProfile
    */
   private class Closer implements Runnable
   {
-    private final Connection localConnection;
+    private final ConnectionWrapper localConnection;
     
-    public Closer(Connection connection)
+    public Closer(ConnectionWrapper connection)
     {
       localConnection = connection;
     }
@@ -544,7 +535,7 @@ public class JdbcConnectionProfile
       
       try
       {
-        localConnection.close();
+        localConnection.closeUnderlyingConnection();
       }
       catch (SQLException sqlexc)
       {
@@ -636,7 +627,7 @@ public class JdbcConnectionProfile
     @Override
     public void close() throws SQLException
     {
-      JdbcConnectionProfile.this.release();
+      JdbcConnectionProfile.this.close();
     }
 
     @Override

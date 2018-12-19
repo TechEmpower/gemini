@@ -848,7 +848,7 @@ public class JdbcConnector
     // Notify the Profile that we're done using it.
     if (this.connectionProfile != null)
     {
-      this.connectionProfile.release();
+      this.connectionProfile.close();
       this.connectionProfile = null;
     }
 

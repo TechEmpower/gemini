@@ -141,7 +141,9 @@ public final class GeminiHelper
       Context context, List<? extends TabularColumn> fieldAttribs, String query,
       String exportFilename, ComponentLog log) throws SQLException
   {
-    try (PreparedStatement statement = application.getConnectorFactory().getConnectionMonitor().getConnection().prepareStatement(
+    try (
+        Connection c = application.getConnectorFactory().getConnectionMonitor().getConnection();
+        PreparedStatement statement = c.prepareStatement(
         query))
     {
       ResultSet resultSet = statement.executeQuery();
