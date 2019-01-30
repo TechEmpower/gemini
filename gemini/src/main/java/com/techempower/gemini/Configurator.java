@@ -288,6 +288,12 @@ public class Configurator
     // Create a new properties object for each provider to use.
     final EnhancedProperties props = new EnhancedProperties(application);
 
+    // Add system properties passed
+    for (Map.Entry<Object, Object> entry : System.getProperties().entrySet())
+    {
+      props.put(entry.getKey().toString(), entry.getValue().toString());
+    }
+
     // Add system environment variables with the "Environment." prefix.
     for (Map.Entry<String, String> entry : System.getenv().entrySet())
     {

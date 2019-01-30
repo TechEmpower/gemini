@@ -319,6 +319,12 @@ public class FileConfigurationProvider
       filenames = System.getProperty(GeminiConstants.CONFIGURATION_FILE);
       log.log("Using specified configuration file(s): " + filenames);
     }
+    else if (System.getenv(GeminiConstants.CONFIGURATION_FILE) != null)
+    {
+      // Use configuration file names specified in an environment variable
+      filenames = System.getenv(GeminiConstants.CONFIGURATION_FILE);
+      log.log("Using specified configuration file(s): " + filenames);
+    }
     else
     {
       // Attempt to load a machine-specific configuration file.
