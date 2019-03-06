@@ -28,6 +28,7 @@
 package com.techempower.data.mapping;
 
 import java.lang.reflect.*;
+import java.time.*;
 import java.util.*;
 
 /**
@@ -63,7 +64,11 @@ public class DataFieldToMethodMap
       FloatObject,
       Enum,
       Date,
-      Calendar
+      Calendar,
+      LocalDate,
+      LocalTime,
+      LocalDateTime,
+      OffsetDateTime
   }
   
   //
@@ -187,6 +192,22 @@ public class DataFieldToMethodMap
         else if (this.javaFieldType.isAssignableFrom(java.util.Calendar.class))
         {
           this.type = Type.Calendar;
+        }
+        else if (this.javaFieldType == LocalDate.class)
+        {
+          this.type = Type.LocalDate;
+        }
+        else if (this.javaFieldType == LocalTime.class)
+        {
+          this.type = Type.LocalTime;
+        }
+        else if (this.javaFieldType == LocalDateTime.class)
+        {
+          this.type = Type.LocalDateTime;
+        }
+        else if (this.javaFieldType == OffsetDateTime.class)
+        {
+          this.type = Type.OffsetDateTime;
         }
         // Unknown type.
         else
