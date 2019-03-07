@@ -31,6 +31,7 @@ import gnu.trove.map.hash.*;
 
 import java.lang.reflect.*;
 import java.sql.*;
+import java.time.*;
 import java.util.*;
 import java.util.Date;
 import java.util.concurrent.*;
@@ -1536,6 +1537,22 @@ public class EntityGroup<T extends Identifiable>
             value = DateHelper.getCalendarInstance(
                 ((java.util.Date)value).getTime());
           }
+          else if (fieldType == DataFieldToMethodMap.Type.LocalDate)
+          {
+            value = rs.getObject(ci, LocalDate.class);
+          }
+          else if (fieldType == DataFieldToMethodMap.Type.LocalTime)
+          {
+            value = rs.getObject(ci, LocalTime.class);
+          }
+          else if (fieldType == DataFieldToMethodMap.Type.LocalDateTime)
+          {
+            value = rs.getObject(ci, LocalDateTime.class);
+          }
+          else if (fieldType == DataFieldToMethodMap.Type.OffsetDateTime)
+          {
+            value = rs.getObject(ci, OffsetDateTime.class);
+          }
           else if (fieldType == DataFieldToMethodMap.Type.BooleanObject)
           {
             value = ci > 0 ? rs.getBoolean(ci) : rs.getBoolean(f.getFieldName());
@@ -1602,7 +1619,7 @@ public class EntityGroup<T extends Identifiable>
     // java.sql will not properly convert from java.util.Date to a TIMESTAMP
     // type.  So we force that by using the millisecond value of the Date
     // to construct a Timestamp of our own.
-    if (field.getFieldType() == Types.TIMESTAMP)
+    if (field.getFieldType() == Types.TIMESTAMP && value instanceof java.util.Date)
     {
       final java.util.Date dateValue = (java.util.Date)value;
       statement.setTimestamp(index, 
