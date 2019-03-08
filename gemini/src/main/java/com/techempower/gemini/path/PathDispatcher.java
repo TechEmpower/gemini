@@ -74,6 +74,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   private final ComponentLog                log;
   private final Map<String, PathHandler<C>> handlers;
   private final PathHandler<C>              defaultHandler;
+  private final PathHandler<C>              rootHandler;
   private final ExceptionHandler[]          exceptionHandlers;
   private final Prehandler[]                prehandlers;
   private final DispatchListener[]          listeners;
@@ -100,7 +101,6 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
         new Prehandler[configuration.prehandlers.size()]);
     this.listeners         = configuration.listeners.toArray(
         new DispatchListener[configuration.listeners.size()]);
-    
     if (configuration.defaultHandler != null)
     {
       defaultHandler = configuration.defaultHandler;
@@ -109,7 +109,9 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
     {
       defaultHandler = new FourZeroFourHandler<>();
     }
-    
+
+    rootHandler = configuration.rootHandler;
+
     if (exceptionHandlers.length == 0)
     {
       throw new IllegalArgumentException("PathDispatcher must be configured with at least one ExceptionHandler.");
@@ -203,7 +205,12 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
           segments.increaseOffset();
         }
       }
-  
+      // Use the root handler when the segment count is 0.
+      else if (rootHandler != null)
+      {
+        handler = rootHandler;
+      }
+
       // Use the default handler if nothing else was provided.
       if (handler == null)
       {
@@ -373,6 +380,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   public static class Configuration<C extends Context>
   {
     private       PathHandler<C> defaultHandler;
+    private       PathHandler<C> rootHandler;
     private final Map<String, PathHandler<C>> handlers;
     private final List<ExceptionHandler> exceptionHandlers;
     private final List<Prehandler> prehandlers;
@@ -437,6 +445,15 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
     public Configuration<C> setDefault(PathHandler<C> handler)
     {
       defaultHandler = handler;
+      return this;
+    }
+
+    /**
+     * Set the root handler.
+     */
+    public Configuration<C> setRootHandler(PathHandler<C> handler)
+    {
+      rootHandler = handler;
       return this;
     }
   }
