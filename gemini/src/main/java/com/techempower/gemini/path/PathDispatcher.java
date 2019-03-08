@@ -110,14 +110,8 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
       defaultHandler = new FourZeroFourHandler<>();
     }
 
-    if (configuration.rootHandler != null)
-    {
-      rootHandler = configuration.rootHandler;
-    }
-    else {
-      rootHandler = null;
-    }
-    
+    rootHandler = configuration.rootHandler;
+
     if (exceptionHandlers.length == 0)
     {
       throw new IllegalArgumentException("PathDispatcher must be configured with at least one ExceptionHandler.");
@@ -211,18 +205,16 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
           segments.increaseOffset();
         }
       }
+      // Use the root handler when the segment count is 0.
+      else if (rootHandler != null)
+      {
+        handler = rootHandler;
+      }
 
       // Use the default handler if nothing else was provided.
       if (handler == null)
       {
-        if (rootHandler != null)
-        {
-          handler = rootHandler;
-        }
-        else
-        {
-          handler = defaultHandler;
-        }
+        handler = defaultHandler;
       }
       
       // Send the request to all Prehandlers.
