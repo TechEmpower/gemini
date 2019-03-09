@@ -88,7 +88,7 @@
     </dependency>
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt</artifactId>
+      <artifactId>jjwt-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>javax.jms</groupId>

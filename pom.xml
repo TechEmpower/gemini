@@ -73,7 +73,7 @@
     <reflections.version>0.9.11</reflections.version>
     <resin.version>4.0.46</resin.version>
     <trove4j.version>3.0.3</trove4j.version>
-    <jsonwebtoken.version>0.9.1</jsonwebtoken.version>
+    <jsonwebtoken.version>0.10.6</jsonwebtoken.version>
     <jms.version>2.0.1</jms.version>
     <hikaricp.version>3.2.0</hikaricp.version>
     <slf4j.version>1.8.0-beta2</slf4j.version>
@@ -226,7 +226,7 @@
       </dependency>
       <dependency>
         <groupId>io.jsonwebtoken</groupId>
-        <artifactId>jjwt</artifactId>
+        <artifactId>jjwt-impl</artifactId>
         <version>${jsonwebtoken.version}</version>
       </dependency>
       <dependency>
