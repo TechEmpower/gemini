@@ -35,9 +35,7 @@ import com.techempower.collection.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.crypto.*;
 import com.techempower.helper.*;
-
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.impl.*;
 
 /**
  * JsonWebToken provides an implementation of the Json Web Token specification.
@@ -111,7 +109,7 @@ public class JsonWebToken
   {
     this.application = application;
     
-    final DefaultClaims data = (DefaultClaims)Jwts.parser()
+    final Claims data = (Claims) Jwts.parser()
         .setSigningKey(
             application.getSecurity().getSettings().getMacSigningKey())
         .parse(serialized)
@@ -389,7 +387,7 @@ public class JsonWebToken
         
     return builder
         // Sign the token
-        .signWith(SignatureAlgorithm.HS256, 
+        .signWith(SignatureAlgorithm.HS256,
             application.getSecurity().getSettings().getMacSigningKey())
         // Encode and compact
         .compact();
