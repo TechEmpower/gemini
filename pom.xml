@@ -61,15 +61,16 @@
     <jsp.version>2.2.1-b03</jsp.version>
     <junit.version>4.12</junit.version>
     <kryo.version>5.0.0-RC2</kryo.version>
-    <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
-    <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-    <maven-jar-plugin.version>2.6</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
-    <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
-    <maven-source-plugin.version>2.4</maven-source-plugin.version>
+    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+    <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
+    <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
     <mustache.version>0.9.6</mustache.version>
-    <owasp-dependency-check-plugin.version>1.4.5</owasp-dependency-check-plugin.version>
+    <owasp-dependency-check-plugin.version>4.0.2</owasp-dependency-check-plugin.version>
     <reflections.version>0.9.11</reflections.version>
     <resin.version>4.0.46</resin.version>
     <trove4j.version>3.0.3</trove4j.version>
@@ -323,9 +324,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven-javadoc-plugin.version}</version>
-          <configuration>
-            <additionalparam>-Xdoclint:none</additionalparam>
-          </configuration>
           <executions>
             <execution>
               <id>attach-javadocs</id>
@@ -354,7 +352,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.5</version>
+          <version>${maven-gpg-plugin.version}</version>
           <executions>
             <execution>
               <id>sign-artifacts</id>
@@ -387,6 +385,26 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.1</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
