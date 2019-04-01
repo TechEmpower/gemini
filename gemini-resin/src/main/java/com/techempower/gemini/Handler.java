@@ -91,12 +91,12 @@ import com.techempower.gemini.handler.*;
  * Example use with Params annotation:
  *    <p>
  *    <pre><br>
- *    @CMD(CMD_FOO)
- *    @JSP(JSP_FOO)
- *    @RequireLogin
- *    @Params({
- *      @Param(PARAM_1),
- *      @Param(name=PARAM_2, "-1")
+ *    &#064;CMD(CMD_FOO)
+ *    &#064;JSP(JSP_FOO)
+ *    &#064;RequireLogin
+ *    &#064;Params({
+ *      &#064;Param(PARAM_1),
+ *      &#064;Param(name=PARAM_2, "-1")
  *    })
  *    public boolean handleFoo(String param1, String param2)
  *    {
@@ -107,15 +107,16 @@ import com.techempower.gemini.handler.*;
  * Example using Param inline:
  *    <p>
  *    <pre><br>
- *    @CMD(CMD_FOO)
- *    @JSP(JSP_FOO)
- *    @RequireLogin
+ *    &#064;CMD(CMD_FOO)
+ *    &#064;JSP(JSP_FOO)
+ *    &#064;RequireLogin
  *    public boolean handleFoo(Dispatcher dispatcher, Context context,
- *      @Param(PARAM_1) String param1,
- *      @Param(name=PARAM_2, defaultValue="-1") String param2)
+ *      &#064;Param(PARAM_1) String param1,
+ *      &#064;Param(name=PARAM_2, defaultValue="-1") String param2)
  *    {
  *      ...
  *    }
+ *    </pre>
  *
  * @see BasicHandler A demonstration implementation
  * 

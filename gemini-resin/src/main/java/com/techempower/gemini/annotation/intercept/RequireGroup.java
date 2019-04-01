@@ -63,17 +63,17 @@ public @interface RequireGroup
   int[] anyOf() default {};
   /**
    * Specifies the path to the jsp to render in the case where the group 
-   * requirement is not met.<br/>
-   * <br/>
+   * requirement is not met.<br>
+   * <br>
    * By default, "unauthorized.jsp" (relative to the JSP Document Root) will be
    * returned.
    */
   String jsp() default "unauthorized.jsp";
   /**
    * Specifies an optional message string to be passed as a delivery to the
-   * rendered jsp.<br/>
-   * <br/>
-   * Supplying a message is tantamount to the following:<br/>
+   * rendered jsp.<br>
+   * <br>
+   * Supplying a message is tantamount to the following:<br>
    * <pre>context.putDelivery("Message", msg())</pre>
    */
   String msg() default "";

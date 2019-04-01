@@ -546,7 +546,7 @@ public final class NumberHelper
    * To address FindBugs rule FE_FLOATING_POINT_EQUALITY. Because floating
    * point calculations may involve rounding, calculated float and double
    * values may not be accurate. Instead we compare for equality within the
-   * range of: ( Math.abs(a - b) < 0.0000001d ).
+   * range of: ( Math.abs(a - b) &lt; 0.0000001d ).
    *
    * @param a value to compare
    * @param b value to compare
@@ -561,7 +561,7 @@ public final class NumberHelper
    * To address FindBugs rule FE_FLOATING_POINT_EQUALITY. Because floating
    * point calculations may involve rounding, calculated float and double
    * values may not be accurate. Instead we compare for equality within the
-   * range of: ( Math.abs(a - b) < epsilon ).
+   * range of: ( Math.abs(a - b) &lt; epsilon ).
    *
    * @param a value to compare
    * @param b value to compare

@@ -1310,7 +1310,7 @@ public final class DateHelper
    * customize the validation rules being applied to the string holding
    * the date to be validated.
    *
-   * This method returns <null> if the "date" parameter is null. If the
+   * This method returns {@code null} if the "date" parameter is null. If the
    * "dateFormatters" parameter is null, a default value will be used in
    * its place.
    *

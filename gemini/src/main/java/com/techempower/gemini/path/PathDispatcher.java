@@ -59,7 +59,7 @@ import com.techempower.log.*;
  *   configuration.setDefault(new HomeHandler(this));
  *   
  *   // Construct and return the PathDispatcher.
- *   return new PathDispatcher<>(this, configuration);
+ *   return new PathDispatcher&lt;&gt;(this, configuration);
  * </pre>
  */
 public class   PathDispatcher<A extends GeminiApplication, C extends Context>

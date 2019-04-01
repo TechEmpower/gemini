@@ -39,7 +39,7 @@ import java.util.*;
  * data structure may be immutable.  However, a subinterface named
  * MutableNamedValues extends this interface with optional mutators.
  *   <p>
- * The BasicNamedValues implementation uses a backing Map<String,String>.
+ * The BasicNamedValues implementation uses a backing {@code Map<String,String>} .
  */
 public interface NamedValues
 {

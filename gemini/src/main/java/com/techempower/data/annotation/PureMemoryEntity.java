@@ -35,8 +35,8 @@ import java.lang.annotation.*;
  * <pre>
  *   register(PureMemoryGroup.of(Foo.class));
  * </pre>
- * </p>
- * If you need to use the maker, constructorArgs, or comparator (with a Comparator 
+ * <p>
+ * If you need to use the maker, constructorArgs, or comparator (with a Comparator
  * object) methods of Builder. Then do not use this annotation, and instead 
  * register the PureMemoryGroup yourself in the EntityStore.
  */

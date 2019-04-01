@@ -116,7 +116,7 @@ import com.techempower.helper.*;
  * In that case, URLs for the page links will be constructed in this
  * fashion:</p>
  * 
- * <pre>baseURL + "&" + paramName + "=" + currentPage</pre>
+ * <pre>baseURL + "&amp;" + paramName + "=" + currentPage</pre>
  * 
  * <p>If that kind of URL construction is not valid for your application
  * (as may be the case if you're doing URL rewriting), you will need to 

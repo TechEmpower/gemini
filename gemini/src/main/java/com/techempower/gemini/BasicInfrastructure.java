@@ -645,7 +645,7 @@ public class BasicInfrastructure
   }
 
   /**
-   * Returns the HTML <link> tag that should be embedded in an HTML page
+   * Returns the HTML {@code <link>} tag that should be embedded in an HTML page
    * in order to import the application .CSS file for use in that HTML page.
    *
    * @param styleSheetFilename the filename (not path) of the stylesheet.
@@ -658,7 +658,7 @@ public class BasicInfrastructure
   }
 
   /**
-   * Returns the HTML <link> tag that should be embedded in an HTML page
+   * Returns the HTML {@code <link>} tag that should be embedded in an HTML page
    * in order to import the application .CSS file for use in that HTML page.
    *
    * @param styleSheetFilename the filename (not path) of the stylesheet.

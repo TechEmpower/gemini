@@ -39,12 +39,12 @@ import com.techempower.log.*;
 
 /**
  * Building on the BasicPathHandler, the MethodPathHandler provides easy
- * routing of requests to handler methods using the @PathSegment and
- * @PathDefault annotations.
+ * routing of requests to handler methods using the <code>@PathSegment</code> and
+ * <code>@PathDefault</code> annotations.
  *   <p>
- * Zero or more methods may be annotated with @PathSegment, @PathDefault, 
- * and @PathRoot. Each of these may be additionally annotated with @Get,
- * @Put, @Post, or @Delete to indicate which http request method types
+ * Zero or more methods may be annotated with <code>@PathSegment</code>, <code>@PathDefault</code>,
+ * and <code>@PathRoot</code>. Each of these may be additionally annotated with <code>@Get</code>,
+ * <code>@Put</code>, <code>@Post</code>, or <code>@Delete</code> to indicate which http request method types
  * the route while handle.
  */
 public class MethodSegmentHandler<C extends Context>

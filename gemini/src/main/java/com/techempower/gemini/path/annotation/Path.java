@@ -50,8 +50,8 @@ import java.lang.annotation.*;
  * default, but can accept additional http request method type annotations
  * to specify which the annotated method supports (e.g. @Get or @Put).
  *   <p>
- * @Path with no arguments is synonymous with @Path("") and will handle
- * the root URI of the handler. Example /api/users => UserHandler; @Path
+ * {@code @Path} with no arguments is synonymous with {@code @Path("")} and will handle
+ * the root URI of the handler. Example /api/users =&gt; UserHandler; {@code @Path}
  * will handle `GET /api/users`.
  */
 @Target(ElementType.METHOD)

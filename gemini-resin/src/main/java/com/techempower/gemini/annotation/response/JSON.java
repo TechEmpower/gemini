@@ -33,13 +33,12 @@ import java.lang.annotation.*;
  * The handler method should return the object that needs to be turned into JSON. These 
  * objects should be primitive for now, since there's no mechanism to use custom JavaScriptWriters
  * so complex objects can't be custom rendered.
- * 
+ *
+ * <pre>
  *  &#064;CMD("foo-json")
  *  &#064;JSON
- *  public Map<String, int> getFooAsJson()
- *  {
- *  
- *  }
+ *  public Map&lt;String, int&gt; getFooAsJson() { }
+ * </pre>
  */
 @Response(JsonResponse.class)
 @Target(ElementType.METHOD)

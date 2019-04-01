@@ -40,7 +40,8 @@ import com.techempower.util.*;
  * A basic database audit listener that uses a BasicConnectorFactory and
  * runs simple INSERT queries to insert audits.  The standard schema for
  * the Audit table is below:
- * <p><code><pre>
+ * <p>
+ * <pre>{@code
  * CREATE TABLE Audit (
  *   AuditID bigint IDENTITY (1, 1) NOT NULL ,
  *   Type int NOT NULL ,
@@ -53,7 +54,7 @@ import com.techempower.util.*;
  *   OriginalValue varchar (100) ,
  *   NewValue varchar (100) 
  * )
- * </pre></code></p>
+ * }</pre>
  */
 public class BasicDatabaseAuditListener
   implements AuditListener

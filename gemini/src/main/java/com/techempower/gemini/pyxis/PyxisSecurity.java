@@ -77,8 +77,8 @@ public interface PyxisSecurity
    * authorization check is executed, the Handler that called authCheck
    * should return true even if the authorization check failed.  E.g.,
    *   <p>
-   * <code><pre>
-   *   @PathSegment
+   * <pre>
+   *   {@literal @}PathSegment
    *   public boolean doSomething()
    *   {
    *     if (authCheck(context()))
@@ -88,7 +88,7 @@ public interface PyxisSecurity
    *     
    *     return true;
    *   }
-   * </pre></code>
+   * </pre>
    * 
    * @return true if the authorization check passed.
    * 

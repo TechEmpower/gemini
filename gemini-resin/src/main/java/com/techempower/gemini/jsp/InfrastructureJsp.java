@@ -58,7 +58,7 @@ import com.techempower.log.*;
  * top of all JSPs:
  *   <p>
  * <pre><br>
- *   <%@ page extends="com.example.MyApplicationJSP" %>
+ *  &lt;%@ page extends="com.example.MyApplicationJSP" %@&gt;
  * </pre>
  *   <p>
  * Once the JSP subclasses the application-specific JSP infrastructure
@@ -67,11 +67,11 @@ import com.techempower.log.*;
  * a request attribute.  See the example below:
  *    <p>
  * <pre><br>
- *   <%
+ *   &lt;%
  *     Context        context    = (Context)request.getAttribute("Context");
  *     Form           form       = context.getDelivery("Form");
  *     FormValidation validation = context.getDelivery("FormValidation");
- *   %>
+ *   %&gt;
  * </pre>
  */
 public abstract class InfrastructureJsp

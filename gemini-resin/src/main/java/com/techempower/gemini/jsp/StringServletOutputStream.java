@@ -40,7 +40,7 @@ import com.techempower.gemini.*;
  * to get the output of a JSP as a string.
  *
  * <b>NOTE: Under Tomcat, you won't get a value unless your JSP calls
- * <pre>out.flush()</pre> at the end.</b>
+ * </b><pre><b>out.flush()</b></pre><b> at the end.</b>
  */
 public class StringServletOutputStream
   extends    RedirectedServletOutputStream

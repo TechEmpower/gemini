@@ -33,11 +33,11 @@ import com.techempower.helper.*;
  * A thin abstraction over a String array composed of the path segments (or
  * "directories") in a request URI.  E.g., /user/list/1 is represented as a
  * PathSegments object containing these entries:
- *   <ul>
+ * <ul>
  * <li>0: user</li>
  * <li>1: list</li>
  * <li>2: 1</li>
- *   </ul>>
+ * </ul>
  * The zero index is offset before handing this object off to PathHandlers.
  * This allows the PathHandlers to always consume their arguments starting at
  * index 0.

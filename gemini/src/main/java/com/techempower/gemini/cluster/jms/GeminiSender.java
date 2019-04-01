@@ -102,7 +102,7 @@ public abstract class GeminiSender
 
   /**
    * Send a cluster.Message type to the destination with a map of
-   * Properties<String, Object> attached to the message
+   * {@code Properties<String, Object>} attached to the message
    * 
    * @throws JMSException
    */
@@ -146,8 +146,6 @@ public abstract class GeminiSender
   /**
    * Closes the producer and session. Override if extra functionality is
    * necessary (eg, logging or committing a transacted session)
-   * 
-   * @throws JMSException
    */
   @Override
   public void close()

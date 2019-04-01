@@ -32,8 +32,8 @@ import java.lang.annotation.*;
  * 
  * A requirement annotation that can be attached to either a handler method or
  * a whole class of handler methods. Requires that the request must be a POST
- * or a 405 response code is added.<br/>
- * <br/>
+ * or a 405 response code is added.<br>
+ * <br>
  * This annotation is <b>not</b> to be used in a traditional form POST which
  * is self-submitting because the landing page of the form will be a GET while
  * the handling of the form submit will be POST.

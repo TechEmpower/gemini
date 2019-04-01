@@ -52,9 +52,10 @@ import com.techempower.helper.*;
  *     the standard include-variables.jsp file.  The request scope is the
  *     least-likely to be used as only in very rare cases do the scripts
  *     or style-sheets used by a JSP differ based on the particulars of a
- *     request.  But in theory, you could add the jQuery Flot library if the
+ *     request.  But in theory, you could add the jQuery Float library if the
  *     user requested data to be rendered in graphical view where a default
  *     is tabular view.</li>
+ * </ul>
  * 
  * In addition to scripts and style-sheets being referenced in these three
  * scopes, ScriptsAndSheets also maintains separate lists for Development,
@@ -395,7 +396,7 @@ public class ScriptsAndSheets
    * Renders the favIcon's link rel="shortcut icon" tag.  Returns an empty
    * string if no favicon has been specified in this particular 
    * ScriptsAndSheets.  Typically this is called by BasicJsp.renderFavicon()
-   * so that the order of precedence for icons is request > page > app.
+   * so that the order of precedence for icons is request &gt; page &gt; app.
    */
   public String renderFavicon(Context context)
   {

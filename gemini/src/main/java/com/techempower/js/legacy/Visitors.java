@@ -160,7 +160,7 @@ public final class Visitors
    * Returns a visitor for the provided interleaved names and values.
    *
    * <p>Example usage:</p>
-   * <pre>   {@code}
+   * <pre>   {@code
    *   private static final JavaScriptWriter JS_WRITER = JavaScriptWriter
    *       .custom()
    *       .addVisitorFactory(

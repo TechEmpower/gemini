@@ -42,7 +42,7 @@ import com.techempower.util.*;
  * validation instructions, etc.).
  *   <p>
  * The Gemini naming convention for resources is: 
- *   g<lowercase-class-initials>-<...>.
+ *   <pre>g&lt;lowercase-class-initials&gt;-&lt;...&gt;.</pre>
  *   <p>
  * That is, for an resource named "val1" from FormTextArea (fta), the fully 
  * qualified name of the resource is "gfta-val1".
