@@ -65,8 +65,6 @@ import com.techempower.util.*;
  *   fileStore.registerType(new User(), 'u');  // Users
  *   fileStore.registerType(new Foo(), 'f');   // Foos
  * </pre>
- * 
- * @see BasicFileStoreHandler
  */
 public class FileStore
   extends    BasicManager<GeminiApplication>
