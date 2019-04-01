@@ -51,16 +51,16 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <im4java.version>1.4.0</im4java.version>
-    <jackson.version>2.9.7</jackson.version>
+    <jackson.version>2.9.8</jackson.version>
     <java-image-scaling.version>0.8.6</java-image-scaling.version>
     <javaee.version>8.0</javaee.version>
-    <javassist.version>3.24.0-GA</javassist.version>
+    <javassist.version>3.24.1-GA</javassist.version>
     <javax-activation.version>1.1.1</javax-activation.version>
     <javax-mail.version>1.6.2</javax-mail.version>
     <jbcrypt.version>0.4</jbcrypt.version>
     <jsp.version>2.2.1-b03</jsp.version>
     <junit.version>4.12</junit.version>
-    <kryo.version>5.0.0-RC1</kryo.version>
+    <kryo.version>5.0.0-RC2</kryo.version>
     <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
     <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
@@ -68,15 +68,15 @@
     <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
     <maven-release-plugin.version>2.5.2</maven-release-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
-    <mustache.version>0.9.5</mustache.version>
+    <mustache.version>0.9.6</mustache.version>
     <owasp-dependency-check-plugin.version>1.4.5</owasp-dependency-check-plugin.version>
     <reflections.version>0.9.11</reflections.version>
     <resin.version>4.0.46</resin.version>
     <trove4j.version>3.0.3</trove4j.version>
     <jsonwebtoken.version>0.10.6</jsonwebtoken.version>
     <jms.version>2.0.1</jms.version>
-    <hikaricp.version>3.2.0</hikaricp.version>
-    <slf4j.version>1.8.0-beta2</slf4j.version>
+    <hikaricp.version>3.3.1</hikaricp.version>
+    <slf4j.version>1.8.0-beta4</slf4j.version>
     <flyway.version>5.2.1</flyway.version>
   </properties>
 
