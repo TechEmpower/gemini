@@ -1,4 +1,4 @@
-package com.techempower;
+package ${package};
 
 import com.techempower.gemini.*;
 import com.techempower.gemini.email.outbound.*;

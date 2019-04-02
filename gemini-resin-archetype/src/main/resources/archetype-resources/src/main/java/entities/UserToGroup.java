@@ -1,4 +1,4 @@
-package com.techempower.entities;
+package ${package}.entities;
 
 import com.techempower.data.*;
 import com.techempower.data.annotation.*;

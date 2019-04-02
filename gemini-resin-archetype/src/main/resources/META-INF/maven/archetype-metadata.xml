@@ -7,10 +7,13 @@
     <requiredProperty key="groupId">
       <defaultValue>com.techempower</defaultValue>
     </requiredProperty>
+    <requiredProperty key="package">
+      <defaultValue>${groupId}</defaultValue>
+    </requiredProperty>
     <requiredProperty key="app.properties">
       <defaultValue>app.properties</defaultValue>
     </requiredProperty>
-    <requiredProperty key="machineName"></requiredProperty>
+    <requiredProperty key="machineName"/>
     <requiredProperty key="databaseHost">
       <defaultValue>localhost</defaultValue>
     </requiredProperty>
@@ -29,8 +32,8 @@
   </requiredProperties>
 
   <fileSets>
-    <fileSet filtered="true" packaged="false">
-      <directory>src</directory>
+    <fileSet filtered="true" packaged="true">
+      <directory>src/main/java</directory>
         <includes>
           <include>**/*.java</include>
         </includes>

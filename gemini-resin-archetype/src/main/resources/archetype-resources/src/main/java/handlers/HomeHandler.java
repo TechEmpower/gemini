@@ -1,4 +1,4 @@
-package com.techempower.handlers;
+package ${package}.handlers;
 
 import com.techempower.gemini.*;
 import com.techempower.gemini.path.*;

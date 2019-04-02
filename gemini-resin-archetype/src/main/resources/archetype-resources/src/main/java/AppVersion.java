@@ -1,7 +1,8 @@
-package com.techempower;
+package ${package};
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
+import com.techempower.Version;
 
 /**
  * Provides a name, client, and version number for the current build of
