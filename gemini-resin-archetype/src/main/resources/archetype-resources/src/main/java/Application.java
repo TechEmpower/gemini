@@ -9,7 +9,6 @@ import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.handler.*;
 import com.techempower.js.*;
 import com.techempower.Version;
-
 import ${package}.handlers.*;
 
 /**

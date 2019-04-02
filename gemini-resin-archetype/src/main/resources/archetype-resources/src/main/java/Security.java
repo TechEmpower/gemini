@@ -2,7 +2,6 @@ package ${package};
 
 import com.techempower.cache.*;
 import com.techempower.gemini.pyxis.*;
-
 import ${package}.entities.*;
 
 /**
