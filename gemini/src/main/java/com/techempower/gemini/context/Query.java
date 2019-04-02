@@ -104,7 +104,7 @@ public class   Query
   }
   
   /**
-   * Returns a Map<String, String> of the input values.
+   * Returns a {@code Map<String, String>} of the input values.
    */
   public Map<String, String> asMap()
   {

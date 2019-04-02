@@ -53,7 +53,7 @@ public class LengthValidator
    * @param elementName the form element to validate.
    * @param lengthRange a minimum and maximum length in characters.
    * @param permitEmpty if true, 0-length will be permitted as a special case
-   *   even if the minimum is >0.  This allows for non-required fields to be
+   *   even if the minimum is &gt;0.  This allows for non-required fields to be
    *   skipped if the user doesn't want to provide input. 
    */
   public LengthValidator(String elementName, IntRange lengthRange, 
@@ -82,7 +82,7 @@ public class LengthValidator
    * @param minLength the minimum String length to permit (E.g., 4)
    * @param maxLength the maximum String length to permit (E.g., 40)
    * @param permitEmpty if true, 0-length will be permitted as a special case
-   *   even if the minimum is >0.  This allows for non-required fields to be
+   *   even if the minimum is &gt;0.  This allows for non-required fields to be
    *   skipped if the user doesn't want to provide input. 
    */
   public LengthValidator(String elementName, int minLength, int maxLength, 

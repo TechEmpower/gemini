@@ -69,7 +69,6 @@ import com.techempower.util.*;
  *  return false;
  * </pre><br>
  *
- * @see BasicLoginHandler
  * @see PyxisSecurity
  */
 public class BasicSecureHandler<D extends BasicDispatcher, C extends Context>

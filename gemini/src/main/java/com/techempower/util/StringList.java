@@ -82,7 +82,7 @@ public class StringList
   }
   
   /**
-   * Constructor that takes a separator and a prefix & suffix to wrap each
+   * Constructor that takes a separator and a prefix &amp; suffix to wrap each
    * added value.
    *
    * @param separator the string to insert between list elements.
@@ -98,7 +98,7 @@ public class StringList
   }
 
   /**
-   * Constructor that takes a separator, a prefix & suffix to wrap each
+   * Constructor that takes a separator, a prefix &amp; suffix to wrap each
    * added value, and a unique final separator.  This is useful for the
    * common English practice  of adding an "and" before the last element of
    * a list, such as "X, Y, and Z".

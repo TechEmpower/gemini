@@ -194,7 +194,7 @@ public abstract class EmailTemplater
   //
   
   /**
-   * Demotes a map of <String,String> to <String,Object>.
+   * Demotes a map of {@code <String,String>} to {@code <String,Object>}.
    */
   protected Map<String,Object> demoteStringMap(Map<String,String> data)
   {

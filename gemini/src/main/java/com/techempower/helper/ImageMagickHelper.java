@@ -64,11 +64,11 @@ public final class ImageMagickHelper
 
   /**
    * Method of creating a BufferedImage object instead of doing
-   * simpler IO.<br/><br/>
-   * <string>Note</strong>: when a BufferedImage is created from 
+   * simpler IO.<br><br>
+   * <strong>Note</strong>: when a BufferedImage is created from
    * lossy file types (i.e. JPEG), it is compressed at the time 
    * the Raster is set (construction) and the default compression 
-   * is set to 75 (1-100).<br/><br/>
+   * is set to 75 (1-100).<br><br>
    * If different compression is desired, then do not use this
    * method or use lossless filetypes.
    * @see ImageMagickHelper#transformImage(
@@ -114,7 +114,7 @@ public final class ImageMagickHelper
    *     alteration).</li>
    * </ol>
    * Normally, this byte array is something to ultimately be written to disk; 
-   * here is an example of how to do just that:<br/>
+   * here is an example of how to do just that:<br>
    * 
    * <pre>
    * byte[] thumbBytes = ImageMagickHelper.transformImage(params, transform);
@@ -458,7 +458,7 @@ public final class ImageMagickHelper
      * Constructor that sets the input file for *Magick to use. This
      * will tell <code>transformImage</code> to send the resulting
      * bytes from *Magick back to the application to be turned into
-     * a byte array only.<br/>
+     * a byte array only.<br>
      * Note: nothing will be done with the byte[] from *Magick. This
      * must be handled in code directly.
      */

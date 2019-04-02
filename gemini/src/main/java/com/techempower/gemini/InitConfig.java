@@ -33,9 +33,6 @@ import java.util.*;
  * A simple representation of a servlet configuration and context.  Its purpose
  * is to abstract away the properties of a real servlet so that these properties
  * may be simulated outside of the context of a web application.
- *
- * @see HttpInitConfig
- * @see SimConfig
  */
 public interface InitConfig
 {

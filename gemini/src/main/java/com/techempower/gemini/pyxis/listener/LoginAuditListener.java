@@ -39,7 +39,7 @@ import com.techempower.util.*;
  * Provides simple database-table auditing of successful logins and logouts.
  * The schema for the necessary SecurityAuditEvent table is:
  * 
- * <p><code><pre>
+ * <p><pre>{@code
  * CREATE TABLE SecurityAuditEvent(
  *   [id] [bigint] IDENTITY(1,1) NOT NULL,
  *   [userid] [bigint] NOT NULL,
@@ -50,7 +50,7 @@ import com.techempower.util.*;
  * (
  *   [id] ASC
  * ) ON [PRIMARY]
- * </pre></code></p>
+ * }</pre>
  * 
  * The above is SQL Server syntax.
  */

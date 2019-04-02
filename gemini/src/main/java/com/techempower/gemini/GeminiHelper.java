@@ -215,7 +215,7 @@ public final class GeminiHelper
    * Returns a Map representing all of the request parameters provided in a
    * URL. This version differs from the implementation that exists within the
    * Servlet API in that this version will tokenize on question marks (?) in
-   * addition to ampersands (&). The standard implementation follows HTTP spec
+   * addition to ampersands (&amp;). The standard implementation follows HTTP spec
    * and only tokenizes on ampersands. Some applications use question marks to
    * separate parameters. In cases where that is done, this method can be
    * useful.

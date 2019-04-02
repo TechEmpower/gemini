@@ -46,7 +46,7 @@ import com.techempower.util.*;
  * It is common for applications to inherit from an intermediate subclass of
  * BasicManager such as BasicPathManager.
  * 
- * @see com.techempower.gemini.path.BasicPathManager.
+ * @see com.techempower.gemini.path.BasicPathManager
  */
 public class BasicManager<A extends GeminiApplication>
   implements Configurable 

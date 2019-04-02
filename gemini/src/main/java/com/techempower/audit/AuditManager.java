@@ -43,7 +43,7 @@ import com.techempower.log.*;
  * When using within a Gemini application, generally a getAuditManager method
  * is added to the GeminiApplication subclass, and the following code is added
  * to the Dispatcher subclass:
- * <p><code><pre>
+ * <p><pre>{@code
  * public boolean dispatch(Context context)
  * {
  *   try
@@ -59,7 +59,7 @@ import com.techempower.log.*;
  *     AuditManager.commit();
  *   }
  * }
- * </pre></code></p>
+ * }</pre>
  *   <p>
  * An implementation of getUser that returns a user that implements Auditable
  * will also be necessary.

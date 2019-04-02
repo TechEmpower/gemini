@@ -83,14 +83,17 @@ public abstract class ResinGeminiApplication
    * to add custom Handlers to the Dispatcher.
    *   <p>
    * For example,
-   *   <p><pre>
-   * return new MyApplicationDispatcher(this); </pre></p>
+   *   <p>
+   *     <pre>return new MyApplicationDispatcher(this);</pre>
+   *   <p>
    * -or-
-   *   <p><pre>
+   *   <p>
+   *   <pre>
    * BasicDispatcher toReturn = new BasicDispatcher(this);
    * toReturn.addHandler(new HomeHandler(this));
    * toReturn.addHandler(new AdministrationHandler(this));
-   * return toReturn; </pre></p>
+   * return toReturn;
+   * </pre>
    */
   @Override
   protected Dispatcher constructDispatcher()

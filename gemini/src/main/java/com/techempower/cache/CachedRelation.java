@@ -111,8 +111,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
    *     .build(controller); // new CachedRelation
    * </pre>
    * 
-   * <p>Note that a {@link EntityStore#register(
-   * com.techempower.cache.CachedRelation.Builder)} method exists, and
+   * <p>Note that a {@link EntityStore#register(EntityGroup.Builder)} method exists, and
    * it returns a {@link CachedRelation}, so in most cases calling
    * {@code .build(controller)} is unnecessary.  For example:
    * 

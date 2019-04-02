@@ -26,13 +26,11 @@
  *******************************************************************************/
 package com.techempower.gemini;
 
+
 /**
  * A simple interface representing an web cookie.  Its purpose is to abstract
  * away the properties of a real servlet cookie in a web request so that cookies
  * may be simulated outside of the context of a web application.
- *
- * @see HttpCookie
- * @see SimCookie
  */
 public interface Cookie
 {

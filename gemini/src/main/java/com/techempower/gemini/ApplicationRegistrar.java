@@ -72,7 +72,6 @@ public final class ApplicationRegistrar
    * Registers an application as the main application.
    * 
    * @param app a reference to the application instance.
-   * @param identifier a String identifier to use for lookup.
    */
   public static void registerMain(GeminiApplication app)
   {

@@ -34,7 +34,7 @@ import com.techempower.helper.*;
 
 /**
  * A single URL rewrite rule.  This is the internal representation of the rules
- * used by {@link UrlRewriter} and {@link PrettyUrlRewriter}.
+ * used by {@code UrlRewriter} and {@code PrettyUrlRewriter}.
  */
 public class UrlRule
 {

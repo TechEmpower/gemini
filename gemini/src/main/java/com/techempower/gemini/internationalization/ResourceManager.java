@@ -37,7 +37,7 @@ import com.techempower.util.*;
  * An interface for loading, persisting, and quickly retrieving cached 
  * GeminiResources.  A ResourceManager is expected to fully manage a cache
  * of loaded GeminiResources mapped from Locales.  This is typically as
- * simple as maintaining a Map<Locale, GeminiResources>.
+ * simple as maintaining a {@code Map<Locale, GeminiResources>}.
  */
 public abstract class ResourceManager 
 {

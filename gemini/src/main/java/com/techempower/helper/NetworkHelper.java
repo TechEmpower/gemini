@@ -175,7 +175,7 @@ public final class NetworkHelper
   }
   
   /**
-   * Escapes double-quotes as &quot for HTML. If a null String is provided
+   * Escapes double-quotes as &quot; for HTML. If a null String is provided
    * as a parameter, an empty String is returned.
    * 
    * @param inputString
@@ -220,8 +220,8 @@ public final class NetworkHelper
    * 
    * <ul>
    * <li><code>&amp;#039;</code> for '</li>
-   * <li><code>&amp;gt;</code> for ></li>
-   * <li><code>&amp;lt;</code> for <</li>
+   * <li><code>&amp;gt;</code> for &gt;</li>
+   * <li><code>&amp;lt;</code> for &lt;</li>
    * <li><code>&amp;#034;</code> for \</li>
    * <li><code>&amp;amp;</code> for ampersands</li>
    * <li><strong><code>&amp;nbsp;</code> for spaces, tabs, and line
@@ -517,9 +517,9 @@ public final class NetworkHelper
 
   /**
    * Generates a simple query string given the arrays of param keys and values.
-   * The key/values pairs are separated by "&".
+   * The key/values pairs are separated by "&amp;".
    *
-   * The returned query string does -not- start with either "?" or "&".
+   * The returned query string does -not- start with either "?" or "&amp;".
    * 
    * @param paramKeys An array of additional param keys associated with the paramValues.
    * @param paramValues An array of param values associated with the paramKeys.

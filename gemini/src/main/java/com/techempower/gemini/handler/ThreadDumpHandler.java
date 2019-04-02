@@ -75,8 +75,6 @@ import com.techempower.util.*;
  * <p>
  * To invoke the ThreadDumpHandler, issue a command of this form to your
  * application in the form of an HTTP request: /threaddump
- * 
- * @see com.techempower.gemini.Handler
  */
 public class ThreadDumpHandler<C extends Context>
   extends    MethodSegmentHandler<C>

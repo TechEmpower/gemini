@@ -31,8 +31,7 @@ import java.security.*;
 import java.util.*;
 
 /**
- * Provides random tokens for validation.  Like
- * {@link com.techempower.gemini.form.FormNonce}, this class can be used to
+ * Provides random tokens for validation. This class can be used to
  * protect against cross-site request forgery, though this class may be used
  * outside of forms (in AJAX requests, for example).
  * <p>

@@ -44,6 +44,7 @@ import com.techempower.util.*;
  *   getScheduler().clear();
  *   getScheduler().scheduleEvent(new NoOpEvent(this.application));
  * }
+ * </pre>
  */
 public class NoOpEvent
   extends    ScheduledEvent

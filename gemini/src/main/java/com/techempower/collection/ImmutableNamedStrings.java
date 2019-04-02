@@ -31,8 +31,8 @@ import java.util.*;
 import com.techempower.helper.*;
 
 /**
- * An implementation of ImmutableNamedValues that uses a backing Map<String, 
- * String> as a data store.
+ * An implementation of ImmutableNamedValues that uses a backing {@code Map<String,
+ * String>} as a data store.
  */
 public class   ImmutableNamedStrings
     implements NamedValues

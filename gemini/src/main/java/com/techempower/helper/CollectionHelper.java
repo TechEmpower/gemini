@@ -447,7 +447,7 @@ public final class CollectionHelper
   /**
    * Convert an interleaved array of objects into a Map.  Every even index
    * (starting at 0) will be a key followed by a value in the next index.
-   * E.g., ['a', 'b', 'c', 'd'] yields {'a' => 'b', 'c' => 'd'}.
+   * E.g., ['a', 'b', 'c', 'd'] yields {'a' =&gt; 'b', 'c' =&gt; 'd'}.
    *   <p>
    * This version assumes a traditional map without linking (order-
    * preservation) is desired.
@@ -464,7 +464,7 @@ public final class CollectionHelper
   /**
    * Convert an interleaved array of objects into a Map.  Every even index
    * (starting at 0) will be a key followed by a value in the next index.
-   * E.g., ['a', 'b', 'c', 'd'] yields {'a' => 'b', 'c' => 'd'}.
+   * E.g., ['a', 'b', 'c', 'd'] yields {'a' =&gt; 'b', 'c' =&gt; 'd'}.
    *   <p>
    * This version assumes a linked (order-preserving) map is desired so that
    * the resulting map is the same as the order of sourceArray.

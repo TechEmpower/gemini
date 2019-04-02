@@ -29,7 +29,7 @@
  * Provides an interface for interacting with websockets.  At the time of this
  * writing, there is no standard API shared among servlet containers for
  * dealing with websockets.  Applications will likely have to provide their own
- * implementation of {@link WebsocketAdapter} that works with whatever servlet
+ * implementation of {@link com.techempower.gemini.websocket.WebsocketProcessor} that works with whatever servlet
  * container it uses.
  */
 package com.techempower.gemini.websocket;

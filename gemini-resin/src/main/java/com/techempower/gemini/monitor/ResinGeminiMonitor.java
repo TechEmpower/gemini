@@ -72,6 +72,7 @@ import com.techempower.gemini.monitor.session.*;
  *     between snapshots.  Defaults same as for health.</li>
  * <li>GeminiMonitor.SessionTracking - If true, active sessions will be 
  *     tracked by the session monitor to allow for listing active sessions.</li>
+ *  </ul>
  *   <p>
  * Note that some of the operations executed by the health snapshot are non
  * trivial (e.g., 10-20 milliseconds).  Setting a very low snapshot interval

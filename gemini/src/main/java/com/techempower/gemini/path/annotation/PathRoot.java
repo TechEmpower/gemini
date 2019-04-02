@@ -33,13 +33,13 @@ import java.lang.annotation.*;
  * associate with a blank path segment.  If a PathHandler is handling 
  * requests with a base URI of /auth, the method annotated as PathRoot would 
  * capture:
- * <p><pre><code>
+ * <p><pre>{@code
  *   /auth
  *   ... and ...
  *   /auth/
  *   ... but not ...
  *   /auth/foo
- * </code></pre></p>
+ * }</pre>
  * Note that this is distinct from PathDefault, which will capture requests
  * to the PathHandler's base URI that do not match any other PathSegment- or
  * PathRoot-annotated methods.

@@ -335,7 +335,7 @@ public class BasicDispatcher
    * command.  For instance, an application could change the parameter name
    * to "handler", making the following URL possible:
    *    <p>
-   * http://www.somedomain.com/app/?handler=home&screen=4
+   *  {@code http://www.somedomain.com/app/?handler=home&screen=4}
    */
   public String getCommandParameterName()
   {
@@ -1144,7 +1144,7 @@ public class BasicDispatcher
    *
    * @param context The request context may be null; indicating that no
    *   response is required (the exception may still be logged).
-   * @@param description The description may be null.
+   * @param description The description may be null.
    */
   @Override
   public void dispatchException(Context context, Throwable exception,

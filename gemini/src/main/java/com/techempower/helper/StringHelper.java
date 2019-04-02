@@ -2115,7 +2115,7 @@ public final class StringHelper
      *   N = uppercase or number
      *   d = number only (digit)
      *   x = lowercase, uppercase, or number (default)
-     *   s = simple symbols: - = / \ [ ] ( ) ! @ # $ &  
+     *   s = simple symbols: - = / \ [ ] ( ) ! @ # $ &amp;
      */
     public String fromPattern(String pattern)
     {
