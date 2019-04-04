@@ -43,6 +43,7 @@
         <include>README.md</include>
         <include>db/migration/**/*</include>
         <include>src/main/webapp/WEB-INF/configuration/**/*</include>
+        <include>src/main/webapp/WEB-INF/web.xml</include>
       </includes>
     </fileSet>
     <fileSet filtered="false" packaged="false">
@@ -56,6 +57,10 @@
         <include>src/main/webapp/js/**/*</include>
         <include>src/main/webapp/WEB-INF/**/*</include>
       </includes>
+      <excludes>
+        <exclude>src/main/webapp/WEB-INF/web.xml</exclude>
+        <exclude>src/main/webapp/WEB-INF/configuration</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 </archetype-descriptor>
