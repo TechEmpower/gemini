@@ -10,7 +10,7 @@ Gemini can work with any database with a JDBC driver. We have provided starter m
   * Port: ${databasePort}
   * Username: ${databaseUsername}
 
-To change these defaults, edit WEB-INF/Configuration/App-${machineName}.conf
+To change these defaults, edit WEB-INF/Configuration/${machineName}.conf
 
 Be sure to add the Postgres driver dependency to your pom.xml file.
 

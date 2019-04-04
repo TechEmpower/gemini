@@ -55,7 +55,7 @@ import com.techempower.util.*;
  * list of configuration files is provided, the later files have higher
  * precedence than the earlier files. For example, the order is typically a
  * base configuration followed by an environment-specific configuration such
- * as: "App-Base.conf,App-Dev.conf"
+ * as: "Base.conf,Dev.conf"
  * <p>
  * For each of the files in the comma-delimited list, the Configurator will
  * attempt to locate the file according to the rules below.
@@ -78,10 +78,10 @@ import com.techempower.util.*;
  * value of this property should be the name of another configuration file.
  * Properties from the current file will be applied on top of those from the
  * specified file, similar to the "precedence" mechanism described earlier.
- * For example, <code>App-Dev.conf</code> could contain
- * <code>Extends = App-Base.conf</code>. Then, if the list of configuration
- * files specified in web.xml is simply "App-Dev.conf", it will behave as if
- * the list was "App-Base.conf,App-Dev.conf".
+ * For example, <code>Dev.conf</code> could contain
+ * <code>Extends = Base.conf</code>. Then, if the list of configuration
+ * files specified in web.xml is simply "Dev.conf", it will behave as if
+ * the list was "Base.conf,Dev.conf".
  * <p>
  * Finally, if the location of the configuration file is not specified by the
  * Servlet parameter, the constructed default name will be a single
@@ -329,17 +329,15 @@ public class FileConfigurationProvider
     {
       // Attempt to load a machine-specific configuration file.
       //
-      // Format: <appname>-<machinename>.conf
-      // Example: Tempest-BLACKPARK.conf
+      // Format: <machinename>.conf
+      // Example: BLACKPARK.conf
 
-      String abbrName = application.getVersion().getAbbreviatedProductName();
       String machineName = Configurator.getMachineName();
 
-      // Load <appname>.conf first, then <appname>-<machinename>.conf to allow
+      // Load <baseConfigurationFile>.conf first, then <machinename>.conf to allow
       // the machine-specific file to override a base configuration.
-      filenames = abbrName + Configurator.CONFIGURATION_FILENAME_EXT
-          + "," + abbrName + "-" + machineName
-          + Configurator.CONFIGURATION_FILENAME_EXT;
+      filenames = GeminiConstants.BASE_CONFIGURATION_FILE + Configurator.CONFIGURATION_FILENAME_EXT
+          + "," + machineName + Configurator.CONFIGURATION_FILENAME_EXT;
       log.log("Using default configuration file(s): " + filenames);
     }
 
