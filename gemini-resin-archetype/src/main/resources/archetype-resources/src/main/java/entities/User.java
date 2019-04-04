@@ -1,9 +1,9 @@
-package com.techempower.entities;
+package ${package}.entities;
 
 import com.fasterxml.jackson.annotation.*;
-import com.techempower.*;
 import com.techempower.data.annotation.*;
 import com.techempower.gemini.pyxis.*;
+import ${package}.*;
 
 
 /**

@@ -1,4 +1,4 @@
-package com.techempower.entities;
+package ${package}.entities;
 
 import com.fasterxml.jackson.annotation.*;
 import com.techempower.util.*;

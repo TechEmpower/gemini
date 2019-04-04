@@ -1,4 +1,4 @@
-package com.techempower;
+package ${package};
 
 import com.techempower.data.*;
 import com.techempower.data.jdbc.*;
@@ -7,8 +7,9 @@ import com.techempower.gemini.exceptionhandler.*;
 import com.techempower.gemini.path.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.handler.*;
-import com.techempower.handlers.*;
 import com.techempower.js.*;
+import com.techempower.Version;
+import ${package}.handlers.*;
 
 /**
  * Application. As a subclass of GeminiApplication, this class acts as

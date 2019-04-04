@@ -1,4 +1,4 @@
-package com.techempower;
+package ${package};
 
 import com.techempower.gemini.transport.*;
 import javax.servlet.annotation.MultipartConfig;

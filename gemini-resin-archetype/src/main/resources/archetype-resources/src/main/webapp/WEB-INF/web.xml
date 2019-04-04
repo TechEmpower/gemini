@@ -44,7 +44,7 @@
   
   <servlet>
     <servlet-name>Server</servlet-name>
-    <servlet-class>com.techempower.Server</servlet-class>
+    <servlet-class>${package}.Server</servlet-class>
     <load-on-startup/>
   </servlet>
   <servlet-mapping>

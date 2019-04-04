@@ -1,9 +1,9 @@
-package com.techempower.handlers;
+package ${package}.handlers;
 
-import com.techempower.entities.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.gemini.pyxis.handler.*;
+import ${package}.entities.*;
 
 public class UserHandler extends SecureMethodUriHandler<Context, User>
 {

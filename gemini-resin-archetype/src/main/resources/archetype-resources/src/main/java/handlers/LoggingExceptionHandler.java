@@ -1,4 +1,4 @@
-package com.techempower.handlers;
+package ${package}.handlers;
 
 import com.esotericsoftware.minlog.Log;
 import com.techempower.gemini.*;

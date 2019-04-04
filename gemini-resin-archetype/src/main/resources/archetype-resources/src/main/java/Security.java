@@ -1,8 +1,8 @@
-package com.techempower;
+package ${package};
 
 import com.techempower.cache.*;
-import com.techempower.entities.*;
 import com.techempower.gemini.pyxis.*;
+import ${package}.entities.*;
 
 /**
  * Security provides Pyxis-based security services for the
