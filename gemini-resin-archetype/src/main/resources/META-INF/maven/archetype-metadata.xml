@@ -7,9 +7,7 @@
     <requiredProperty key="groupId">
       <defaultValue>com.techempower</defaultValue>
     </requiredProperty>
-    <requiredProperty key="package">
-      <defaultValue>${groupId}</defaultValue>
-    </requiredProperty>
+    <requiredProperty key="package" />
     <requiredProperty key="app.properties">
       <defaultValue>app.properties</defaultValue>
     </requiredProperty>
