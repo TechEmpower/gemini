@@ -396,7 +396,7 @@ public class MethodSegmentHandler<C extends Context>
       C context) 
   {
     if (context.getRequestMethod() == null) {
-      return defaultGetMethod;
+      return null;
     }
     // If there is no segment or parameters provided, try to route to
     // the @PathRoot for the given http request method type.

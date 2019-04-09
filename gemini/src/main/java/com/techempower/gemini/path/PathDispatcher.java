@@ -74,6 +74,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   private final ComponentLog                log;
   private final Map<String, PathHandler<C>> handlers;
   private final PathHandler<C>              defaultHandler;
+  private final PathHandler<C>              notImplementedHandler;
   private final PathHandler<C>              rootHandler;
   private final ExceptionHandler[]          exceptionHandlers;
   private final Prehandler[]                prehandlers;
@@ -109,6 +110,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
     {
       defaultHandler = new FourZeroFourHandler<>();
     }
+    this.notImplementedHandler = new NotImplementedHandler<>();
 
     rootHandler = configuration.rootHandler;
 
@@ -214,7 +216,14 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
       // Use the default handler if nothing else was provided.
       if (handler == null)
       {
-        handler = defaultHandler;
+        if (plainContext.getRequestMethod() == null)
+        {
+          handler =  notImplementedHandler;
+        }
+        else
+        {
+          handler = defaultHandler;
+        }
       }
       
       // Send the request to all Prehandlers.
