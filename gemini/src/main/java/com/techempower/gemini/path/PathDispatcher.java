@@ -216,6 +216,8 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
       // Use the default handler if nothing else was provided.
       if (handler == null)
       {
+        // The HTTP method for the request is not listed in the HTTPMethod enum,
+        // so we are unable to handle the request and simply return a 501.
         if (plainContext.getRequestMethod() == null)
         {
           handler =  notImplementedHandler;
