@@ -4,5 +4,7 @@ jdk:
   - oraclejdk8
   - oraclejdk11
 
+install: mvn install -DskipTests -Dgpg.skip
+
 script:
-  - mvn test
+  - mvn test -Dgpg.skip
