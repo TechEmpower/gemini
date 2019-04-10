@@ -395,6 +395,9 @@ public class MethodSegmentHandler<C extends Context>
   protected PathSegmentMethod getAnnotatedMethod(PathSegments segments, 
       C context) 
   {
+    if (context.getRequestMethod() == null) {
+      return null;
+    }
     // If there is no segment or parameters provided, try to route to
     // the @PathRoot for the given http request method type.
     if (StringHelper.isEmpty(segments.getUriBelowOffset()))
@@ -417,7 +420,6 @@ public class MethodSegmentHandler<C extends Context>
           root = this.getRequestHandleMethods.get("");
           break;
       }
-  
       if (root != null)
       {
         return root;

@@ -93,9 +93,15 @@ public class HttpRequest
     this.log = this.application.getLog(COMPONENT_CODE);
     
     // Set the method of the request.
-    method = HttpMethod.valueOf(request.getMethod());
-    
-    
+    HttpMethod httpMethod;
+    try {
+      httpMethod = HttpMethod.valueOf(request.getMethod());
+    } catch (IllegalArgumentException e) {
+      log.log("Unsupported HTTP method: " + request.getMethod());
+      httpMethod = null;
+    }
+    method = httpMethod;
+
     // Set the default response data type.  By default this will be
     // "text/html;charset=utf-8".
     response.setContentType(this.application.getDefaultResponseType());
