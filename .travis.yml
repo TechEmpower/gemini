@@ -7,5 +7,6 @@ jdk:
 install: mvn install -DskipTests -Dgpg.skip
 
 script:
-  - mvn install -Dpgp.skip archetype:update-local-catalog
+  - mvn install -Dpgp.skip
+  - mvn archetype:update-local-catalog
   - mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype  -Dpackage=test-package -DartifactId=test-artifact-id -Dversion=1.0-SNAPSHOT -DmachineName=travis -DinteractiveMode=false
