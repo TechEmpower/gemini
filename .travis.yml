@@ -10,3 +10,5 @@ script:
   - mvn install -Dgpg.skip
   - mvn archetype:update-local-catalog
   - mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype  -Dpackage=test-package -DartifactId=test-artifact-id -Dversion=1.0-SNAPSHOT -DmachineName=travis -DinteractiveMode=false
+  - cd test-artifact-id
+  - mvn install
