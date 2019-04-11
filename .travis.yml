@@ -7,4 +7,4 @@ jdk:
 install: mvn install -DskipTests -Dgpg.skip
 
 script:
-  - mvn test -Dgpg.skip
+  - mvn install -Dpgp.skip
