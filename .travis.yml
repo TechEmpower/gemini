@@ -4,10 +4,9 @@ jdk:
   - oraclejdk8
   - oraclejdk11
 
-install: mvn install -DskipTests -Dgpg.skip
+install: mvn install -Dgpg.skip
 
 script:
-  - mvn install -Dgpg.skip
   - mvn archetype:update-local-catalog
   - mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype  -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0-SNAPSHOT -DmachineName=travis -DinteractiveMode=false
   - cd test-artifact-id && mvn install -Dgpg.skip
