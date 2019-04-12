@@ -26,6 +26,6 @@ script:
       -DdatabaseHost=host.docker.internal
       -DdatabaseName=gemini_test
       -DdatabaseUsername=postgres
-  - cd test-artifact-id && docker build -t gemini
+  - cd test-artifact-id && docker build -t gemini .
   - docker run gemini
 
