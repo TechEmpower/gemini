@@ -21,9 +21,6 @@ script:
   - rm -rf webapps/*
   - cp target/test-artifact-id-1.0.war webapps/ROOT.war
   - java -jar lib/resin.jar console &
-  - PID=$!
-  - n=0; until [$n -ge 60] do curl localhost:8080; n=$[$n+1]; done;
-  - sleep 1m
-  - kill -HUP $PID
+  - curl localhost:8080;
 
 
