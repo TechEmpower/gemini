@@ -17,10 +17,18 @@ before_script:
 script:
   - mvn archetype:update-local-catalog
   - >
-      mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0 -DmachineName=TRAVIS -DinteractiveMode=false -DdatabaseHost=host.docker.internal -DdatabaseName=gemini_test -DdatabaseUsername=postgres - cd test-artifact-id && mvn compile war:war - curl -sL http://caucho.com/download/resin-4.0.56.tar.gz | tar xz --strip-components=1
+      mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local
+      -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype
+      -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0
+      -DmachineName=TRAVIS -DinteractiveMode=false
+      -DdatabaseHost=host.docker.internal
+      -DdatabaseName=gemini_test
+      -DdatabaseUsername=postgres
+  - cd test-artifact-id && mvn compile war:war
+  - curl -sL http://caucho.com/download/resin-4.0.56.tar.gz | tar xz --strip-components=1
   - rm -rf webapps/*
   - cp target/test-artifact-id-1.0.war webapps/ROOT.war
   - java -jar lib/resin.jar console &
-  - curl localhost:8080;
+  - curl localhost:8080
 
 
