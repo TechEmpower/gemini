@@ -41,6 +41,7 @@
       <includes>
         <exclude>pom.xml</exclude>
         <include>README.md</include>
+        <include>dockerfile</include>
         <include>db/migration/**/*</include>
         <include>src/main/webapp/WEB-INF/configuration/**/*</include>
         <include>src/main/webapp/WEB-INF/web.xml</include>
