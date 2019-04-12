@@ -4,7 +4,6 @@ hosts:
   - TRAVIS
 
 services:
-  - docker
   - postgresql
 
 jdk:
@@ -26,6 +25,9 @@ script:
       -DdatabaseHost=host.docker.internal
       -DdatabaseName=gemini_test
       -DdatabaseUsername=postgres
-  - cd test-artifact-id && docker build -t gemini .
-  - docker run gemini
+  - cd test-artifact-id && mvn compile war:war
+  - curl -sL http://caucho.com/download/resin-4.0.56.tar.gz | tar xz --strip-components=1
+  - rm -rf webapps/*
+  - cp target/test-artifact-id.war webapps/ROOT.war
+  - ConfigurationFile="Dev.conf" java -jar lib/resin.jar console
 
