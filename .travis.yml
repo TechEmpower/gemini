@@ -28,6 +28,10 @@ script:
   - curl -sL http://caucho.com/download/resin-4.0.56.tar.gz | tar xz --strip-components=1
   - rm -rf webapps/*
   - cp target/test-artifact-id-1.0.war webapps/ROOT.war
-  - java -jar lib/resin.jar console
+  - java -jar lib/resin.jar console &
+  - curl localhost:8080
+  - PID=$!
+  - sleep 1m
+  - kill -HUP $PID
 
 
