@@ -8,7 +8,6 @@ services:
 
 jdk:
   - oraclejdk8
-  - oraclejdk11
 
 install: mvn install -Dgpg.skip
 
@@ -20,7 +19,7 @@ script:
   - >
       mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local
       -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype
-      -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0-SNAPSHOT
+      -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0
       -DmachineName=TRAVIS -DinteractiveMode=false
       -DdatabaseHost=host.docker.internal
       -DdatabaseName=gemini_test
@@ -28,6 +27,6 @@ script:
   - cd test-artifact-id && mvn compile war:war
   - curl -sL http://caucho.com/download/resin-4.0.56.tar.gz | tar xz --strip-components=1
   - rm -rf webapps/*
-  - cp target/test-artifact-id.war webapps/ROOT.war
-  - ConfigurationFile="Dev.conf" java -jar lib/resin.jar console
+  - ls target
+  - cp target/test-artifact-id-1.0.war webapps/ROOT.war
 
