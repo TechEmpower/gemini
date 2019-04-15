@@ -29,6 +29,7 @@ before_script:
 
 script:
   - java -jar lib/resin.jar console &
+  - sleep 10
   - curl TRAVIS:8080
 
 
