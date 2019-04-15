@@ -13,8 +13,6 @@ install: mvn install -Dgpg.skip
 
 before_script:
   - psql -c 'create database gemini_test;' -U postgres
-
-script:
   - mvn archetype:update-local-catalog
   - >
       mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local
@@ -29,6 +27,8 @@ script:
   - rm -rf webapps/*
   - cp target/test-artifact-id-1.0.war webapps/ROOT.war
   - java -jar lib/resin.jar console &
+
+script:
   - curl localhost:8080
 
 
