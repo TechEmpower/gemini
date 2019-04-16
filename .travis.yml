@@ -22,6 +22,7 @@ before_script:
       -DdatabaseHost=host.docker.internal
       -DdatabaseName=gemini_test
       -DdatabaseUsername=postgres
+  - cp .travis.conf test-artifact-id/src/main/webapp/WEB-INF/configuration/Base.conf
   - cd test-artifact-id && mvn compile war:war
   - curl -sL http://caucho.com/download/resin-4.0.56.tar.gz | tar xz --strip-components=1
   - rm -rf webapps/*
