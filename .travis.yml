@@ -3,9 +3,6 @@ language: java
 hosts:
   - TRAVIS
 
-services:
-  - postgresql
-
 jdk:
   - oraclejdk8
 
@@ -19,9 +16,6 @@ before_script:
       -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype
       -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0
       -DmachineName=TRAVIS -DinteractiveMode=false
-      -DdatabaseHost=host.docker.internal
-      -DdatabaseName=gemini_test
-      -DdatabaseUsername=postgres
   - cp .travis.conf test-artifact-id/src/main/webapp/WEB-INF/configuration/Base.conf
   - cd test-artifact-id && mvn compile war:war
   - curl -sL http://caucho.com/download/resin-4.0.56.tar.gz | tar xz --strip-components=1
@@ -30,7 +24,5 @@ before_script:
 
 script:
   - java -jar lib/resin.jar console &
-  - sleep 10
-  - curl localhost:8080
-
+  - for i in {1...10}; do curl localhost:8080 && break || sleep 5; done
 
