@@ -25,7 +25,7 @@ before_script:
 script:
   - java -jar lib/resin.jar console &
   - >
-      n=1
+      n=1;
       while true; do
         curl localhost:8080 && break || {
           if [[ $n -lt 10 ]]; then
@@ -35,4 +35,4 @@ script:
             exit 1
           fi
         }
-      done
+      done;
