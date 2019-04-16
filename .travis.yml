@@ -24,13 +24,14 @@ before_script:
 
 script:
   - java -jar lib/resin.jar console &
+  - sleep 10
   - >
       n=1;
       while true; do
         curl localhost:8080 && break || {
           if [[ $n -lt 10 ]]; then
             ((n++))
-            sleep 1
+            sleep 10
           else
             exit 1
           fi
