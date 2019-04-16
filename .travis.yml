@@ -24,5 +24,15 @@ before_script:
 
 script:
   - java -jar lib/resin.jar console &
-  - for i in {1...10}; do curl localhost:8080 && break || sleep 5; done
-
+  - >
+      n=1
+      while true; do
+        curl localhost:8080 && break || {
+          if [[ $n -lt 10 ]]; then
+            ((n++))
+            sleep 1
+          else
+            exit 1
+          fi
+        }
+      done
