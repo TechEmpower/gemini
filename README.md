@@ -1,5 +1,7 @@
 # Gemini
 
+![Status](https://travis-ci.org/TechEmpower/gemini.svg?branch=master)
+
 Gemini is a web application framework built on top of the Servlet platform.
 
 ## Creating a Gemini Application
