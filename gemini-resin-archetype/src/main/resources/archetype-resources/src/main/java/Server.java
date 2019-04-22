@@ -8,6 +8,7 @@ import javax.servlet.annotation.MultipartConfig;
  */
 @SuppressWarnings("serial")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024 * 20, maxRequestSize = 1024 * 1024 * 50)
+@WebServlet(name="SRV", urlPatterns="*")
 public class Server
      extends InfrastructureServlet
 {
