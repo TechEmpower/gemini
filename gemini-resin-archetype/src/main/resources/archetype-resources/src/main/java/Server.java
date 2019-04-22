@@ -2,6 +2,7 @@ package ${package};
 
 import com.techempower.gemini.transport.*;
 import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
 
 /**
  * Interface to the application. 
