@@ -1029,14 +1029,24 @@ public class EntityStore
    * 
    * @param id the id of the object
    */
-  public void refresh(Class<? extends Identifiable> type, long id)
+  public void refresh(Class<? extends Identifiable> type, long... ids)
   {
-    getGroupSafe(type).refresh(id);
+    getGroupSafe(type).refresh(ids);
     
     final MethodValueCache<?> methodValueCache = methodValueCaches.get(type);
     if (methodValueCache != null)
     {
-      methodValueCache.update(id);
+      for (long id : ids) {
+        methodValueCache.update(id);
+      }
+    }
+
+    // Notify the listeners.
+    final CacheListener[] toNotify = listeners;
+    for (CacheListener listener : toNotify) {
+      for (long id : ids) {
+        listener.cacheObjectExpired(type, id);
+      }
     }
   }
   
@@ -1712,6 +1722,14 @@ public class EntityStore
         for (long id : collection)
         {
           methodValueCache.delete(id);
+        }
+      }
+
+      // Notify the listeners.
+      final CacheListener[] toNotify = listeners;
+      for (CacheListener listener : toNotify) {
+        for (long id : collection) {
+          listener.removeFromCache(type, id);
         }
       }
     }
