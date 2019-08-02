@@ -34,6 +34,8 @@ import gnu.trove.map.hash.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.reflections.*;
 
@@ -217,16 +219,40 @@ public class EntityStore
       }
     }
   }
-  
+
+  /**
+   * Are we caching all referenced method's values?  This is dependent on the
+   * value of {@code cacheMethodValues} and also whether or not each method
+   * has been annotated with {@code @Indexed} or {@code @NotIndexed}
+   * annotations. In order for the intersection to be indexed, <b>every</b>
+   * referenced method must be indexed.
+   *
+   * <p>{@code forceIndexedMethods} and {@code forceNotIndexedMethods} must be
+   * initialized for this class type before calling this.  This should be
+   * done when registering a cache group.
+   *
+   * @return true if this intersection has its values cached.  Returns false if
+   * this intersection does not have its values cached or this class type is
+   * not registered in the cache group.
+   */
+  protected <T extends Identifiable> boolean isIndexed(
+      FieldIntersection<T> fieldIntersection)
+  {
+    Class<T> type = fieldIntersection.getType();
+    return fieldIntersection.getMethodNames()
+        .stream()
+        .allMatch(method -> isIndexed(type, method));
+  }
+
   /**
    * Are we caching this method's values?  This is dependent on the value of
    * {@code cacheMethodValues} and also whether or not the method has been
    * annotated with {@code @Indexed} or {@code @NotIndexed} annotations.
-   * 
+   *
    * <p>{@code forceIndexedMethods} and {@code forceNotIndexedMethods} must be
    * initialized for this class type before calling this.  This should be
    * done when registering a cache group.
-   * 
+   *
    * @return true if this method has its values cached.  Returns false if this
    * method does not have its values cached or this class type is not registered
    * in the cache group.
@@ -654,6 +680,148 @@ public class EntityStore
     }
     
     return list(type, methodName, NO_PARAMETERS, value);
+  }
+
+  /**
+   * Return a builder-style cache accessor in the entity group.  Returns empty
+   * collection in the event of an error or if no objects cannot be found.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Identifiable> EntitySelector<T> select(Class<T> type)
+  {
+    return new EntitySelector<>(type, this);
+  }
+
+  /**
+   * A var args version of getObjects that returns an intersection (not a
+   * union!) of multiple method name/value pairs. Basically, this allows you
+   * to lookup entity objects based on multiple method values, instead of a
+   * singular value. A real world example:
+   * Suppose we want to grab all Foo's with the following attributes:
+   * <ul>
+   * <li>Enabled set to true</li>
+   * <li>BarTypeId set to 1</li>
+   * </ul>
+   * The following code would accomplish the above:
+   * <pre>
+   * {@code
+   *  list(Foo.class, "isEnabled", true, "getBarTypeId", 1);
+   * }
+   * </pre>
+   * Returns empty collection in the event of an error or if no objects
+   * cannot be found.
+   *
+   * @param methodNameThenValuePairs must be pairs of method name then value
+   *                                 objects. If the length of the objects
+   *                                 passed in is not a multiple of two, an
+   *                                 IllegalArgumentException will be thrown.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Identifiable> List<T> list(Class<T> type,
+                                              String methodName,
+                                              Object value,
+                                              Object... methodNameThenValuePairs)
+  {
+    return list(new FieldIntersection<>(type, methodName, value,
+        methodNameThenValuePairs));
+  }
+
+  @SuppressWarnings("unchecked")
+  <T extends Identifiable> List<T> list(FieldIntersection<T> fieldIntersection)
+  {
+    Class<T> type = fieldIntersection.getType();
+    if (isIndexed(fieldIntersection))
+    {
+      MethodValueCache<T> methodValueCache = (MethodValueCache<T>)this.methodValueCaches
+              .get(type);
+      if (methodValueCache != null)
+      {
+        return methodValueCache.getObjectsInt(fieldIntersection);
+      }
+    }
+    // Not indexed. Get the intersection manually.
+    List<String> methodNames = fieldIntersection.getMethodNames();
+    List<Object> values = fieldIntersection.getValues();
+    int numberOfMethodNames = methodNames.size();
+    LinkedHashMap<Long, T> resultsById;
+    if (numberOfMethodNames == 0)
+    {
+      resultsById = new LinkedHashMap<>();
+    }
+    else
+    {
+      resultsById = list(type, methodNames.get(0), values.get(0))
+        .stream()
+        .collect(Collectors.toMap(Identifiable::getId, Function.identity(),
+            (a, b) -> a, LinkedHashMap::new));
+    }
+
+    for (int index = 1; index < numberOfMethodNames; index++)
+    {
+      String additionalMethod = methodNames.get(index);
+      Object additionalValue = values.get(index);
+      Set<Long> otherResults = list(type, additionalMethod, additionalValue)
+          .stream()
+          .map(Identifiable::getId)
+          .collect(Collectors.toSet());
+      resultsById.keySet().retainAll(otherResults);
+    }
+    return new ArrayList<>(resultsById.values());
+  }
+
+  /**
+   * Return a particular IdentifiableObject contained in the entity group
+   * based on a set of method names and expected values.  Returns null in the
+   * event of an error or if the entity group cannot be found.
+   *
+   * @param methodName the method to call
+   * @param value the value on which to search
+   * @param methodNameThenValuePairs must be pairs of method name then value
+   *                                 objects. If the length of the objects
+   *                                 passed in is not a multiple of two, an
+   *                                 IllegalArgumentException will be thrown.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Identifiable> T get(Class<T> type,
+                                        String methodName,
+                                        Object value,
+                                        Object... methodNameThenValuePairs)
+  {
+    return get(new FieldIntersection<>(type, methodName, value,
+        methodNameThenValuePairs));
+  }
+
+  @SuppressWarnings("unchecked")
+  <T extends Identifiable> T get(FieldIntersection<T> fieldIntersection)
+  {
+    Class<T> type = fieldIntersection.getType();
+    if (isIndexed(fieldIntersection))
+    {
+      MethodValueCache<T> methodValueCache = (MethodValueCache<T>)this.methodValueCaches
+          .get(type);
+      if (methodValueCache != null)
+      {
+        return methodValueCache.getObjectInt(fieldIntersection);
+      }
+    }
+    // Not indexed. Get the intersection manually.
+    List<String> methodNames = fieldIntersection.getMethodNames();
+    List<Object> values = fieldIntersection.getValues();
+    int numberOfMethodNames = methodNames.size();
+    T result = numberOfMethodNames > 0
+        ? get(type, methodNames.get(0), values.get(0))
+        : null;
+    for (int index = 1; index < numberOfMethodNames; index++)
+    {
+      String additionalMethod = methodNames.get(index);
+      Object additionalValue = values.get(index);
+      T otherResult = get(type, additionalMethod, additionalValue);
+      if (result.getId() != otherResult.getId())
+      {
+        result = null;
+      }
+    }
+    return result;
   }
 
   /**

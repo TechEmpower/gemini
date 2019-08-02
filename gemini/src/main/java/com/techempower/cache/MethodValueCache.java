@@ -27,6 +27,7 @@
 
 package com.techempower.cache;
 
+import com.techempower.helper.StringHelper;
 import gnu.trove.iterator.*;
 import gnu.trove.map.*;
 import gnu.trove.map.hash.*;
@@ -36,6 +37,7 @@ import gnu.trove.set.hash.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
+import java.util.stream.Collectors;
 
 import com.techempower.util.*;
 
@@ -60,11 +62,11 @@ public class MethodValueCache<T extends Identifiable>
 {
   // Utility objects.
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
+  private final Map<String, FunctionOrMethod<T, ?>> mapMethodNameToFunctionOrMethod
+      = new LinkedHashMap<>();
   private final Map<String, Map<Object, TLongSet>> mapMethodNameToValueToIds
       = new HashMap<>();
   private final Map<String, TLongObjectMap<Object>> mapMethodNameToIdToValue
-      = new HashMap<>();
-  private final Map<String, Method> mapMethodNameToMethod 
       = new HashMap<>();
   private boolean loaded = false;
   
@@ -100,7 +102,7 @@ public class MethodValueCache<T extends Identifiable>
     this.lock.writeLock().lock();
     try
     {
-      for (String methodName : this.mapMethodNameToMethod.keySet())
+      for (String methodName : this.mapMethodNameToFunctionOrMethod.keySet())
       {
         TLongObjectMap<Object> mapIdToValue = this.mapMethodNameToIdToValue.get(methodName);
         Map<Object, TLongSet> mapValueToIds = this.mapMethodNameToValueToIds.get(methodName);
@@ -180,6 +182,58 @@ public class MethodValueCache<T extends Identifiable>
     
     return getObject(methodName, value);
   }
+
+  @SuppressWarnings("unchecked")
+  T getObjectInt(FieldIntersection<T> fieldIntersection)
+  {
+    if (!this.loaded)
+    {
+      this.load();
+    }
+
+    try
+    {
+      this.lock.readLock()
+          .lock();
+      String methodName = fieldIntersection.getCacheableMethodName();
+      Map<Object, TLongSet> mapValueToIds = this.mapMethodNameToValueToIds.get(methodName);
+
+      if (mapValueToIds != null)
+      {
+        // If we're here, then this method has been called before.
+        TLongSet ids = mapValueToIds.get(
+            this.getValueToMatch(fieldIntersection));
+
+        if (ids == null || ids.isEmpty())
+        {
+          return null;
+        }
+
+        long id = ids.iterator().next();
+        return this.cache.get(this.type, id);
+      }
+    }
+    finally
+    {
+      this.lock.readLock()
+          .unlock();
+    }
+
+    // If we're here, then this is the first time this method has been called.
+    try
+    {
+      this.lock.writeLock()
+          .lock();
+      this.addIndex(fieldIntersection.getIndex());
+    }
+    finally
+    {
+      this.lock.writeLock()
+          .unlock();
+    }
+
+    return this.getObjectInt(fieldIntersection);
+  }
   
   /**
    * Returns the entities who have the given value for the given method.  For 
@@ -241,6 +295,65 @@ public class MethodValueCache<T extends Identifiable>
     
     return getObjects(methodName, value);
   }
+
+  @SuppressWarnings("unchecked")
+  List<T> getObjectsInt(FieldIntersection<T> fieldIntersection)
+  {
+    if (!this.loaded)
+    {
+      this.load();
+    }
+
+    try
+    {
+      this.lock.readLock()
+          .lock();
+      Map<Object, TLongSet> mapValueToIds = this.mapMethodNameToValueToIds.get(
+          fieldIntersection.getCacheableMethodName());
+
+      if (mapValueToIds != null)
+      {
+        // If we're here, then this method has been called before.
+        TLongSet ids = mapValueToIds.get(
+            this.getValueToMatch(fieldIntersection));
+
+        if (ids == null || ids.isEmpty())
+        {
+          return new ArrayList<>(0);
+        }
+
+        List<T> values = new ArrayList<>();
+
+        for (TLongIterator iterator = ids.iterator(); iterator.hasNext();)
+        {
+          long id = iterator.next();
+          values.add(this.cache.get(this.type, id));
+        }
+
+        return values;
+      }
+    }
+    finally
+    {
+      this.lock.readLock()
+          .unlock();
+    }
+
+    // If we're here, then this is the first time this method has been called.
+    try
+    {
+      this.lock.writeLock()
+          .lock();
+      this.addIndex(fieldIntersection.getIndex());
+    }
+    finally
+    {
+      this.lock.writeLock()
+          .unlock();
+    }
+
+    return this.getObjectsInt(fieldIntersection);
+  }
   
   /**
    * Resets this cache so that it will be rebuilt the next time it is used.
@@ -283,7 +396,7 @@ public class MethodValueCache<T extends Identifiable>
       T object = this.cache.get(this.type, id);
       
       // Clear out the previous id/value mappings.
-      for (String methodName : this.mapMethodNameToMethod.keySet())
+      for (String methodName : this.mapMethodNameToFunctionOrMethod.keySet())
       {
         TLongObjectMap<Object> mapIdToValue = this.mapMethodNameToIdToValue.get(methodName);
         Map<Object, TLongSet> mapValueToIds = this.mapMethodNameToValueToIds.get(methodName);
@@ -320,11 +433,23 @@ public class MethodValueCache<T extends Identifiable>
       this.lock.writeLock().unlock();
     }
   }
-  
+
+  private void addFunctionOrMethod(String methodName,
+                                   FunctionOrMethod<T, ?> functionOrMethod)
+  {
+    this.mapMethodNameToFunctionOrMethod.put(methodName,
+        functionOrMethod);
+    this.mapMethodNameToValueToIds.put(methodName,
+        new HashMap<Object, TLongSet>());
+    this.mapMethodNameToIdToValue.put(methodName,
+        new TLongObjectHashMap<>());
+    this.indexMethod(methodName);
+  }
+
   /**
-   * Stores the given method and the values of that method for all entities in 
+   * Stores the given method and the values of that method for all entities in
    * this cache.
-   * 
+   *
    * @param methodName The name of the method to be stored.
    */
   protected void addMethod(String methodName)
@@ -332,11 +457,7 @@ public class MethodValueCache<T extends Identifiable>
     try
     {
       Method method = this.type.getMethod(methodName);
-      this.mapMethodNameToMethod.put(methodName, method);
-      this.mapMethodNameToValueToIds.put(methodName, new HashMap<Object, TLongSet>());
-      this.mapMethodNameToIdToValue.put(methodName, new TLongObjectHashMap<>());
-      
-      indexMethod(methodName);
+      this.addFunctionOrMethod(methodName, object -> method.invoke(object));
     }
     catch (NoSuchMethodException e)
     {
@@ -401,13 +522,10 @@ public class MethodValueCache<T extends Identifiable>
   {
     try
     {
-      return this.mapMethodNameToMethod.get(methodName).invoke(object);
+      return this.mapMethodNameToFunctionOrMethod.get(methodName)
+          .invoke(object);
     }
-    catch (IllegalAccessException e)
-    {
-      return null;
-    }
-    catch (InvocationTargetException e)
+    catch (IllegalAccessException | InvocationTargetException e)
     {
       return null;
     }
@@ -427,7 +545,7 @@ public class MethodValueCache<T extends Identifiable>
         return;
       }
       
-      for (String methodName : this.mapMethodNameToMethod.keySet())
+      for (String methodName : this.mapMethodNameToFunctionOrMethod.keySet())
       {
         indexMethod(methodName);
       }
@@ -437,6 +555,79 @@ public class MethodValueCache<T extends Identifiable>
     finally
     {
       this.lock.writeLock().unlock();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void addIndex(FieldIntersection.Index<T> index)
+  {
+    if (!this.getNonRegisteredMethods(index)
+        .isEmpty())
+    {
+      // Not all methods have been registered
+      this.getNonRegisteredMethods(index)
+          .forEach(this::addMethod);
+      List<String> nonRegisteredMethods = this.getNonRegisteredMethods(index);
+      if (!nonRegisteredMethods.isEmpty())
+      {
+        // One or more of the methods was not registered. This can only happen
+        // if a method is not defined or if a custom function has yet to be
+        // registered.
+        int numberOfNonRegisteredMethods = nonRegisteredMethods.size();
+        String wasWere = numberOfNonRegisteredMethods > 1 ? "were" : "was";
+        throw new RuntimeException(String.format(
+            "The following method%s %s not found: %s",
+            StringHelper.pluralize(numberOfNonRegisteredMethods),
+            wasWere,
+            nonRegisteredMethods.stream()
+                .map(methodName -> "\n\"" + methodName + "\"")
+                .collect(Collectors.joining(", ")))
+            .toString());
+      }
+    }
+
+    String fieldIntersectionMethodName = index.getCacheableMethodName();
+    List<String> methodNames = index.getMethodNames();
+    if (methodNames.size() > 1)
+    {
+      this.mapMethodNameToFunctionOrMethod.put(fieldIntersectionMethodName,
+          entity -> methodNames
+              .stream()
+              .map(this.mapMethodNameToIdToValue::get)
+              .map(ids -> ids.get(entity.getId()))
+              .collect(Collectors.toList()));
+      this.mapMethodNameToValueToIds.put(fieldIntersectionMethodName,
+          new HashMap<>());
+      this.mapMethodNameToIdToValue.put(fieldIntersectionMethodName,
+          new TLongObjectHashMap<>());
+
+      this.indexMethod(fieldIntersectionMethodName);
+    }
+  }
+
+  private List<String> getNonRegisteredMethods(
+      FieldIntersection.Index<T> index)
+  {
+    return index.getMethodNames()
+        .stream()
+        .filter(methodName -> !this.mapMethodNameToValueToIds.containsKey(
+            methodName))
+        .collect(Collectors.toList());
+  }
+
+  public Object getValueToMatch(FieldIntersection<T> fieldIntersection)
+  {
+    // Because the instance methods for each object are not stored in lists,
+    // so that they can be later retrieved, they must be compared to unwrapped
+    // lists as well.
+    List<?> intersectionValues = fieldIntersection.getValues();
+    if (intersectionValues.size() > 1)
+    {
+      return intersectionValues;
+    }
+    else
+    {
+      return intersectionValues.get(0);
     }
   }
 }
