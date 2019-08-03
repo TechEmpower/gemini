@@ -235,13 +235,53 @@ public class EntityStore
    * this intersection does not have its values cached or this class type is
    * not registered in the cache group.
    */
-  protected <T extends Identifiable> boolean isIndexed(
+  protected <T extends Identifiable> boolean isIndexedInt(
       FieldIntersection<T> fieldIntersection)
   {
     Class<T> type = fieldIntersection.getType();
-    return fieldIntersection.getMethodNames()
-        .stream()
-        .allMatch(method -> isIndexed(type, method));
+    // This is not a cached data entity, so immediately return false.
+    if (!groups.containsKey(type))
+    {
+      return false;
+    }
+
+    Boolean classIndexed = indexedAnnotatedClasses.get(type);
+    // The class wasn't specifically annotated, so use the global cacheMethodValues
+    // value.
+    if (classIndexed == null)
+    {
+      classIndexed = cacheMethodValues;
+    }
+
+    Map<String, Boolean> indexedAnnotatedMethods = this
+        .indexedAnnotatedMethods.get(type);
+    for(String method : fieldIntersection.getMethodNames())
+    {
+      Boolean methodIndexed = indexedAnnotatedMethods.get(method);
+      // If we are caching method values by default, then we only need to check
+      // if this method was explicitly marked as @NotIndexed.
+      if (classIndexed)
+      {
+        // This will always return true unless the method was specifically
+        // annotated and explicitly marked as @NotIndexed.
+        if (!(methodIndexed == null || methodIndexed))
+        {
+          return false;
+        }
+      }
+      // If we are not caching method values by default, then we only need to check
+      // if this method was explicitly marked as @Indexed.
+      else
+      {
+        // This method was specifically annotated and explicitly marked as
+        // @Indexed.
+        if (!(methodIndexed != null && methodIndexed))
+        {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /**
@@ -730,7 +770,7 @@ public class EntityStore
   <T extends Identifiable> List<T> list(FieldIntersection<T> fieldIntersection)
   {
     Class<T> type = fieldIntersection.getType();
-    if (isIndexed(fieldIntersection))
+    if (isIndexedInt(fieldIntersection))
     {
       MethodValueCache<T> methodValueCache = (MethodValueCache<T>)this.methodValueCaches
               .get(type);
@@ -795,7 +835,7 @@ public class EntityStore
   <T extends Identifiable> T get(FieldIntersection<T> fieldIntersection)
   {
     Class<T> type = fieldIntersection.getType();
-    if (isIndexed(fieldIntersection))
+    if (isIndexedInt(fieldIntersection))
     {
       MethodValueCache<T> methodValueCache = (MethodValueCache<T>)this.methodValueCaches
           .get(type);

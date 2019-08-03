@@ -19,7 +19,8 @@ public class EntitySelector<T extends Identifiable>
 {
   private final EntityStore store;
   private final Class<T>    type;
-  private final List<FieldIntersection.MethodValuePair> methodValuePairs = new ArrayList<>(2);
+  private final List<String> methods = new ArrayList<>(4);
+  private final List<Object> values = new ArrayList<>(4);
 
   EntitySelector(Class<T> type, EntityStore store)
   {
@@ -42,8 +43,8 @@ public class EntitySelector<T extends Identifiable>
    */
   public EntitySelector<T> where(String methodName, Object value)
   {
-    this.methodValuePairs.add(new FieldIntersection.MethodValuePair(methodName,
-        value));
+    this.methods.add(methodName);
+    this.values.add(value);
     return this;
   }
 
@@ -55,14 +56,14 @@ public class EntitySelector<T extends Identifiable>
    */
   public T get()
   {
-    if (methodValuePairs.isEmpty())
+    if (methods.isEmpty())
     {
       return this.store.list(this.type)
           .stream()
           .findFirst()
           .orElse(null);
     }
-    return this.store.get(new FieldIntersection<T>(type, methodValuePairs));
+    return this.store.get(new FieldIntersection<T>(type, methods, values));
   }
 
   /**
@@ -73,10 +74,10 @@ public class EntitySelector<T extends Identifiable>
    */
   public List<T> list()
   {
-    if (methodValuePairs.isEmpty())
+    if (methods.isEmpty())
     {
       return this.store.list(this.type);
     }
-    return this.store.list(new FieldIntersection<T>(type, methodValuePairs));
+    return this.store.list(new FieldIntersection<T>(type, methods, values));
   }
 }
