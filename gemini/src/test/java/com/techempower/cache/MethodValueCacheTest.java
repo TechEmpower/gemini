@@ -761,12 +761,6 @@ public class MethodValueCacheTest extends Suite
                 assertNull("should be missing after deletion",
                     args.methodValueCache.getObject(getDog, "Itchy"));
 
-                args.methodValueCache.update(resultB.getId());
-
-                assertNull("should be missing after deletion and " +
-                        "update",
-                    args.methodValueCache.getObject(getDog, "Itchy"));
-
                 args.mockCache.get(House.class).add(result);
                 args.mockCache.get(House.class).add(resultB);
 
