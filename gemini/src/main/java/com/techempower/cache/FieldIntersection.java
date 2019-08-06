@@ -7,7 +7,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * @author ajohnston
+ * Represents one or more method-value pairs for use in
+ * the multi-value selector methods of {@link MethodValueCache}.
+ *
+ * @param <T> The type of entities managed by this object.
  */
 class FieldIntersection<T extends Identifiable>
 {

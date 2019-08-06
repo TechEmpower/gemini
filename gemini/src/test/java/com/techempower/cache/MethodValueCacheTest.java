@@ -260,14 +260,16 @@ public class MethodValueCacheTest extends Suite
   /**
    * Generates an empty list of houses.
    */
-  static List<House> empty() {
+  static List<House> empty()
+  {
     return new ArrayList<>();
   }
 
   /**
    * Generates a list of various houses with miscellanous data.
    */
-  static List<House> populated() {
+  static List<House> populated()
+  {
     return new ArrayList<>(Arrays.asList(
         new House(1)
             .setCityId(3)

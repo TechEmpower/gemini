@@ -703,6 +703,14 @@ public class EntityStore
   }
 
   /**
+   * Return a builder-style cache accessor in the entity group.
+   */
+  public <T extends Identifiable> EntitySelector<T> select(Class<T> type)
+  {
+    return new EntitySelector<>(type, this);
+  }
+
+  /**
    * Return a collection of objects contained in the entity group based
    * on a method name value and object type.  Returns empty collection in the 
    * event of an error or if no objects cannot be found.
@@ -720,16 +728,6 @@ public class EntityStore
     }
     
     return list(type, methodName, NO_PARAMETERS, value);
-  }
-
-  /**
-   * Return a builder-style cache accessor in the entity group.  Returns empty
-   * collection in the event of an error or if no objects cannot be found.
-   */
-  @SuppressWarnings("unchecked")
-  public <T extends Identifiable> EntitySelector<T> select(Class<T> type)
-  {
-    return new EntitySelector<>(type, this);
   }
 
   /**
@@ -756,11 +754,10 @@ public class EntityStore
    *                                 passed in is not a multiple of two, an
    *                                 IllegalArgumentException will be thrown.
    */
-  @SuppressWarnings("unchecked")
   public <T extends Identifiable> List<T> list(Class<T> type,
-                                              String methodName,
-                                              Object value,
-                                              Object... methodNameThenValuePairs)
+                                               String methodName,
+                                               Object value,
+                                               Object... methodNameThenValuePairs)
   {
     return list(new FieldIntersection<>(type, methodName, value,
         methodNameThenValuePairs));
@@ -773,7 +770,7 @@ public class EntityStore
     if (isIndexedInt(fieldIntersection))
     {
       MethodValueCache<T> methodValueCache = (MethodValueCache<T>)this.methodValueCaches
-              .get(type);
+          .get(type);
       if (methodValueCache != null)
       {
         return methodValueCache.getObjectsInt(fieldIntersection);
@@ -791,9 +788,9 @@ public class EntityStore
     else
     {
       resultsById = list(type, methodNames.get(0), values.get(0))
-        .stream()
-        .collect(Collectors.toMap(Identifiable::getId, Function.identity(),
-            (a, b) -> a, LinkedHashMap::new));
+          .stream()
+          .collect(Collectors.toMap(Identifiable::getId, Function.identity(),
+              (a, b) -> a, LinkedHashMap::new));
     }
 
     for (int index = 1; index < numberOfMethodNames; index++)
@@ -807,61 +804,6 @@ public class EntityStore
       resultsById.keySet().retainAll(otherResults);
     }
     return new ArrayList<>(resultsById.values());
-  }
-
-  /**
-   * Return a particular IdentifiableObject contained in the entity group
-   * based on a set of method names and expected values.  Returns null in the
-   * event of an error or if the entity group cannot be found.
-   *
-   * @param methodName the method to call
-   * @param value the value on which to search
-   * @param methodNameThenValuePairs must be pairs of method name then value
-   *                                 objects. If the length of the objects
-   *                                 passed in is not a multiple of two, an
-   *                                 IllegalArgumentException will be thrown.
-   */
-  @SuppressWarnings("unchecked")
-  public <T extends Identifiable> T get(Class<T> type,
-                                        String methodName,
-                                        Object value,
-                                        Object... methodNameThenValuePairs)
-  {
-    return get(new FieldIntersection<>(type, methodName, value,
-        methodNameThenValuePairs));
-  }
-
-  @SuppressWarnings("unchecked")
-  <T extends Identifiable> T get(FieldIntersection<T> fieldIntersection)
-  {
-    Class<T> type = fieldIntersection.getType();
-    if (isIndexedInt(fieldIntersection))
-    {
-      MethodValueCache<T> methodValueCache = (MethodValueCache<T>)this.methodValueCaches
-          .get(type);
-      if (methodValueCache != null)
-      {
-        return methodValueCache.getObjectInt(fieldIntersection);
-      }
-    }
-    // Not indexed. Get the intersection manually.
-    List<String> methodNames = fieldIntersection.getMethodNames();
-    List<Object> values = fieldIntersection.getValues();
-    int numberOfMethodNames = methodNames.size();
-    T result = numberOfMethodNames > 0
-        ? get(type, methodNames.get(0), values.get(0))
-        : null;
-    for (int index = 1; index < numberOfMethodNames; index++)
-    {
-      String additionalMethod = methodNames.get(index);
-      Object additionalValue = values.get(index);
-      T otherResult = get(type, additionalMethod, additionalValue);
-      if (result.getId() != otherResult.getId())
-      {
-        result = null;
-      }
-    }
-    return result;
   }
 
   /**
@@ -1230,6 +1172,61 @@ public class EntityStore
 
     // If we get here, return null.
     return null;
+  }
+
+  /**
+   * Return a particular IdentifiableObject contained in the entity group
+   * based on a set of method names and expected values.  Returns null in the
+   * event of an error or if the entity group cannot be found.
+   *
+   * @param methodName the method to call
+   * @param value the value on which to search
+   * @param methodNameThenValuePairs must be pairs of method name then value
+   *                                 objects. If the length of the objects
+   *                                 passed in is not a multiple of two, an
+   *                                 IllegalArgumentException will be thrown.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Identifiable> T get(Class<T> type,
+                                        String methodName,
+                                        Object value,
+                                        Object... methodNameThenValuePairs)
+  {
+    return get(new FieldIntersection<>(type, methodName, value,
+        methodNameThenValuePairs));
+  }
+
+  @SuppressWarnings("unchecked")
+  <T extends Identifiable> T get(FieldIntersection<T> fieldIntersection)
+  {
+    Class<T> type = fieldIntersection.getType();
+    if (isIndexedInt(fieldIntersection))
+    {
+      MethodValueCache<T> methodValueCache = (MethodValueCache<T>)this.methodValueCaches
+          .get(type);
+      if (methodValueCache != null)
+      {
+        return methodValueCache.getObjectInt(fieldIntersection);
+      }
+    }
+    // Not indexed. Get the intersection manually.
+    List<String> methodNames = fieldIntersection.getMethodNames();
+    List<Object> values = fieldIntersection.getValues();
+    int numberOfMethodNames = methodNames.size();
+    T result = numberOfMethodNames > 0
+        ? get(type, methodNames.get(0), values.get(0))
+        : null;
+    for (int index = 1; index < numberOfMethodNames; index++)
+    {
+      String additionalMethod = methodNames.get(index);
+      Object additionalValue = values.get(index);
+      T otherResult = get(type, additionalMethod, additionalValue);
+      if (result.getId() != otherResult.getId())
+      {
+        result = null;
+      }
+    }
+    return result;
   }
 
   /**

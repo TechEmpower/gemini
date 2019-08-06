@@ -8,7 +8,10 @@ import gnu.trove.set.hash.TLongHashSet;
 import java.util.*;
 
 /**
- * @author ajohnston
+ * Stores and maintains a nested method value cache, for short/simple use by
+ * {@link MethodValueCache}. Does not manage the single-method values of the
+ * top-level Node, which is instead managed externally in
+ * {@link MethodValueCache} (the same behavior as always).
  */
 class MethodValueCacheMap
 {
@@ -193,8 +196,7 @@ class MethodValueCacheMap
         {
           intersectingIds = new TLongHashSet(parentIds);
           intersectingIds.retainAll(rootIds);
-        }
-        else
+        } else
         {
           intersectingIds = new TLongHashSet(rootIds);
         }

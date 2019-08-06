@@ -12,8 +12,6 @@ import java.util.stream.Stream;
 /**
  * This class is meant to help keep store accesses easy to read, by clearly
  * separating different method-value pairs into different method calls.
- *
- * @author ajohnston
  */
 public class EntitySelector<T extends Identifiable>
 {
