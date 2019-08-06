@@ -946,14 +946,14 @@ public class MethodValueCacheTest extends Suite
   @RunWith(Parameterized.class)
   public static class delete extends CommonTestBase
   {
-    @Parameters(name = "{index} - {0}")
+    @Parameters(name = "{0}")
     public static Collection<Object[]> data()
     {
       return params(
           new Param()
           {{
             description = "should remove entities from the map of matching " +
-                "objects.";
+                "objects, and should work if it was the only match.";
             inputHouses = populated();
             test = args -> {
               {
@@ -971,7 +971,7 @@ public class MethodValueCacheTest extends Suite
           new Param()
           {{
             description = "should remove entities from the map of matching " +
-                "objects.";
+                "objects, and should work if it was not the only match.";
             inputHouses = populated();
             test = args -> {
               {
