@@ -617,22 +617,32 @@ public class MethodValueCacheTest extends Suite
                 List<House> result = args.methodValueCache
                     .getObjects(getOwner, "Hank");
                 assertNotNull(result);
-                assertEquals(1, result.size());
-                assertEquals(2, result.get(0).getId());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(2L)),
+                    result.stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
               }
               {
                 List<House> result = args.methodValueCache
                     .getObjects(getCityId, 8);
                 assertNotNull(result);
-                assertEquals(1, result.size());
-                assertEquals(3, result.get(0).getId());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(3L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
               }
               {
                 List<House> result = args.methodValueCache
                     .getObjects(getDog, "Itchy");
                 assertNotNull(result);
-                assertEquals(1, result.size());
-                assertEquals(1, result.get(0).getId());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(1L)),
+                    result.stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
               }
             };
           }},
@@ -646,7 +656,6 @@ public class MethodValueCacheTest extends Suite
                 List<House> result = args.methodValueCache
                     .getObjects(getCityId, 10);
                 assertNotNull(result);
-                assertEquals(2, result.size());
                 assertEquals(
                     new HashSet<>(Arrays.asList(4L, 6L)),
                     result
@@ -658,7 +667,6 @@ public class MethodValueCacheTest extends Suite
                 List<House> result = args.methodValueCache
                     .getObjects(getOwner, "Boe");
                 assertNotNull(result);
-                assertEquals(3, result.size());
                 assertEquals(
                     new HashSet<>(Arrays.asList(4L, 5L, 7L)),
                     result
@@ -734,8 +742,12 @@ public class MethodValueCacheTest extends Suite
                         getOwner, "Boe",
                         getDog, "Cat"));
                 assertNotNull(result);
-                assertEquals(1, result.size());
-                assertEquals(4, result.get(0).getId());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(4L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
               }
               {
                 List<House> result = args.methodValueCache
@@ -743,8 +755,12 @@ public class MethodValueCacheTest extends Suite
                         getCityId, 8,
                         getOwner, "Joe"));
                 assertNotNull(result);
-                assertEquals(1, result.size());
-                assertEquals(3, result.get(0).getId());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(3L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
               }
               {
                 List<House> result = args.methodValueCache
@@ -752,8 +768,12 @@ public class MethodValueCacheTest extends Suite
                         getDog, "Spot",
                         getCityId, 5));
                 assertNotNull(result);
-                assertEquals(1, result.size());
-                assertEquals(7, result.get(0).getId());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(7L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
               }
             };
           }},
@@ -768,7 +788,6 @@ public class MethodValueCacheTest extends Suite
                     .getObjectsInt(new FieldIntersection<>(House.class,
                         getCityId, 10));
                 assertNotNull(result);
-                assertEquals(2, result.size());
                 assertEquals(
                     new HashSet<>(Arrays.asList(4L, 6L)),
                     result
@@ -781,7 +800,6 @@ public class MethodValueCacheTest extends Suite
                     .getObjectsInt(new FieldIntersection<>(House.class,
                         getOwner, "Boe"));
                 assertNotNull(result);
-                assertEquals(3, result.size());
                 assertEquals(
                     new HashSet<>(Arrays.asList(4L, 5L, 7L)),
                     result
