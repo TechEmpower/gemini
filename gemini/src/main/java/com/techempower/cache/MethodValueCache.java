@@ -63,54 +63,14 @@ public class MethodValueCache<T extends Identifiable>
 {
   // Utility objects.
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
-  private final Bucket<T> rootBucket = new Bucket<>();
+  private final MethodValueCacheMap.Node rootNode = new MethodValueCacheMap.Node();
   private final Map<String, Method> mapMethodNameToMethod
       = new HashMap<>();
   private final Map<String, TLongObjectMap<Object>> mapMethodNameToIdToValue
       = new HashMap<>();
+  private final MethodValueCacheMap valueCacheMap = new MethodValueCacheMap(
+      rootNode, mapMethodNameToIdToValue);
   private boolean loaded = false;
-
-  static class Bucket<T extends Identifiable>
-  {
-    private final Map<String, Map<Object, TLongSet>> mapMethodNameToValueToIds
-        = new HashMap<>();
-    private final Map<String, Map<Object, Bucket<T>>> mapMethodNameToValueToBucket
-        = new HashMap<>();
-    private final Bucket<T> parent;
-    private final String method;
-    private final Object value;
-
-    Bucket()
-    {
-      this(null, null, null);
-    }
-
-    Bucket(Bucket<T> parent, String method, Object value)
-    {
-      this.parent = parent;
-      this.method = method;
-      this.value = value;
-    }
-
-    boolean initTestEntity(long id, String method, Object value)
-    {
-      Bucket<T> bucket = this;
-      boolean inParent = parent == null
-          || parent.initTestEntity(id, method, value);
-      if (!inParent)
-      {
-        return false;
-      }
-      Map<Object, TLongSet> mapValuesToIds = mapMethodNameToValueToIds
-          .get(method);
-      if (mapValuesToIds == null)
-      {
-        return false;
-      }
-      TLongSet ids = mapValuesToIds.get(value);
-      return ids != null && ids.contains(id);
-    }
-  }
 
   // Assigned in the constructor.
   private final EntityStore cache;
@@ -144,54 +104,16 @@ public class MethodValueCache<T extends Identifiable>
     this.lock.writeLock().lock();
     try
     {
+      valueCacheMap.remove(id);
       for (String methodName : this.mapMethodNameToMethod.keySet())
       {
-        TLongObjectMap<Object> mapIdToValue = this.mapMethodNameToIdToValue.get(methodName);
-        Map<Object, TLongSet> mapValueToIds = this.rootBucket.mapMethodNameToValueToIds.get(methodName);
-
-        Object value = mapIdToValue.get(id);
-        getBucketAndChildren(rootBucket)
-            .stream()
-            .map(bucket -> bucket.mapMethodNameToValueToIds.get(value))
-            .filter(Objects::nonNull)
-            .forEach(otherMapValueToIds -> {
-              TLongSet ids = otherMapValueToIds.get(value);
-              ids.remove(id);
-              if (ids.isEmpty())
-              {
-                otherMapValueToIds.remove(value);
-              }
-            });
-
-        TLongSet ids = mapValueToIds.get(value);
-        if (ids != null)
-        {
-          ids.remove(id);
-          if (ids.isEmpty())
-          {
-            mapValueToIds.remove(value);
-          }
-        }
-        mapIdToValue.remove(id);
+        this.mapMethodNameToIdToValue.get(methodName).remove(id);
       }
     }
     finally
     {
       this.lock.writeLock().unlock();
     }
-  }
-
-  private List<Bucket<T>> getBucketAndChildren(Bucket<T> bucket)
-  {
-    return Stream.concat(Stream.of(bucket),
-        Stream.of(bucket)
-            .map(theBucket -> theBucket.mapMethodNameToValueToBucket.values())
-            .flatMap(Collection::stream)
-            .map(Map::values)
-            .flatMap(Collection::stream)
-            .map(this::getBucketAndChildren)
-            .flatMap(Collection::stream))
-        .collect(Collectors.toList());
   }
 
   /**
@@ -215,7 +137,7 @@ public class MethodValueCache<T extends Identifiable>
     this.lock.readLock().lock();
     try
     {
-      Map<Object, TLongSet> mapValueToIds = this.rootBucket.mapMethodNameToValueToIds.get(methodName);
+      Map<Object, TLongSet> mapValueToIds = this.rootNode.mapMethodNameToValueToIds.get(methodName);
 
       if (mapValueToIds != null)
       {
@@ -262,14 +184,14 @@ public class MethodValueCache<T extends Identifiable>
     {
       this.lock.readLock()
           .lock();
-      IdSearchResult idsSearchResult = getIdsForMethodValues(rootBucket,
-          fieldIntersection.getMethodNames(), fieldIntersection.getValues(), 0);
 
-      if (idsSearchResult.initialized)
+      MethodValueCacheMap.IdSearchResult searchResult = valueCacheMap.get(
+          fieldIntersection.getMethodNames(),
+          fieldIntersection.getValues());
+      if (searchResult.initialized)
       {
+        TLongSet ids = searchResult.ids;
         // If we're here, then this method has been called before.
-        TLongSet ids = idsSearchResult.ids;
-
         if (ids == null || ids.isEmpty())
         {
           return null;
@@ -290,7 +212,8 @@ public class MethodValueCache<T extends Identifiable>
     {
       this.lock.writeLock()
           .lock();
-      this.addIndex(fieldIntersection);
+      ensureAllMethodsRegistered(fieldIntersection);
+      valueCacheMap.initialize(fieldIntersection.getMethodNames());
     }
     finally
     {
@@ -320,7 +243,7 @@ public class MethodValueCache<T extends Identifiable>
     this.lock.readLock().lock();
     try
     {
-      Map<Object, TLongSet> mapValueToIds = this.rootBucket.mapMethodNameToValueToIds.get(methodName);
+      Map<Object, TLongSet> mapValueToIds = this.rootNode.mapMethodNameToValueToIds.get(methodName);
 
       if (mapValueToIds != null)
       {
@@ -362,70 +285,6 @@ public class MethodValueCache<T extends Identifiable>
     return getObjects(methodName, value);
   }
 
-  private static class IdSearchResult
-  {
-    static final IdSearchResult NOT_INITIALIZED = new IdSearchResult();
-    final TLongSet ids;
-    final boolean initialized;
-
-    IdSearchResult(TLongSet ids)
-    {
-      this.ids = ids;
-      this.initialized = true;
-    }
-
-    IdSearchResult()
-    {
-      this.ids = null;
-      this.initialized = false;
-    }
-  }
-
-  /**
-   * Finds the set of ids for the given method name/value pair. If any
-   * method mapping that should be initialized is not found, this returns
-   * {@link IdSearchResult.NOT_INITIALIZED}. Otherwise an IdsSearchResult is
-   * returned that has the found ids.
-   * @param bucket
-   * @param methodNames
-   * @param values
-   * @return
-   */
-  private IdSearchResult getIdsForMethodValues(Bucket<T> bucket,
-                                               List<String> methodNames,
-                                               List<Object> values,
-                                               int index)
-  {
-    String currentMethod = methodNames.get(index);
-    Object currentValue  = values.get(index);
-    boolean moreThanOneLeft = methodNames.size() - index > 1;
-    if (moreThanOneLeft)
-    {
-      Map<Object, Bucket<T>> mapValueToBucket = bucket
-          .mapMethodNameToValueToBucket.get(currentMethod);
-      if (mapValueToBucket == null)
-      {
-        return IdSearchResult.NOT_INITIALIZED;
-      }
-      Bucket<T> nextBucket = mapValueToBucket.get(currentValue);
-      if (nextBucket == null)
-      {
-        return new IdSearchResult(null);
-      }
-      return getIdsForMethodValues(nextBucket, methodNames, values, index + 1);
-    }
-    else
-    {
-      Map<Object, TLongSet> mapValueToIds = bucket.mapMethodNameToValueToIds
-          .get(currentMethod);
-      if (mapValueToIds == null)
-      {
-        return IdSearchResult.NOT_INITIALIZED;
-      }
-      return new IdSearchResult(mapValueToIds.get(currentValue));
-    }
-  }
-
   @SuppressWarnings("unchecked")
   List<T> getObjectsInt(FieldIntersection<T> fieldIntersection)
   {
@@ -439,13 +298,14 @@ public class MethodValueCache<T extends Identifiable>
       this.lock.readLock()
           .lock();
 
-      IdSearchResult idsSearchResult = getIdsForMethodValues(rootBucket,
-          fieldIntersection.getMethodNames(), fieldIntersection.getValues(), 0);
+      MethodValueCacheMap.IdSearchResult searchResult = valueCacheMap.get(
+          fieldIntersection.getMethodNames(),
+          fieldIntersection.getValues());
 
-      if (idsSearchResult.initialized)
+      if (searchResult.initialized)
       {
         // If we're here, then this method has been called before.
-        TLongSet ids = idsSearchResult.ids;
+        TLongSet ids = searchResult.ids;
 
         if (ids == null || ids.isEmpty())
         {
@@ -474,7 +334,8 @@ public class MethodValueCache<T extends Identifiable>
     {
       this.lock.writeLock()
           .lock();
-      this.addIndex(fieldIntersection);
+      ensureAllMethodsRegistered(fieldIntersection);
+      valueCacheMap.initialize(fieldIntersection.getMethodNames());
     }
     finally
     {
@@ -500,6 +361,7 @@ public class MethodValueCache<T extends Identifiable>
     try
     {
       this.loaded = false;
+      valueCacheMap.reset();
     }
     finally
     {
@@ -523,36 +385,13 @@ public class MethodValueCache<T extends Identifiable>
     this.lock.writeLock().lock();
     try
     {
+      valueCacheMap.remove(id);
       T object = this.cache.get(this.type, id);
-
       // Clear out the previous id/value mappings.
       for (String methodName : this.mapMethodNameToMethod.keySet())
       {
         TLongObjectMap<Object> mapIdToValue = this.mapMethodNameToIdToValue.get(methodName);
-        Map<Object, TLongSet> mapValueToIds = this.rootBucket.mapMethodNameToValueToIds.get(methodName);
-
-        Object oldValue = mapIdToValue.get(id);
-        TLongSet oldIds = mapValueToIds.get(oldValue);
-        if (oldIds != null)
-        {
-          oldIds.remove(id);
-          if (oldIds.isEmpty())
-          {
-            mapValueToIds.remove(oldValue);
-          }
-        }
-        getBucketAndChildren(rootBucket)
-            .stream()
-            .map(bucket -> bucket.mapMethodNameToValueToIds.get(oldValue))
-            .filter(Objects::nonNull)
-            .forEach(otherMapValueToIds -> {
-              TLongSet ids = otherMapValueToIds.get(oldValue);
-              ids.remove(id);
-              if (ids.isEmpty())
-              {
-                otherMapValueToIds.remove(oldValue);
-              }
-            });
+        Map<Object, TLongSet> mapValueToIds = this.rootNode.mapMethodNameToValueToIds.get(methodName);
         mapIdToValue.remove(id);
 
         if (object != null)
@@ -567,10 +406,6 @@ public class MethodValueCache<T extends Identifiable>
             mapValueToIds.put(newValue, ids);
           }
           ids.add(id);
-
-          getBucketAndChildren(rootBucket)
-              .forEach(bucket -> bucket
-                  .initTestEntity(id, methodName, newValue));
         }
       }
     }
@@ -592,7 +427,7 @@ public class MethodValueCache<T extends Identifiable>
     {
       Method method = this.type.getMethod(methodName);
       this.mapMethodNameToMethod.put(methodName, method);
-      this.rootBucket.mapMethodNameToValueToIds.put(methodName, new HashMap<Object, TLongSet>());
+      this.rootNode.mapMethodNameToValueToIds.put(methodName, new HashMap<Object, TLongSet>());
       this.mapMethodNameToIdToValue.put(methodName, new TLongObjectHashMap<>());
 
       indexMethod(methodName);
@@ -611,7 +446,7 @@ public class MethodValueCache<T extends Identifiable>
   protected void indexMethod(String methodName)
   {
     TLongObjectMap<Object> mapIdToValue = this.mapMethodNameToIdToValue.get(methodName);
-    Map<Object, TLongSet> mapValueToIds = this.rootBucket.mapMethodNameToValueToIds.get(methodName);
+    Map<Object, TLongSet> mapValueToIds = this.rootNode.mapMethodNameToValueToIds.get(methodName);
 
     if (mapIdToValue == null)
     {
@@ -626,7 +461,7 @@ public class MethodValueCache<T extends Identifiable>
     if (mapValueToIds == null)
     {
       mapValueToIds = new HashMap<>();
-      this.rootBucket.mapMethodNameToValueToIds.put(methodName, mapValueToIds);
+      this.rootNode.mapMethodNameToValueToIds.put(methodName, mapValueToIds);
     }
     else
     {
@@ -690,7 +525,6 @@ public class MethodValueCache<T extends Identifiable>
       {
         indexMethod(methodName);
       }
-      rootBucket.mapMethodNameToValueToBucket.clear();
 
       this.loaded = true;
     }
@@ -730,80 +564,12 @@ public class MethodValueCache<T extends Identifiable>
     }
   }
 
-  private void indexBucketForMethods(Bucket<T> bucket,
-                                     List<String> methodNames,
-                                     int index)
-  {
-    String currentMethod = methodNames.get(index);
-    boolean initializationRequired = !bucket
-        .mapMethodNameToValueToBucket
-        .containsKey(currentMethod);
-    Map<Object, Bucket<T>> mapValueToBucket = bucket
-        .mapMethodNameToValueToBucket
-        .computeIfAbsent(currentMethod, ignored -> new HashMap<>());
-    Map<Object, TLongSet> mapValueToIds = this.rootBucket
-        .mapMethodNameToValueToIds.get(currentMethod);
-    Map<Object, TLongSet> nextMapValueToIds = bucket
-        .mapMethodNameToValueToIds
-        .computeIfAbsent(currentMethod, ignored -> new HashMap<>());
-    Map<Object, MethodValueCache.Bucket<T>> nextMapValueToBucket = bucket
-        .mapMethodNameToValueToBucket
-        .computeIfAbsent(currentMethod, ignored -> new HashMap<>());
-    boolean dependsOnParentIds = initializationRequired
-        && index > 0
-        && bucket.parent != null;
-    TLongSet parentIds = dependsOnParentIds
-        ? Optional.ofNullable(bucket.method)
-        .map(bucket.parent.mapMethodNameToValueToIds::get)
-        .map(parentMapValueToIds -> parentMapValueToIds.get(bucket.value))
-        .orElse(null)
-        : null;
-    mapValueToIds.keySet().forEach(value -> {
-      if (initializationRequired)
-      {
-        TLongSet rootIds = Optional.of(currentMethod)
-            .map(rootBucket.mapMethodNameToValueToIds::get)
-            .map(rootMapValueToIds -> rootMapValueToIds.get(value))
-            .orElse(null);
-        TLongSet intersectingIds;
-        if (bucket.parent == null && rootIds != null)
-        {
-          intersectingIds = new TLongHashSet(rootIds);
-        }
-        else if (parentIds != null && rootIds != null)
-        {
-          intersectingIds = new TLongHashSet(parentIds);
-          intersectingIds.retainAll(rootIds);
-        }
-        else
-        {
-          intersectingIds = null;
-        }
-        nextMapValueToIds.put(value, intersectingIds);
-      }
-      nextMapValueToBucket.computeIfAbsent(value,
-          val -> new Bucket<>(bucket, currentMethod, val));
-      if (index + 1 < methodNames.size())
-      {
-        indexBucketForMethods(nextMapValueToBucket.get(value), methodNames,
-            index + 1);
-      }
-    });
-  }
-
-  @SuppressWarnings("unchecked")
-  private void addIndex(FieldIntersection<T> fieldIntersection)
-  {
-    ensureAllMethodsRegistered(fieldIntersection);
-    indexBucketForMethods(rootBucket, fieldIntersection.getMethodNames(), 0);
-  }
-
   private List<String> getNonRegisteredMethods(
       FieldIntersection<T> fieldIntersection)
   {
     return fieldIntersection.getMethodNames()
         .stream()
-        .filter(methodName -> !this.rootBucket.mapMethodNameToValueToIds
+        .filter(methodName -> !this.rootNode.mapMethodNameToValueToIds
             .containsKey(methodName))
         .collect(Collectors.toList());
   }

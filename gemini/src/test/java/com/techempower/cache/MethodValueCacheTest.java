@@ -28,7 +28,9 @@ import static com.techempower.cache.MethodValueCacheTest.*;
 @RunWith(MethodValueCacheTest.class)
 @Suite.SuiteClasses({
     getObject.class,
+    getObjectInt.class,
     getObjects.class,
+    getObjectsInt.class,
     addMethod.class,
     delete.class,
     reset.class,
@@ -294,7 +296,23 @@ public class MethodValueCacheTest extends Suite
         new House(7)
             .setCityId(5)
             .setOwner("Boe")
-            .setDog("Spot")
+            .setDog("Spot"),
+        new House(8)
+            .setCityId(7)
+            .setOwner("John")
+            .setDog("Cow"),
+        new House(9)
+            .setCityId(11)
+            .setOwner("Moe")
+            .setDog("Poppy"),
+        new House(10)
+            .setCityId(12)
+            .setOwner("Moe")
+            .setDog("Cupcake"),
+        new House(11)
+            .setCityId(11)
+            .setOwner("Moe")
+            .setDog("Poppy")
     ));
   }
 
@@ -374,6 +392,166 @@ public class MethodValueCacheTest extends Suite
                     .getObject(getOwner, "Boe");
                 assertNotNull(result);
                 assertTrue(Arrays.asList(4L, 5L, 7L).contains(result.getId()));
+              }
+            };
+          }}
+      );
+    }
+
+    @Test
+    public void test()
+    {
+      mockCache.get(House.class).addAll(inputHouses);
+
+      MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
+          House.class);
+      methodValueCache.addMethod(getCityId);
+      methodValueCache.addMethod(getOwner);
+      methodValueCache.addMethod(getDog);
+      test.accept(args(methodValueCache, thrown));
+    }
+  }
+
+  @RunWith(Parameterized.class)
+  public static class getObjectInt extends CommonTestBase
+  {
+    @Parameters(name = "{0}")
+    public static Collection<Object[]> data()
+    {
+      return params(
+          new Param()
+          {{
+            description = "should find no matching entities if no entities " +
+                "are present.";
+            inputHouses = empty();
+            test = args -> {
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getOwner, "Hank"));
+                assertNull(result);
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should find no matching entities if no entities " +
+                "are matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getOwner, "Shmoe"));
+                assertNull(result);
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get the matching entity when queried by " +
+                "a single value if only one entity is matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getOwner, "Hank"));
+                assertNotNull(result);
+                assertEquals(2, result.getId());
+              }
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getCityId, 8));
+                assertNotNull(result);
+                assertEquals(3, result.getId());
+              }
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getDog, "Itchy"));
+                assertNotNull(result);
+                assertEquals(1, result.getId());
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get any matching entity when queried by " +
+                "a single value if multiple entities are matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getCityId, 10));
+                assertNotNull(result);
+                assertTrue(Arrays.asList(4L, 6L).contains(result.getId()));
+              }
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getOwner, "Boe"));
+                assertNotNull(result);
+                assertTrue(Arrays.asList(4L, 5L, 7L).contains(result.getId()));
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get the matching entity when queried by " +
+                "multiple values if only one entity is matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(
+                        new FieldIntersection(House.class,
+                            getOwner, "Boe",
+                            getDog, "Cat"));
+                assertNotNull(result);
+                assertEquals(4, result.getId());
+              }
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getCityId, 8,
+                        getOwner, "Joe"));
+                assertNotNull(result);
+                assertEquals(3, result.getId());
+              }
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getDog, "Spot",
+                        getCityId, 5));
+                assertNotNull(result);
+                assertEquals(7, result.getId());
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get any matching entity when queried by " +
+                "multiple values if multiple entities are matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getCityId, 7,
+                        getDog, "Cow"));
+                assertNotNull(result);
+                assertTrue(Arrays.asList(5L, 8L).contains(result.getId()));
+              }
+              {
+                House result = args.methodValueCache
+                    .getObjectInt(new FieldIntersection<>(House.class,
+                        getOwner, "Moe",
+                        getDog, "Poppy"));
+                assertNotNull(result);
+                assertTrue(Arrays.asList(6L, 9L, 11L).contains(result.getId()));
               }
             };
           }}
@@ -483,6 +661,206 @@ public class MethodValueCacheTest extends Suite
                 assertEquals(3, result.size());
                 assertEquals(
                     new HashSet<>(Arrays.asList(4L, 5L, 7L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+            };
+          }}
+      );
+    }
+
+    @Test
+    public void test()
+    {
+      mockCache.get(House.class).addAll(inputHouses);
+
+      MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
+          House.class);
+      methodValueCache.addMethod(getCityId);
+      methodValueCache.addMethod(getOwner);
+      methodValueCache.addMethod(getDog);
+      test.accept(args(methodValueCache, thrown));
+    }
+  }
+
+  @RunWith(Parameterized.class)
+  public static class getObjectsInt extends CommonTestBase
+  {
+    @Parameters(name = "{0}")
+    public static Collection<Object[]> data()
+    {
+      return params(
+          new Param()
+          {{
+            description = "should find no matching entities if no entities " +
+                "are present.";
+            inputHouses = empty();
+            test = args -> {
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getOwner, "Hank"));
+                assertNotNull(result);
+                assertTrue(result.isEmpty());
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should find no matching entities if no entities " +
+                "are matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getOwner, "Shmoe"));
+                assertNotNull(result);
+                assertTrue(result.isEmpty());
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get the matching entity when queried by " +
+                "a single value if only one entity is matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getOwner, "Boe",
+                        getDog, "Cat"));
+                assertNotNull(result);
+                assertEquals(1, result.size());
+                assertEquals(4, result.get(0).getId());
+              }
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getCityId, 8,
+                        getOwner, "Joe"));
+                assertNotNull(result);
+                assertEquals(1, result.size());
+                assertEquals(3, result.get(0).getId());
+              }
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getDog, "Spot",
+                        getCityId, 5));
+                assertNotNull(result);
+                assertEquals(1, result.size());
+                assertEquals(7, result.get(0).getId());
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get all matching entities when queried by " +
+                "a single value if multiple entities are matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getCityId, 10));
+                assertNotNull(result);
+                assertEquals(2, result.size());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(4L, 6L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getOwner, "Boe"));
+                assertNotNull(result);
+                assertEquals(3, result.size());
+                assertEquals(
+                    new HashSet<>(Arrays.asList(4L, 5L, 7L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get the matching entity when queried by " +
+                "multiple values if only one entity is matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getOwner, "Hank"));
+                assertNotNull(result);
+                assertEquals(
+                    new HashSet<>(Arrays.asList(2L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getCityId, 8));
+                assertNotNull(result);
+                assertEquals(
+                    new HashSet<>(Arrays.asList(3L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getDog, "Itchy"));
+                assertNotNull(result);
+                assertEquals(
+                    new HashSet<>(Arrays.asList(1L)),
+                    result.stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should get all matching entities when queried by " +
+                "multiple values if multiple entities are matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getCityId, 7,
+                        getDog, "Cow"));
+                assertNotNull(result);
+                assertEquals(
+                    new HashSet<>(Arrays.asList(5L, 8L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getOwner, "Moe",
+                        getDog, "Poppy"));
+                assertNotNull(result);
+                assertEquals(
+                    new HashSet<>(Arrays.asList(6L, 9L, 11L)),
                     result
                         .stream()
                         .map(House::getId)
@@ -727,7 +1105,6 @@ public class MethodValueCacheTest extends Suite
     }
   }
 
-  // TODO
   @RunWith(Parameterized.class)
   public static class update extends CommonTestBase
   {
