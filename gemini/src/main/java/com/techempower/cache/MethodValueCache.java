@@ -172,7 +172,19 @@ public class MethodValueCache<T extends Identifiable>
     return getObject(methodName, value);
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Returns the entity who has the given value for the given methods.  For
+   * example, if the specified method-value pairs are [("getName", "Foo"),
+   * ("getBarId", 4)] then the following is true about the returned entity:
+   * entity.getName().equals("Foo") && entity.getBarId() == 4. If no
+   * entities match the given method-value pairs, {@code null} is returned.
+   * If more than one entity has that value, the first one encountered is
+   * returned.
+   *
+   * @param fieldIntersection The object representing the method-value pairs
+   *                          to query against
+   * @return The first entity that matches the given method-value pairs.
+   */
   T getObjectInt(FieldIntersection<T> fieldIntersection)
   {
     if (!this.loaded)
@@ -285,7 +297,16 @@ public class MethodValueCache<T extends Identifiable>
     return getObjects(methodName, value);
   }
 
-  @SuppressWarnings("unchecked")
+  /**
+   * Returns the entities who have the given value for the given methods.  For
+   * example, if the specified method-value pairs are [("getName", "Foo"),
+   * ("getBarId", 4)] then the following is true about the returned entities:
+   * entity.getName().equals("Foo") && entity.getBarId() == 4.
+   *
+   * @param fieldIntersection The object representing the method-value pairs
+   *                          to query against
+   * @return The entities that match the given method-value pairs.
+   */
   List<T> getObjectsInt(FieldIntersection<T> fieldIntersection)
   {
     if (!this.loaded)
