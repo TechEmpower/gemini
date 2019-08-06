@@ -993,6 +993,44 @@ public class MethodValueCacheTest extends Suite
                         .collect(Collectors.toSet()));
               }
             };
+          }},
+          new Param()
+          {{
+            description = "should remove entities from the map of matching " +
+                "objects, including their indexed methods' return values " +
+                "for multi-value indexes.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = (House) args.mockCache.get(House.class)
+                    .stream()
+                    .filter(house -> house.getId() == 6L)
+                    .findFirst()
+                    .orElse(null);
+
+                assertNotNull(result);
+                assertEquals(6, result.getId());
+
+                // Trigger the population of the cached values
+                args.methodValueCache.getObjectsInt(
+                    new FieldIntersection<>(House.class,
+                        getOwner, "Moe",
+                        getDog, "Poppy"));
+
+                args.mockCache.get(House.class).remove(result);
+                args.methodValueCache.delete(result.getId());
+
+                assertEquals(
+                    new HashSet<>(Arrays.asList(9L, 11L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getOwner, "Moe",
+                            getDog, "Poppy"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+            };
           }}
       );
     }
@@ -1105,6 +1143,64 @@ public class MethodValueCacheTest extends Suite
                         .collect(Collectors.toSet()));
               }
             };
+          }},
+          new Param()
+          {{
+            description = "should update the cache to reflect all changes " +
+                "in entities and their indexed methods' return values for " +
+                "multi-value indexes.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = (House) args.mockCache.get(House.class)
+                    .stream()
+                    .filter(house -> house.getId() == 6L)
+                    .findFirst()
+                    .orElse(null);
+                House resultB = (House) args.mockCache.get(House.class)
+                    .stream()
+                    .filter(house -> house.getId() == 9L)
+                    .findFirst()
+                    .orElse(null);
+
+                assertNotNull(result);
+                assertNotNull(resultB);
+                assertEquals(6, result.getId());
+                assertEquals(9, resultB.getId());
+
+                // Trigger the population of the cached values
+                args.methodValueCache.getObjectsInt(
+                    new FieldIntersection<>(House.class,
+                        getOwner, "Moe",
+                        getDog, "Poppy"));
+
+                result.setDog("Cat");
+                resultB.setDog("Cat");
+
+                assertEquals("should not detect changes until after " +
+                        "reset",
+                    new HashSet<>(Arrays.asList(6L, 9L, 11L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getOwner, "Moe",
+                            getDog, "Poppy"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+
+                args.methodValueCache.reset();
+
+                assertEquals(
+                    new HashSet<>(Arrays.asList(11L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getOwner, "Moe",
+                            getDog, "Poppy"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+            };
           }}
       );
     }
@@ -1212,6 +1308,77 @@ public class MethodValueCacheTest extends Suite
                 assertEquals(
                     new HashSet<>(Arrays.asList(2L, 4L)),
                     args.methodValueCache.getObjects(getDog, "Cat")
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+            };
+          }},
+          new Param()
+          {{
+            description = "should update the cache to reflect any changes " +
+                "in entities and their indexed methods' return values for " +
+                "multi-value indexes.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                House result = (House) args.mockCache.get(House.class)
+                    .stream()
+                    .filter(house -> house.getId() == 6L)
+                    .findFirst()
+                    .orElse(null);
+                House resultB = (House) args.mockCache.get(House.class)
+                    .stream()
+                    .filter(house -> house.getId() == 9L)
+                    .findFirst()
+                    .orElse(null);
+
+                assertNotNull(result);
+                assertNotNull(resultB);
+                assertEquals(6, result.getId());
+                assertEquals(9, resultB.getId());
+
+                // Trigger the population of the cached values
+                args.methodValueCache.getObjectsInt(
+                    new FieldIntersection<>(House.class,
+                        getOwner, "Moe",
+                        getDog, "Poppy"));
+
+                result.setDog("Cat");
+                resultB.setDog("Cat");
+
+                assertEquals("should not detect changes until after " +
+                        "update",
+                    new HashSet<>(Arrays.asList(6L, 9L, 11L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getOwner, "Moe",
+                            getDog, "Poppy"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+
+                args.methodValueCache.update(result.getId());
+
+                assertEquals("should only affect mapping for updated " +
+                        "entity.",
+                    new HashSet<>(Arrays.asList(9L, 11L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getOwner, "Moe",
+                            getDog, "Poppy"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+
+                args.methodValueCache.update(resultB.getId());
+
+                assertEquals(
+                    new HashSet<>(Arrays.asList(11L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getOwner, "Moe",
+                            getDog, "Poppy"))
                         .stream()
                         .map(House::getId)
                         .collect(Collectors.toSet()));
