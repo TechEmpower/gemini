@@ -777,33 +777,46 @@ public class EntityStore
       }
     }
     // Not indexed. Get the intersection manually.
-    List<String> methodNames = fieldIntersection.getMethodNames();
-    List<Object> values = fieldIntersection.getValues();
-    int numberOfMethodNames = methodNames.size();
-    LinkedHashMap<Long, T> resultsById;
-    if (numberOfMethodNames == 0)
+    Map<String, Method> mapMethodNameToMethods = new HashMap<>();
+    final List<T> list = list(type);
+    final List<T> toReturn = new ArrayList<>();
+    // Store a reference in case an exception is thrown.
+    String currentMethodName = null;
+    try
     {
-      resultsById = new LinkedHashMap<>();
+      List<String> methodNames = fieldIntersection.getMethodNames();
+      List<Object> values = fieldIntersection.getValues();
+      for (T object : list)
+      {
+        boolean matching = true;
+        for (int i = 0; matching && i < methodNames.size(); i++)
+        {
+          String methodName = methodNames.get(i);
+          currentMethodName = methodName;
+          Object value = values.get(i);
+          Method method = mapMethodNameToMethods.get(methodName);
+          if (method == null)
+          {
+            method = object.getClass().getMethod(methodName, NO_PARAMETERS);
+            mapMethodNameToMethods.put(methodName, method);
+          }
+          // Check the value of the field within this object.
+          final Object objValue = method.invoke(object, NO_VALUES);
+
+          matching = matching && Objects.equals(value, objValue);
+        }
+        if (matching)
+        {
+          toReturn.add(object);
+        }
+      }
     }
-    else
+    catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e)
     {
-      resultsById = list(type, methodNames.get(0), values.get(0))
-          .stream()
-          .collect(Collectors.toMap(Identifiable::getId, Function.identity(),
-              (a, b) -> a, LinkedHashMap::new));
+      throw new ControllerError(ERROR_METHOD_ACCESS + currentMethodName, e);
     }
 
-    for (int index = 1; index < numberOfMethodNames; index++)
-    {
-      String additionalMethod = methodNames.get(index);
-      Object additionalValue = values.get(index);
-      Set<Long> otherResults = list(type, additionalMethod, additionalValue)
-          .stream()
-          .map(Identifiable::getId)
-          .collect(Collectors.toSet());
-      resultsById.keySet().retainAll(otherResults);
-    }
-    return new ArrayList<>(resultsById.values());
+    return toReturn;
   }
 
   /**
@@ -1210,23 +1223,47 @@ public class EntityStore
       }
     }
     // Not indexed. Get the intersection manually.
-    List<String> methodNames = fieldIntersection.getMethodNames();
-    List<Object> values = fieldIntersection.getValues();
-    int numberOfMethodNames = methodNames.size();
-    T result = numberOfMethodNames > 0
-        ? get(type, methodNames.get(0), values.get(0))
-        : null;
-    for (int index = 1; index < numberOfMethodNames; index++)
+    Map<String, Method> mapMethodNameToMethods = new HashMap<>();
+    final List<T> list = list(type);
+    // Store a reference in case an exception is thrown.
+    String currentMethodName = null;
+
+    try
     {
-      String additionalMethod = methodNames.get(index);
-      Object additionalValue = values.get(index);
-      T otherResult = get(type, additionalMethod, additionalValue);
-      if (result.getId() != otherResult.getId())
+      List<String> methodNames = fieldIntersection.getMethodNames();
+      List<Object> values = fieldIntersection.getValues();
+      for (T object : list)
       {
-        result = null;
+        boolean matching = true;
+        for (int i = 0; matching && i < methodNames.size(); i++)
+        {
+          String methodName = methodNames.get(i);
+          currentMethodName = methodName;
+          Object value = values.get(i);
+          Method method = mapMethodNameToMethods.get(methodName);
+          if (method == null)
+          {
+            method = object.getClass().getMethod(methodName, NO_PARAMETERS);
+            mapMethodNameToMethods.put(methodName, method);
+          }
+          // Check the value of the field within this object.
+          final Object objValue = method.invoke(object, NO_VALUES);
+
+          matching = matching && Objects.equals(value, objValue);
+        }
+        if (matching)
+        {
+          return object;
+        }
       }
     }
-    return result;
+    catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e)
+    {
+      throw new ControllerError(ERROR_METHOD_ACCESS + currentMethodName, e);
+    }
+
+    // If we get here, return null.
+    return null;
   }
 
   /**
