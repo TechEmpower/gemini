@@ -887,6 +887,45 @@ public class MethodValueCacheTest extends Suite
                         .collect(Collectors.toSet()));
               }
             };
+          }},
+          new Param()
+          {{
+            description = "should get all matching entities when queried " +
+                "with a WhereInSet value if multiple entities are matching.";
+            inputHouses = populated();
+            test = args -> {
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getCityId, new WhereInSet(Arrays.asList(10, 12)),
+                        getOwner, "Moe"
+                    ));
+
+                assertNotNull(result);
+                assertEquals(
+                    new HashSet<>(Arrays.asList(6L, 10L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+              {
+                List<House> result = args.methodValueCache
+                    .getObjectsInt(new FieldIntersection<>(House.class,
+                        getDog, new WhereInSet(
+                        Arrays.asList("Poppy", "Cow", "Cupcake", "Cat")),
+                        getOwner, new WhereInSet(Arrays.asList("Boe", "Joe"))
+                    ));
+
+                assertNotNull(result);
+                assertEquals(
+                    new HashSet<>(Arrays.asList(3L, 4L, 5L)),
+                    result
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+              }
+            };
           }}
       );
     }

@@ -1,6 +1,5 @@
 package com.techempower.cache;
 
-import com.techempower.util.Identifiable;
 import gnu.trove.map.TLongObjectMap;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
@@ -88,7 +87,8 @@ class MethodValueCacheMap
               {
                 mapValueToNodes.remove(value);
               }
-            } else if (childNode != null)
+            }
+            else if (childNode != null)
             {
               nextNodes.add(childNode);
             }
@@ -99,7 +99,46 @@ class MethodValueCacheMap
     }
   }
 
+  /**
+   * Searches for the ids whose associated values match the given conditions.
+   * If not all the methods have been set up,
+   * {@link IdSearchResult.NOT_INITIALIZED} is returned.
+   *
+   * @param methods - the left side of each method-value pair, the methods to
+   *                match against
+   * @param values  - the right side of each method-value pair, the values to
+   *                match against
+   * @return the search result containing the matching ids or a
+   * not-initialized flag.
+   */
   public IdSearchResult get(List<String> methods, List<Object> values)
+  {
+    boolean hasWhereIns = false;
+    for (Object value : values)
+    {
+      if (value instanceof WhereInSet)
+      {
+        hasWhereIns = true;
+        break;
+      }
+    }
+    if (!hasWhereIns)
+    {
+      return getWithoutWhereIns(methods, values);
+    }
+    else
+    {
+      return getWithWhereIns(methods, values);
+    }
+  }
+
+  /**
+   * Does not supports the use of {@link WhereInSet}, and instead simply treats
+   * all values as direct matches. The lack of added complication allows it to
+   * be slightly more performant.
+   */
+  private IdSearchResult getWithoutWhereIns(List<String> methods,
+                                            List<Object> values)
   {
     Node currentNode = rootNode;
     for (int i = 0; i < methods.size() - 1 && currentNode != null; i++)
@@ -124,6 +163,108 @@ class MethodValueCacheMap
       {
         return new IdSearchResult(mapValueToIds.get(lastValue));
       }
+    }
+    return new IdSearchResult(null);
+  }
+
+  /**
+   * Supports the use of {@link WhereInSet} to indicate that any value
+   * from the set may match, effectively mirroring SQL's `WHERE foo IN (...)`.
+   * <p>
+   * This is <i>slightly</i> slower than a standard selection due to the added
+   * complication, but faster than the alternative option of manually creating
+   * a union. So it is separate from cases where support for WHERE...IN is not
+   * needed.
+   */
+  private IdSearchResult getWithWhereIns(List<String> methods,
+                                         List<Object> values)
+  {
+    List<Node> currentNodes = Arrays.asList(rootNode);
+    for (int i = 0; i < methods.size() - 1 && !currentNodes.isEmpty(); i++)
+    {
+      List<Node> nextNodes = new ArrayList<>();
+      for (Node currentNode : currentNodes)
+      {
+        String method = methods.get(i);
+        Object value = values.get(i);
+        Map<Object, Node> mapValueToNode = currentNode
+            .mapMethodNameToValueToNode.get(method);
+        if (mapValueToNode == null)
+        {
+          return IdSearchResult.NOT_INITIALIZED;
+        }
+        if (value instanceof WhereInSet)
+        {
+          WhereInSet whereInSet = (WhereInSet) value;
+          for (Object valueToMatch : whereInSet.getValues())
+          {
+            Node nextNode = mapValueToNode.get(valueToMatch);
+            if (nextNode != null)
+            {
+              nextNodes.add(nextNode);
+            }
+          }
+        }
+        else
+        {
+          Node nextNode = mapValueToNode.get(value);
+          if (nextNode != null)
+          {
+            nextNodes.add(nextNode);
+          }
+        }
+      }
+      currentNodes = nextNodes;
+    }
+
+    if (!currentNodes.isEmpty())
+    {
+      TLongSet results = null;
+      for (Node currentNode : currentNodes)
+      {
+        String lastMethod = methods.get(methods.size() - 1);
+        Object lastValue = values.get(values.size() - 1);
+        Map<Object, TLongSet> mapValueToIds = currentNode
+            .mapMethodNameToValueToIds.get(lastMethod);
+        if (mapValueToIds != null)
+        {
+          if (lastValue instanceof WhereInSet)
+          {
+            WhereInSet whereInSet = (WhereInSet) lastValue;
+            for (Object value : whereInSet.getValues())
+            {
+              TLongSet result = mapValueToIds.get(value);
+              if (result != null)
+              {
+                if (results == null)
+                {
+                  results = result;
+                }
+                else
+                {
+                  results.addAll(result);
+                }
+              }
+            }
+          }
+          else
+          {
+            TLongSet result = mapValueToIds.get(lastValue);
+            if (result != null)
+            {
+              if (results == null)
+              {
+                results = result;
+              }
+              else
+              {
+                results.addAll(result);
+              }
+            }
+          }
+        }
+      }
+      return new IdSearchResult(results);
     }
     return new IdSearchResult(null);
   }
@@ -196,7 +337,8 @@ class MethodValueCacheMap
         {
           intersectingIds = new TLongHashSet(parentIds);
           intersectingIds.retainAll(rootIds);
-        } else
+        }
+        else
         {
           intersectingIds = new TLongHashSet(rootIds);
         }

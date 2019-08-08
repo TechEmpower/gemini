@@ -2,12 +2,7 @@ package com.techempower.cache;
 
 import com.techempower.util.Identifiable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 /**
  * This class is meant to help keep store accesses easy to read, by clearly
@@ -15,6 +10,7 @@ import java.util.stream.Stream;
  */
 public class EntitySelector<T extends Identifiable>
 {
+
   private final EntityStore store;
   private final Class<T>    type;
   private final List<String> methods = new ArrayList<>(4);
@@ -43,6 +39,17 @@ public class EntitySelector<T extends Identifiable>
   {
     this.methods.add(methodName);
     this.values.add(value);
+    return this;
+  }
+
+  /**
+   * Adds the given method-value pair to the list to use when filtering the
+   * objects retrieved by {@link #list()} and {@link #get()}.
+   */
+  public EntitySelector<T> whereIn(String methodName, Collection<?> values)
+  {
+    this.methods.add(methodName);
+    this.values.add(new WhereInSet(values));
     return this;
   }
 

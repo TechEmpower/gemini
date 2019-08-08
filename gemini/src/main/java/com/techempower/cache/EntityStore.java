@@ -34,8 +34,6 @@ import gnu.trove.map.hash.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.reflections.*;
 
@@ -803,7 +801,14 @@ public class EntityStore
           // Check the value of the field within this object.
           final Object objValue = method.invoke(object, NO_VALUES);
 
-          matching = matching && Objects.equals(value, objValue);
+          if (value instanceof WhereInSet)
+          {
+            matching = matching && ((WhereInSet)value).hasValue(objValue);
+          }
+          else
+          {
+            matching = matching && Objects.equals(value, objValue);
+          }
         }
         if (matching)
         {
@@ -1248,8 +1253,14 @@ public class EntityStore
           }
           // Check the value of the field within this object.
           final Object objValue = method.invoke(object, NO_VALUES);
-
-          matching = matching && Objects.equals(value, objValue);
+          if (value instanceof WhereInSet)
+          {
+            matching = matching && ((WhereInSet)value).hasValue(objValue);
+          }
+          else
+          {
+            matching = matching && Objects.equals(value, objValue);
+          }
         }
         if (matching)
         {
