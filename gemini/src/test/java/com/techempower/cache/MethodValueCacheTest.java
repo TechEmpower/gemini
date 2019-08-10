@@ -407,9 +407,6 @@ public class MethodValueCacheTest extends Suite
 
       MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
           House.class);
-      methodValueCache.addMethod(getCityId);
-      methodValueCache.addMethod(getOwner);
-      methodValueCache.addMethod(getDog);
       test.accept(args(methodValueCache, thrown));
     }
   }
@@ -567,9 +564,6 @@ public class MethodValueCacheTest extends Suite
 
       MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
           House.class);
-      methodValueCache.addMethod(getCityId);
-      methodValueCache.addMethod(getOwner);
-      methodValueCache.addMethod(getDog);
       test.accept(args(methodValueCache, thrown));
     }
   }
@@ -688,9 +682,6 @@ public class MethodValueCacheTest extends Suite
 
       MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
           House.class);
-      methodValueCache.addMethod(getCityId);
-      methodValueCache.addMethod(getOwner);
-      methodValueCache.addMethod(getDog);
       test.accept(args(methodValueCache, thrown));
     }
   }
@@ -937,9 +928,6 @@ public class MethodValueCacheTest extends Suite
 
       MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
           House.class);
-      methodValueCache.addMethod(getCityId);
-      methodValueCache.addMethod(getOwner);
-      methodValueCache.addMethod(getDog);
       test.accept(args(methodValueCache, thrown));
     }
   }
@@ -1083,9 +1071,6 @@ public class MethodValueCacheTest extends Suite
 
       MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
           House.class);
-      methodValueCache.addMethod(getCityId);
-      methodValueCache.addMethod(getOwner);
-      methodValueCache.addMethod(getDog);
       test.accept(args(methodValueCache, thrown));
     }
   }
@@ -1253,9 +1238,6 @@ public class MethodValueCacheTest extends Suite
 
       MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
           House.class);
-      methodValueCache.addMethod(getCityId);
-      methodValueCache.addMethod(getOwner);
-      methodValueCache.addMethod(getDog);
       test.accept(args(methodValueCache, thrown));
     }
   }
@@ -1436,9 +1418,6 @@ public class MethodValueCacheTest extends Suite
 
       MethodValueCache<House> methodValueCache = new MethodValueCache<>(store,
           House.class);
-      methodValueCache.addMethod(getCityId);
-      methodValueCache.addMethod(getOwner);
-      methodValueCache.addMethod(getDog);
       test.accept(args(methodValueCache, thrown));
     }
   }
