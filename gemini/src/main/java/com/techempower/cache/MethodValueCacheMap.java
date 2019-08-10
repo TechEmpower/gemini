@@ -163,6 +163,10 @@ class MethodValueCacheMap
       {
         return new IdSearchResult(mapValueToIds.get(lastValue));
       }
+      else
+      {
+        return IdSearchResult.NOT_INITIALIZED;
+      }
     }
     return new IdSearchResult(null);
   }
@@ -262,6 +266,10 @@ class MethodValueCacheMap
               }
             }
           }
+        }
+        else
+        {
+          return IdSearchResult.NOT_INITIALIZED;
         }
       }
       return new IdSearchResult(results);
