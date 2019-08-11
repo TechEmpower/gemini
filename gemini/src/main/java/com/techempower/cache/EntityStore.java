@@ -727,7 +727,7 @@ public class EntityStore
    * to only one filter class (in this case it would have to be Person, as Rich
    * is not Identifiable).
    */
-  public <T extends Identifiable> MultiEntitySelector<T> select(
+  public <T extends Identifiable> MultiEntitySelector<T> selectAny(
       Collection<Class<? extends T>> types)
   {
     return new MultiEntitySelector<>(types, this);
@@ -747,7 +747,7 @@ public class EntityStore
         .filter(type::isAssignableFrom)
         .map(otherType -> (Class<? extends T>)otherType)
         .collect(Collectors.toList());
-    return select(types);
+    return selectAny(types);
   }
 
   /**
