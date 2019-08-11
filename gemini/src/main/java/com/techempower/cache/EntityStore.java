@@ -34,6 +34,7 @@ import gnu.trove.map.hash.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 import org.reflections.*;
 
@@ -701,11 +702,51 @@ public class EntityStore
   }
 
   /**
-   * Return a builder-style cache accessor in the entity group.
+   * Return a builder-style cache accessor in the entity group for the given
+   * entity type.
    */
   public <T extends Identifiable> EntitySelector<T> select(Class<T> type)
   {
     return new EntitySelector<>(type, this);
+  }
+
+  /**
+   * Return a builder-style cache accessor in the entity group. Capable of
+   * matching any of the listed types.
+   *
+   * Note: One benefit of this method over the more automatic
+   * {@link #selectAny(Class)} is that due to how Java's generics work, this
+   * can pick up on any shared interfaces that the listed classes have, rather
+   * than just a specific one.
+   *
+   * For example, suppose you had a Person interface, a Rich interface,
+   * a Doctor class implementing both, and a Lawyer class implementing both.
+   * A selection stemming from this method passing in both Lawyer.class and
+   * Doctor.class could reference any Person or Rich method. On the other hand,
+   * {@link #selectAny(Class)}, while convenient, is limited to only one filter
+   * class (in this case either Person or Rich).
+   */
+  public <T extends Identifiable> MultiEntitySelector<T> select(
+      Collection<Class<? extends T>> types)
+  {
+    return new MultiEntitySelector<>(types, this);
+  }
+
+  /**
+   * Return a builder-style cache accessor in the entity group. Capable of
+   * matching any registered entity type that is assignable from the given one.
+   */
+  @SuppressWarnings("unchecked")
+  public <T extends Identifiable> MultiEntitySelector<T> selectAny(
+      Class<? extends T> type)
+  {
+    List<Class<? extends T>> types = getGroupList()
+        .stream()
+        .map(EntityGroup::getType)
+        .filter(type::isAssignableFrom)
+        .map(otherType -> (Class<? extends T>)otherType)
+        .collect(Collectors.toList());
+    return select(types);
   }
 
   /**
