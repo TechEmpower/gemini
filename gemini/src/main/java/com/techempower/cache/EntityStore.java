@@ -715,19 +715,19 @@ public class EntityStore
    * matching any of the listed types.
    *
    * Note: One benefit of this method over the more automatic
-   * {@link #selectAny(Class)} is that due to how Java's generics work, this
-   * can pick up on any shared interfaces that the listed classes have, rather
-   * than just a specific one.
+   * {@link #selectAnySubclass(Class)} is that due to how Java's generics work,
+   * this can pick up on any shared interfaces that the listed classes have,
+   * rather than just a specific one.
    *
    * For example, suppose you had a Person interface extending Identifiable, a
    * Rich interface, a Doctor class implementing both, and a Lawyer class
    * implementing both. A selection stemming from this method passing in both
    * Lawyer.class and Doctor.class could reference any Person or Rich method.
-   * On the other hand, {@link #selectAny(Class)}, while convenient, is limited
-   * to only one filter class (in this case it would have to be Person, as Rich
-   * is not Identifiable).
+   * On the other hand, {@link #selectAnySubclass(Class)}, while convenient, is
+   * limited to only one filter class (in this case it would have to be Person,
+   * as Rich is not Identifiable).
    */
-  public <T extends Identifiable> MultiEntitySelector<T> selectAny(
+  public <T extends Identifiable> MultiEntitySelector<T> select(
       Collection<Class<? extends T>> types)
   {
     return new MultiEntitySelector<>(types, this);
@@ -738,7 +738,7 @@ public class EntityStore
    * matching any registered entity type that is assignable from the given one.
    */
   @SuppressWarnings("unchecked")
-  public <T extends Identifiable> MultiEntitySelector<T> selectAny(
+  public <T extends Identifiable> MultiEntitySelector<T> selectAnySubclass(
       Class<? extends T> type)
   {
     List<Class<? extends T>> types = getGroupList()
@@ -747,7 +747,7 @@ public class EntityStore
         .filter(type::isAssignableFrom)
         .map(otherType -> (Class<? extends T>)otherType)
         .collect(Collectors.toList());
-    return selectAny(types);
+    return select(types);
   }
 
   /**
