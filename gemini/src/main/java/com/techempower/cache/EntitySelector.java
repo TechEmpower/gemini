@@ -29,7 +29,7 @@ public class EntitySelector<T extends Identifiable>
    * Returns the entity of the selected class with the given id. Ignores any
    * specified method-value pairs.
    */
-  public T get(int id)
+  public T get(long id)
   {
     return this.store.get(this.type, id);
   }
