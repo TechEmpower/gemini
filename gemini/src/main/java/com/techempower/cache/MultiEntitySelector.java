@@ -66,19 +66,11 @@ public class MultiEntitySelector<T>
   }
 
   /**
-   * Adds the given method-value pair to the list to use when filtering the
-   * objects retrieved by {@link #list()} and {@link #get()}.
-   */
-  public <S> MultiEntitySelector<T> where(Function<? super T, S> method,
-                                          String methodName,
-                                          S value)
-  {
-    return where(methodName, value);
-  }
-
-  /**
-   * Adds the given method-value pair to the list to use when filtering the
-   * objects retrieved by {@link #list()} and {@link #get()}.
+   * Begins a chain call to perform a filter.
+   * <p>
+   * Note: The <tt>method</tt> parameter does nothing aside from specify the
+   * type of the value to match to the compiler. The method name string is
+   * what is actually used to determine the method to filter on.
    */
   public <S> MultiEntityWhereChain<T, S> where(Function<? super T, S> method,
                                                String methodName)

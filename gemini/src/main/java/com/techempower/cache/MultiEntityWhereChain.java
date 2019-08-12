@@ -21,11 +21,21 @@ public class MultiEntityWhereChain<T, S>
 
   /**
    * Adds a filter for the given method which can match any of the given values
-   * when performing the selection in {@link MultiEntitySelector#get()} or
+   * when performing the selection in {@link MultiEntitySelector#get()} and
    * {@link MultiEntitySelector#list()}.
    */
   public final MultiEntitySelector<T> in(Collection<S> values)
   {
     return multiEntitySelector.where(methodName, new WhereInSet(values));
+  }
+
+  /**
+   * Adds the given method-value pair to the list to use when filtering the
+   * objects retrieved by {@link MultiEntitySelector#list()} and
+   * {@link MultiEntitySelector#get()}.
+   */
+  public final MultiEntitySelector<T> is(S value)
+  {
+    return multiEntitySelector.where(methodName, value);
   }
 }

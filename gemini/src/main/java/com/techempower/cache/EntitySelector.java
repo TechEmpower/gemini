@@ -14,7 +14,6 @@ import java.util.function.Function;
  */
 public class EntitySelector<T extends Identifiable>
 {
-
   private final EntityStore store;
   private final Class<T> type;
   private final List<String> methods = new ArrayList<>(4);
@@ -47,24 +46,7 @@ public class EntitySelector<T extends Identifiable>
   }
 
   /**
-   * Adds the given method-value pair to the list to use when filtering the
-   * objects retrieved by {@link #list()} and {@link #get()}.
-   * <p>
-   * Note: The <tt>method</tt> parameter does nothing aside from specify the
-   * type of the value to match to the compiler. The method name string is
-   * what is actually used to determine the method to filter on.
-   */
-  public <S> EntitySelector<T> where(Function<? super T, S> method,
-                                     String methodName,
-                                     S value)
-  {
-    return where(methodName, value);
-  }
-
-  /**
-   * Begins a chain call to perform more advanced checks. Currently, this is
-   * limited to {@link WhereChain#in(Collection)}, which allows you to
-   * match against any one of a set of values for a given method.
+   * Begins a chain call to perform a filter.
    * <p>
    * Note: The <tt>method</tt> parameter does nothing aside from specify the
    * type of the value to match to the compiler. The method name string is
