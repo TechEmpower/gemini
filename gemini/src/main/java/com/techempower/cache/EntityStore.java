@@ -724,8 +724,7 @@ public class EntityStore
    * implementing both. A selection stemming from this method passing in both
    * Lawyer.class and Doctor.class could reference any Person or Rich method.
    * On the other hand, {@link #selectAnySubclass(Class)}, while convenient, is
-   * limited to only one filter class (in this case it would have to be Person,
-   * as Rich is not Identifiable).
+   * limited to only one filter class (in this case either Person or Rich).
    */
   public <T extends Identifiable> MultiEntitySelector<T> select(
       Collection<Class<? extends T>> types)
