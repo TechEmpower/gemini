@@ -730,24 +730,17 @@ public class EntityStore
   public <T extends Identifiable> MultiEntitySelector<T> select(
       Collection<Class<? extends T>> types)
   {
-    return new MultiEntitySelector<>(types, this);
+    return MultiEntitySelector.select(types, this);
   }
 
   /**
    * Return a builder-style cache accessor in the entity group. Capable of
    * matching any registered entity type that is assignable from the given one.
    */
-  @SuppressWarnings("unchecked")
-  public <T extends Identifiable> MultiEntitySelector<T> selectAnySubclass(
+  public <T> MultiEntitySelector<T> selectAnySubclass(
       Class<? extends T> type)
   {
-    List<Class<? extends T>> types = getGroupList()
-        .stream()
-        .map(EntityGroup::getType)
-        .filter(type::isAssignableFrom)
-        .map(otherType -> (Class<? extends T>)otherType)
-        .collect(Collectors.toList());
-    return select(types);
+    return MultiEntitySelector.selectAnySubclass(type, this);
   }
 
   /**

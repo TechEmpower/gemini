@@ -1,11 +1,13 @@
 package com.techempower.cache;
 
+import com.techempower.data.EntityGroup;
 import com.techempower.util.Identifiable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * This class is meant to help keep store accesses easy to read, by clearly
@@ -13,17 +15,43 @@ import java.util.function.Function;
  * a variant of {@link EntitySelector} that is capable of performing selections
  * on multiple entity groups at once.
  */
-public class MultiEntitySelector<T extends Identifiable>
+public class MultiEntitySelector<T>
 {
   private final EntityStore store;
-  private final Collection<Class<? extends T>> types;
+  private final Collection<Class<? extends Identifiable>> types;
   private final List<String> methods = new ArrayList<>(4);
   private final List<Object> values = new ArrayList<>(4);
 
-  MultiEntitySelector(Collection<Class<? extends T>> types, EntityStore store)
+  private MultiEntitySelector(Collection<Class<? extends Identifiable>> types,
+                              EntityStore store)
   {
+
     this.types = types;
     this.store = store;
+  }
+
+  static <T extends Identifiable> MultiEntitySelector<T> select(
+      Collection<Class<? extends T>> types,
+      EntityStore store)
+  {
+    Collection<Class<? extends Identifiable>> identifiableTypes = types
+        .stream()
+        .map(type -> (Class<? extends Identifiable>) type)
+        .collect(Collectors.toList());
+    return new MultiEntitySelector<>(identifiableTypes, store);
+  }
+
+  static <T> MultiEntitySelector<T> selectAnySubclass(
+      Class<? extends T> type,
+      EntityStore store)
+  {
+    List<Class<? extends Identifiable>> identifiableTypes = store
+        .getGroupList()
+        .stream()
+        .map(EntityGroup::getType)
+        .filter(type::isAssignableFrom)
+        .collect(Collectors.toList());
+    return new MultiEntitySelector<>(identifiableTypes, store);
   }
 
   /**
@@ -64,26 +92,27 @@ public class MultiEntitySelector<T extends Identifiable>
    *
    * @see #where(String, Object)
    */
+  @SuppressWarnings("unchecked")
   public T get()
   {
     if (methods.isEmpty())
     {
-      for (Class<? extends T> type : types)
+      for (Class<? extends Identifiable> type : types)
       {
-        T object = this.store.list(type)
+        Identifiable object = this.store.list(type)
             .stream()
             .findFirst()
             .orElse(null);
         if (object != null)
         {
-          return object;
+          return (T) object;
         }
       }
       return null;
     }
-    for (Class<? extends T> type : types)
+    for (Class<? extends Identifiable> type : types)
     {
-      T object = this.store.get(
+      T object = (T) this.store.get(
           new FieldIntersection<>(type, methods, values));
       if (object != null)
       {
@@ -99,21 +128,22 @@ public class MultiEntitySelector<T extends Identifiable>
    *
    * @see #where(String, Object)
    */
+  @SuppressWarnings("unchecked")
   public List<T> list()
   {
     List<T> toReturn = new ArrayList<>();
     if (methods.isEmpty())
     {
-      for (Class<? extends T> type : types)
+      for (Class<? extends Identifiable> type : types)
       {
-        toReturn.addAll(this.store.list(type));
+        toReturn.addAll((List<T>) this.store.list(type));
       }
     }
     else
     {
-      for (Class<? extends T> type : types)
+      for (Class<? extends Identifiable> type : types)
       {
-        toReturn.addAll(this.store.list(
+        toReturn.addAll((List<T>) this.store.list(
             new FieldIntersection<>(type, methods, values)));
       }
     }

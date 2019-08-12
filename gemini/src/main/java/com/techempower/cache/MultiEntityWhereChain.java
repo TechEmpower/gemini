@@ -7,7 +7,7 @@ import java.util.Collection;
 /**
  * Identical to {@link WhereChain}, except for {@link MultiEntitySelector}
  */
-public class MultiEntityWhereChain<T extends Identifiable, S>
+public class MultiEntityWhereChain<T, S>
 {
   private MultiEntitySelector<T> multiEntitySelector;
   private final String methodName;
