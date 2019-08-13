@@ -16,7 +16,7 @@ public class EntitySelector<T extends Identifiable>
 {
   private final EntityStore store;
   private final Class<T> type;
-  private final List<String> methods = new ArrayList<>(4);
+  private final List<String> methodNames = new ArrayList<>(4);
   private final List<Object> values = new ArrayList<>(4);
 
   EntitySelector(Class<T> type, EntityStore store)
@@ -38,24 +38,11 @@ public class EntitySelector<T extends Identifiable>
    * Adds the given method-value pair to the list to use when filtering the
    * objects retrieved by {@link #list()} and {@link #get()}.
    */
-  EntitySelector<T> where(String methodName, Object value)
+  public <S> EntitySelector<T> where(MethodValue<? super T, S> methodValue)
   {
-    this.methods.add(methodName);
-    this.values.add(value);
+    this.methodNames.add(methodValue.getMethodName());
+    this.values.add(methodValue.getValue());
     return this;
-  }
-
-  /**
-   * Begins a chain call to perform a filter.
-   * <p>
-   * Note: The <tt>method</tt> parameter does nothing aside from specify the
-   * type of the value to match to the compiler. The method name string is
-   * what is actually used to determine the method to filter on.
-   */
-  public <S> WhereChain<T, S> where(Function<? super T, S> method,
-                                    String methodName)
-  {
-    return new WhereChain<>(this, methodName);
   }
 
   /**
@@ -67,14 +54,14 @@ public class EntitySelector<T extends Identifiable>
    */
   public T get()
   {
-    if (methods.isEmpty())
+    if (methodNames.isEmpty())
     {
       return this.store.list(this.type)
           .stream()
           .findFirst()
           .orElse(null);
     }
-    return this.store.get(new FieldIntersection<>(type, methods, values));
+    return this.store.get(new FieldIntersection<>(type, methodNames, values));
   }
 
   /**
@@ -86,10 +73,10 @@ public class EntitySelector<T extends Identifiable>
    */
   public List<T> list()
   {
-    if (methods.isEmpty())
+    if (methodNames.isEmpty())
     {
       return this.store.list(this.type);
     }
-    return this.store.list(new FieldIntersection<>(type, methods, values));
+    return this.store.list(new FieldIntersection<>(type, methodNames, values));
   }
 }

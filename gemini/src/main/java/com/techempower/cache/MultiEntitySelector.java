@@ -6,7 +6,6 @@ import com.techempower.util.Identifiable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -19,7 +18,7 @@ public class MultiEntitySelector<T>
 {
   private final EntityStore store;
   private final Collection<Class<? extends Identifiable>> types;
-  private final List<String> methods = new ArrayList<>(4);
+  private final List<String> methodNames = new ArrayList<>(4);
   private final List<Object> values = new ArrayList<>(4);
 
   private MultiEntitySelector(Collection<Class<? extends Identifiable>> types,
@@ -58,24 +57,12 @@ public class MultiEntitySelector<T>
    * Adds the given method-value pair to the list to use when filtering the
    * objects retrieved by {@link #list()} and {@link #get()}.
    */
-  MultiEntitySelector<T> where(String methodName, Object value)
+  public <S> MultiEntitySelector<T> where(
+      MethodValue<? super T, S> methodValue)
   {
-    this.methods.add(methodName);
-    this.values.add(value);
+    this.methodNames.add(methodValue.getMethodName());
+    this.values.add(methodValue.getValue());
     return this;
-  }
-
-  /**
-   * Begins a chain call to perform a filter.
-   * <p>
-   * Note: The <tt>method</tt> parameter does nothing aside from specify the
-   * type of the value to match to the compiler. The method name string is
-   * what is actually used to determine the method to filter on.
-   */
-  public <S> MultiEntityWhereChain<T, S> where(Function<? super T, S> method,
-                                               String methodName)
-  {
-    return new MultiEntityWhereChain<>(this, methodName);
   }
 
   /**
@@ -87,7 +74,7 @@ public class MultiEntitySelector<T>
   @SuppressWarnings("unchecked")
   public T get()
   {
-    if (methods.isEmpty())
+    if (methodNames.isEmpty())
     {
       for (Class<? extends Identifiable> type : types)
       {
@@ -105,7 +92,7 @@ public class MultiEntitySelector<T>
     for (Class<? extends Identifiable> type : types)
     {
       T object = (T) this.store.get(
-          new FieldIntersection<>(type, methods, values));
+          new FieldIntersection<>(type, methodNames, values));
       if (object != null)
       {
         return object;
@@ -124,7 +111,7 @@ public class MultiEntitySelector<T>
   public List<T> list()
   {
     List<T> toReturn = new ArrayList<>();
-    if (methods.isEmpty())
+    if (methodNames.isEmpty())
     {
       for (Class<? extends Identifiable> type : types)
       {
@@ -136,7 +123,7 @@ public class MultiEntitySelector<T>
       for (Class<? extends Identifiable> type : types)
       {
         toReturn.addAll((List<T>) this.store.list(
-            new FieldIntersection<>(type, methods, values)));
+            new FieldIntersection<>(type, methodNames, values)));
       }
     }
     return toReturn;
