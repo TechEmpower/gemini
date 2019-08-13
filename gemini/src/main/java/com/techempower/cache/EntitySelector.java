@@ -26,7 +26,7 @@ public class EntitySelector<T extends Identifiable>
   }
 
   /**
-   * Returns the entity of the selected class with the given ids. Ignores any
+   * Returns the entity of the selected class with the given id. Ignores any
    * specified method-value pairs.
    */
   public T get(long id)
@@ -35,7 +35,7 @@ public class EntitySelector<T extends Identifiable>
   }
 
   /**
-   * Returns the entity of the selected class with the given id. Ignores any
+   * Returns the entity of the selected class with the given ids. Ignores any
    * specified method-value pairs.
    */
   public List<T> list(Collection<Long> ids)
