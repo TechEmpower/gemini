@@ -404,15 +404,15 @@ public abstract class AbstractLogListener
   {
     if (logLevel < ALERT)
     {
-      return "[INFO]   ";
+      return "[INFO]  ";
     }
     else if (logLevel < CRITICAL)
     {
-      return "[WARN]   ";
+      return "[WARN]  ";
     }
     else
     {
-      return "[ERROR]  ";
+      return "[ERROR] ";
     }
   }
   
