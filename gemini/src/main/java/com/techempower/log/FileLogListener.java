@@ -63,7 +63,8 @@ public class FileLogListener
   private String           logDirectory           = DEFAULT_LOGFILE_DIR
                                                       + File.separator;
   private FileWriter       fileWriter             = null;
-  
+  private boolean          stripControlCharacters = true;
+
   private final ConcurrentLinkedQueue<String> queue     = new ConcurrentLinkedQueue<>();
 
   /**
@@ -74,7 +75,8 @@ public class FileLogListener
    */
   public FileLogListener(TechEmpowerApplication application,
     String directory, String filenamePrefix, String filenameSuffix,
-    int threshold)
+    int threshold, boolean severityPrefixEnabled,
+    boolean stripControlCharacters)
   {
     super(application);
     
@@ -83,6 +85,8 @@ public class FileLogListener
     setLogFilenamePrefix(filenamePrefix);
     setLogFilenameSuffix(filenameSuffix);
     setDebugThreshold(threshold);
+    setSeverityPrefixEnabled(severityPrefixEnabled);
+    setStripControlCharacters(stripControlCharacters);
 
     // Get the LogWriterCloser to monitor this LogWriter.  This allows
     // us to not worry about closing the file.
@@ -119,15 +123,27 @@ public class FileLogListener
     // debugging threshold set for this Log? If not, ignore this item.
     if (debugLevel >= getDebugThreshold())
     {
-      // Strip out carriage returns and other control characters that may
-      // mess up our nicely formatted log.
-      String toLog = StringHelper.stripISOControlCharacters(logString, " ");
+      String toLog;
+      if (isStripControlCharacters())
+      {
+        // Strip out carriage returns and other control characters that may
+        // mess up our nicely formatted log.
+        toLog = StringHelper.stripISOControlCharacters(logString, " ");
+      }
+      else
+      {
+        toLog = logString;
+      }
       
       // Update the time in the calendar.
       computeTimestamps();
 
       // Build the line.
       StringBuilder buffer = new StringBuilder(ITEM_BUFFER_MARGIN + toLog.length());
+      if (isSeverityPrefixEnabled())
+      {
+        buffer.append(getLogLevelPrefix(debugLevel));
+      }
       buffer.append(getApplication().getVersion().getProductCode());
       buffer.append(' ');
       buffer.append(getFullTimestamp());
@@ -230,7 +246,29 @@ public class FileLogListener
       this.logDirectory = dir + File.separator;
     }
   }
-  
+
+  /**
+   * Determines whether or not ISO control characters are removed from messages
+   * before they are written to the file.
+   */
+  public boolean isStripControlCharacters()
+  {
+    return stripControlCharacters;
+  }
+
+  /**
+   * Enables/disables the removal of ISO control characters when logging
+   * messages.
+   *
+   * @param stripControlCharacters the flag indicating whether or not ISO
+   *                               control characters should be removed
+   * @see #isStripControlCharacters()
+   */
+  public void setStripControlCharacters(boolean stripControlCharacters)
+  {
+    this.stripControlCharacters = stripControlCharacters;
+  }
+
   /**
    * Checks to see if a new file needs to be opened.
    */

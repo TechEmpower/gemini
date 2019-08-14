@@ -91,8 +91,8 @@ public class BasicLog
     // this default listener will be removed before adding any new ones.
     this.consoleLog = new ConsoleLogListener(
         getApplication(),
-        0 // Debug level
-      );
+        0, // Debug level
+      false);
     
     addListener(this.consoleLog);
     
@@ -157,8 +157,14 @@ public class BasicLog
         }
       }
 
+      boolean includeSeverityPrefix = props.getBoolean(
+          "Log.File.SeverityPrefixEnabled", false);
+      boolean stripControlCharacters = props.getBoolean(
+          "Log.File.StripControlCharacters", true);
+
       this.fileLog = new FileLogListener(getApplication(), logDirectory,
-          logFilenamePrefix, logFilenameSuffix, fileDebugThreshold);
+          logFilenamePrefix, logFilenameSuffix, fileDebugThreshold,
+          includeSeverityPrefix, stripControlCharacters);
 
       listeners.add(this.fileLog);
     }
@@ -168,9 +174,10 @@ public class BasicLog
     {
       int consoleDebugThreshold = props.getInt(
           "Log.Console.LogDebugThreshold", getDebugThreshold());
+      boolean severityPrefixEnabled = props.getBoolean("Log.Console.SeverityPrefixEnabled", false);
 
       this.consoleLog = new ConsoleLogListener(getApplication(),
-          consoleDebugThreshold);
+          consoleDebugThreshold, severityPrefixEnabled);
 
       listeners.add(this.consoleLog);
     }

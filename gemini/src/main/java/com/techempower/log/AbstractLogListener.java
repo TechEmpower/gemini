@@ -48,11 +48,12 @@ public abstract class AbstractLogListener
   //
   
   private final TechEmpowerApplication application;
-  private int                    debugThreshold  = MINIMUM;
-  private long                   endOfDay        = DateHelper.getEndOfDay().getTimeInMillis();
-  private long                   nextSecond      = 0L;
-  private String                 fullTimestamp   = null;
-  private String                 briefTimestamp  = null;
+  private int                    debugThreshold        = MINIMUM;
+  private long                   endOfDay              = DateHelper.getEndOfDay().getTimeInMillis();
+  private long                   nextSecond            = 0L;
+  private String                 fullTimestamp         = null;
+  private String                 briefTimestamp        = null;
+  private boolean                severityPrefixEnabled = false;
 
   /**
    * Only create the Calendar instance once, and then call setTimeInMillis()
@@ -363,6 +364,29 @@ public abstract class AbstractLogListener
   }
 
   /**
+   * If true, a severity prefix will be placed at the very front of each logged
+   * message.
+   */
+  @Override
+  public boolean isSeverityPrefixEnabled()
+  {
+    return severityPrefixEnabled;
+  }
+
+  /**
+   * Sets whether or not a severity prefix will be included. The prefix will be
+   * placed at the very front of each logged message.
+   *
+   * @param severityPrefixEnabled whether or not the severity prefix will be
+   *                              included
+   */
+  @Override
+  public void setSeverityPrefixEnabled(boolean severityPrefixEnabled)
+  {
+    this.severityPrefixEnabled = severityPrefixEnabled;
+  }
+
+  /**
    * Determines if we have entered a new day (indicating it's time for a new
    * log file, assuming we're writing log files.
    */
@@ -374,6 +398,22 @@ public abstract class AbstractLogListener
       return true;
     }
     return false;
+  }
+
+  protected String getLogLevelPrefix(int logLevel)
+  {
+    if (logLevel < ALERT)
+    {
+      return "[INFO]   ";
+    }
+    else if (logLevel < CRITICAL)
+    {
+      return "[WARN]   ";
+    }
+    else
+    {
+      return "[ERROR]  ";
+    }
   }
   
 }

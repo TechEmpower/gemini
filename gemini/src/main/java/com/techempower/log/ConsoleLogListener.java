@@ -51,12 +51,15 @@ public class ConsoleLogListener
    *
    * @param application a reference to the application using the Log.
    * @param threshold The minimum log level that this listener will process.
+   * @param severityPrefixEnabled whether or not the severity prefix will be
+   *                              included
    */
   public ConsoleLogListener(TechEmpowerApplication application, 
-                            int threshold)
+                            int threshold, boolean severityPrefixEnabled)
   {
     super(application);
     setDebugThreshold(threshold);
+    setSeverityPrefixEnabled(severityPrefixEnabled);
   }
 
   /**
@@ -120,6 +123,10 @@ public class ConsoleLogListener
     computeTimestamps();
 
     StringBuilder buffer = new StringBuilder(120);
+    if (isSeverityPrefixEnabled())
+    {
+      buffer.append(getLogLevelPrefix(debugLevel));
+    }
     buffer.append(getApplication().getVersion().getProductCode());
     buffer.append(' ');
     buffer.append(getBriefTimestamp());

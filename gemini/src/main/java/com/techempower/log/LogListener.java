@@ -206,4 +206,19 @@ public interface LogListener
    */
   int getDebugThreshold();
 
+  /**
+   * If true, a severity prefix will be placed at the very front of each logged
+   * message.
+   */
+  boolean isSeverityPrefixEnabled();
+
+  /**
+   * Sets whether or not a severity prefix will be included. The prefix will be
+   * placed at the very front of each logged message.
+   *
+   * @param severityPrefixEnabled whether or not the severity prefix will be
+   *                              included
+   */
+  void setSeverityPrefixEnabled(boolean severityPrefixEnabled);
+
 }  // end LogListener.
