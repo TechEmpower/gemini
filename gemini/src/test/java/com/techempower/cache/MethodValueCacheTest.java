@@ -1405,6 +1405,15 @@ public class MethodValueCacheTest extends Suite
                         .stream()
                         .map(House::getId)
                         .collect(Collectors.toSet()));
+                assertEquals(
+                    new HashSet<>(Arrays.asList(11L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getDog, "Poppy",
+                            getOwner, "Moe"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
               }
             };
           }}

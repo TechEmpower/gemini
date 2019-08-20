@@ -429,6 +429,7 @@ public class MethodValueCache<T extends Identifiable>
           ids.add(id);
         }
       }
+      valueCacheMap.update(id);
     }
     finally
     {
