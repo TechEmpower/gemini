@@ -41,7 +41,8 @@ class MethodValueCacheMap
         mapValueToIds.computeIfAbsent(value, ignored -> new TLongHashSet())
             .add(id);
         Map<Object, Node> mapValueToNode = currentNode
-            .mapMethodNameToValueToNode.get(method);
+            .mapMethodNameToValueToNode
+            .computeIfAbsent(method, ignored -> new HashMap<>());
         final Node branchNode = currentNode;
         currentNode = mapValueToNode
             .computeIfAbsent(value,
