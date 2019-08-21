@@ -1397,6 +1397,24 @@ public class MethodValueCacheTest extends Suite
                 args.methodValueCache.update(resultB.getId());
 
                 assertEquals(
+                    new HashSet<>(Arrays.asList(6L, 9L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getOwner, "Moe",
+                            getDog, "Cat"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+                assertEquals(
+                    new HashSet<>(Arrays.asList(6L, 9L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getDog, "Cat",
+                            getOwner, "Moe"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+                assertEquals(
                     new HashSet<>(Arrays.asList(11L)),
                     args.methodValueCache.getObjectsInt(
                         new FieldIntersection<>(House.class,
