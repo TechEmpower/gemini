@@ -1355,6 +1355,11 @@ public class MethodValueCacheTest extends Suite
                     .filter(house -> house.getId() == 9L)
                     .findFirst()
                     .orElse(null);
+                House resultC = (House) args.mockCache.get(House.class)
+                    .stream()
+                    .filter(house -> house.getId() == 2L)
+                    .findFirst()
+                    .orElse(null);
 
                 assertNotNull(result);
                 assertNotNull(resultB);
@@ -1367,8 +1372,23 @@ public class MethodValueCacheTest extends Suite
                         getOwner, "Moe",
                         getDog, "Poppy"));
 
+                assertEquals("should be correct at first",
+                    new HashSet<>(Arrays.asList(2L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getCityId, 5,
+                            getDog, "Scratchy",
+                            getOwner, "Hank"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+
                 result.setDog("Cat");
                 resultB.setDog("Cat");
+                resultC
+                    .setCityId(20)
+                    .setDog("Moo-Cow")
+                    .setOwner("No one");
 
                 assertEquals("should not detect changes until after " +
                         "update",
@@ -1377,6 +1397,17 @@ public class MethodValueCacheTest extends Suite
                         new FieldIntersection<>(House.class,
                             getOwner, "Moe",
                             getDog, "Poppy"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+                assertEquals("should not detect changes until after " +
+                        "update",
+                    new HashSet<>(Arrays.asList(2L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getCityId, 5,
+                            getDog, "Scratchy",
+                            getOwner, "Hank"))
                         .stream()
                         .map(House::getId)
                         .collect(Collectors.toSet()));
@@ -1429,6 +1460,20 @@ public class MethodValueCacheTest extends Suite
                         new FieldIntersection<>(House.class,
                             getDog, "Poppy",
                             getOwner, "Moe"))
+                        .stream()
+                        .map(House::getId)
+                        .collect(Collectors.toSet()));
+
+                args.methodValueCache.update(resultC.getId());
+
+                assertEquals("should reflect changes after update that " +
+                        "created new non-leaf indexed value cross-sections",
+                    new HashSet<>(Arrays.asList(2L)),
+                    args.methodValueCache.getObjectsInt(
+                        new FieldIntersection<>(House.class,
+                            getCityId, 20,
+                            getDog, "Moo-Cow",
+                            getOwner, "No one"))
                         .stream()
                         .map(House::getId)
                         .collect(Collectors.toSet()));
