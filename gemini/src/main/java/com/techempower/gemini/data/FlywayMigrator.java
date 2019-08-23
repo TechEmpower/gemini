@@ -97,7 +97,12 @@ public class FlywayMigrator implements DatabaseMigrator
   {
     if (flywayConfig != null)
     {
-      return flywayConfig.dataSource(dataSource).load().migrate();
+      Flyway f = flywayConfig.dataSource(dataSource).load();
+      for (MigrationInfo i : f.info().pending())
+      {
+        log.log("Pending migration: " + i.getScript());
+      }
+      return f.migrate();
     }
     log.log("Flyway not initialized. Skipping database migrations.");
     return 0;
