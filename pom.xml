@@ -71,7 +71,10 @@
     <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
     <mustache.version>0.9.6</mustache.version>
     <owasp-dependency-check-plugin.version>4.0.2</owasp-dependency-check-plugin.version>
-    <reflections.version>0.9.11</reflections.version>
+    <!-- Note that the Reflections version has been reduced to 0.9.9 as
+         a workaround to a multithreading issue in 0.9.10.
+         See https://github.com/ronmamo/reflections/issues/81 -->
+    <reflections.version>0.9.9</reflections.version>
     <resin.version>4.0.46</resin.version>
     <trove4j.version>3.0.3</trove4j.version>
     <jsonwebtoken.version>0.10.6</jsonwebtoken.version>
