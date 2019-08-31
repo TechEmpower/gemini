@@ -86,7 +86,12 @@ public interface Request
    * application.
    */
   void setCharacterEncoding(String encoding) throws UnsupportedEncodingException;
-  
+
+  /**
+   * Returns the character encoding associated with the request.
+   */
+  String getRequestCharacterEncoding();
+
   /**
    * Returns all the Header names for this request
    */
@@ -207,6 +212,11 @@ public interface Request
    * Gets the request's method as a String.
    */
   HttpMethod getRequestMethod();
+
+  /**
+   * Gets the input stream for the request body.
+   */
+  InputStream getInputStream() throws IOException;
   
   /**
    * Redirect the browser to a new location using HTTP response code 302

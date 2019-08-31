@@ -236,6 +236,12 @@ public class HttpRequest
     this.request.setCharacterEncoding(encoding);
   }
 
+  @Override
+  public String getRequestCharacterEncoding()
+  {
+    return this.request.getCharacterEncoding();
+  }
+
   /**
    * Returns all the Header names for this request
    */
@@ -711,6 +717,7 @@ public class HttpRequest
    * pass-through to response.getOutputStream().
    * @throws IOException 
    */
+  @Override
   public InputStream getInputStream() 
     throws IOException
   {

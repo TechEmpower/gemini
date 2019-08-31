@@ -103,7 +103,13 @@ public abstract class SimRequest
       throws UnsupportedEncodingException
   {
   }
-  
+
+  @Override
+  public String getRequestCharacterEncoding()
+  {
+    return null;
+  }
+
   @Override
   public Enumeration<String> getHeaderNames()
   {
@@ -257,6 +263,12 @@ public abstract class SimRequest
 
   @Override
   public HttpMethod getRequestMethod()
+  {
+    return null;
+  }
+
+  @Override
+  public InputStream getInputStream()
   {
     return null;
   }

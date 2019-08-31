@@ -146,6 +146,7 @@ public abstract class GeminiApplication
   private final FeatureManager             featureManager;
   private final Notifier                   notifier;
   private final JavaScriptWriter           standardJsw;
+  private final JavaScriptReader           standardJsr;
   private final MustacheManager            mustacheManager;
   private final Lifecycle                  lifecycle;
   private       RequestListener[]          listeners       = new RequestListener[0];
@@ -197,6 +198,7 @@ public abstract class GeminiApplication
       this.lifecycle            = constructLifecycle();
       this.configurator         = constructConfigurator();
       this.standardJsw          = constructJavaScriptWriter();
+      this.standardJsr          = constructJavaScriptReader();
       this.featureManager       = constructFeatureManager();
       this.connectorFactory     = constructConnectorFactory();
       this.databaseMigrator     = constructDatabaseMigrator();
@@ -558,7 +560,16 @@ public abstract class GeminiApplication
   {
     return LegacyJavaScriptWriter.standard();
   }
-  
+
+  /**
+   * Construct and configure a JavaScriptReader suitable for application-wide
+   * general usage.
+   */
+  protected JavaScriptReader constructJavaScriptReader()
+  {
+    return new JacksonJavaScriptReader();
+  }
+
   /**
    * Construct a MustacheManager for interfacing with the Java Mustache 
    * template library. 
@@ -728,7 +739,18 @@ public abstract class GeminiApplication
   {
     return standardJsw;
   }
-  
+
+  /**
+   * Gets the application's standard JavaScriptReader.  Note that an
+   * application may use additional JavaScriptReaders for other contexts.
+   * The application's main JavaScriptReader will be used as the default,
+   * for example when parsing a JSON request body.
+   */
+  public JavaScriptReader getJavaScriptReader()
+  {
+    return standardJsr;
+  }
+
   /**
    * Gets the Configurator.
    */

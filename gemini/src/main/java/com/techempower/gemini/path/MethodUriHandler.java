@@ -26,16 +26,20 @@
  *******************************************************************************/
 package com.techempower.gemini.path;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
 import com.esotericsoftware.reflectasm.*;
+import com.fasterxml.jackson.databind.JavaType;
 import com.techempower.gemini.*;
 import com.techempower.gemini.Request.*;
 import com.techempower.gemini.path.MethodUriHandler.PathUriMethod.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
+import com.techempower.log.LogLevel;
 
 /**
  * Building on the BasicPathHandler, the MethodUriHandler provides easy
@@ -52,7 +56,7 @@ public class MethodUriHandler<C extends Context>
   
   /**
    * Constructor.
-   * 
+   *
    * @param app The GeminiApplication reference.
    * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param jsw A JavaScriptWriter to use when serializing objects as JSON; if
@@ -320,14 +324,22 @@ public class MethodUriHandler<C extends Context>
         // number of args in their declarations to match the variable count
         // in the respective URI. So, create an array of values and try to set
         // them via retrieving them as segments.
-        return (Boolean)methodAccess.invoke(this, method.index, 
-            this.getVariableArguments(method));
+        try
+        {
+          return (Boolean)methodAccess.invoke(this, method.index,
+                  this.getVariableArguments(method, context));
+        }
+        catch (RequestBodyException e)
+        {
+          log().log("Got RequestBodyException.", LogLevel.DEBUG, e);
+          return this.error(e.getStatusCode(), e.getMessage());
+        }
       }
     }
 
     return false;
   }
-  
+
   /**
    * Private helper method for capturing the values of the variable annotated
    * methods and returning them as an argument array (in order or appearance).
@@ -340,7 +352,7 @@ public class MethodUriHandler<C extends Context>
    * @return Array of corresponding values.
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private Object[] getVariableArguments(PathUriMethod method)
+  private Object[] getVariableArguments(PathUriMethod method, C context) throws RequestBodyException
   {
     final Object[] args = new Object[method.method.getParameterTypes().length];
     int argsIndex = 0;
@@ -433,7 +445,16 @@ public class MethodUriHandler<C extends Context>
         argsIndex ++;
       }
     }
-    
+
+    // Handle adapting and injecting the request body if configured.
+    final RequestBodyParameter bodyParameter = method.bodyParameter;
+    if (bodyParameter != null && argsIndex < args.length)
+    {
+      Object body = ((RequestBodyAdapter<C>) bodyParameter.adapter).read(
+              context, bodyParameter.type);
+      args[argsIndex] = body;
+    }
+
     return args;
   }
   
@@ -623,6 +644,7 @@ public class MethodUriHandler<C extends Context>
     public final String uri;
     public final UriSegment[] segments;
     public final HttpMethod httpMethod;
+    public final RequestBodyParameter bodyParameter;
     public final int index;
     
     public PathUriMethod(Method method, String uri, HttpMethod httpMethod,
@@ -646,6 +668,45 @@ public class MethodUriHandler<C extends Context>
           variableCount ++;
         }
       }
+
+      // Check for and configure the method to receive a parameter for the
+      // request body. If desired, it's expected that the body parameter is
+      // the last one. So it's only worth checking if variableCount indicates
+      // that there's room left in the classes array.
+      RequestBodyParameter bodyParameter = null;
+      if (variableCount < classes.length)
+      {
+        Body body = method.getAnnotation(Body.class);
+        // We allow users to create their own annotations (that must be annotated
+        // with @Body), so scan the method's annotations.
+        if (body == null)
+        {
+          for (Annotation annotation : method.getAnnotations())
+          {
+            body = annotation.annotationType().getAnnotation(Body.class);
+            if (body != null)
+            {
+              break;
+            }
+          }
+        }
+        if (body != null)
+        {
+          // While path parameters can only be primitives, enums, and strings,
+          // a body parameter may be generic, for example Map<String, Object>.
+          // It's sufficient to use the class, for example Map.class, in the
+          // classes array used for determining the method's index. However,
+          // the body adapter may need more info than this, so use the generic
+          // parameter type for the body parameter, which will return a
+          // ParameterizedType instance that cannot be cast to Class<?>.
+          classes[variableCount] = method.getParameterTypes()[variableCount];
+          bodyParameter = new RequestBodyParameter(body.value(),
+                  method.getGenericParameterTypes()[variableCount]);
+          variableCount++;
+        }
+      }
+      this.bodyParameter = bodyParameter;
+
       if (variableCount == 0)
       {
         try
@@ -762,6 +823,39 @@ public class MethodUriHandler<C extends Context>
         return "{segment: '" + segment + 
             "', isVariable: " + isVariable + 
             ", isWildcard: " + isWildcard + "}";
+      }
+    }
+
+    /**
+     * <p>Represents a parameter that is populated from the request body.
+     * This must be the last parameter to the handler method, and is
+     * created when we detect a {@link Body} annotation (or a custom
+     * annotation that has {@link Body}).</p>
+     *
+     * <p>The {@link #adapter} is an instance of the adapter class
+     * that was specified by the body annotation {@link Body#value()},
+     * created by invoking the class's empty constructor.</p>
+     *
+     * <p>The {@link #type} is that generic parameter type of the last
+     * parameter to the method.</p>
+     */
+    protected static class RequestBodyParameter
+    {
+      public final RequestBodyAdapter<?> adapter;
+      public final Type type;
+
+      private RequestBodyParameter(Class<? extends RequestBodyAdapter<?>> adapterClass, Type type)
+      {
+        try
+        {
+          this.adapter = adapterClass.getDeclaredConstructor().newInstance();
+          this.type = type;
+        }
+        catch (Exception e)
+        {
+          throw new IllegalArgumentException("Unable to construct request body adapter of type "
+              + adapterClass.getName());
+        }
       }
     }
   }
