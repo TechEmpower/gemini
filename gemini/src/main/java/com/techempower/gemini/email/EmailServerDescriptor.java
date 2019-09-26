@@ -157,6 +157,7 @@ public class EmailServerDescriptor
       serverProps.put("mail.smtp.port", "" + smtpPort);
       serverProps.put("mail.smtp.connectiontimeout", "" + timeoutProtoInit);
       serverProps.put("mail.smtp.timeout", "" + timeoutSocket);
+      serverProps.put("mail.smtp.starttls.enable", "true");
       if (authenticator != null)
       {
         serverProps.put("mail.smtp.auth", "true");
