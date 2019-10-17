@@ -558,7 +558,7 @@ public abstract class GeminiApplication
    */
   protected JavaScriptWriter constructJavaScriptWriter()
   {
-    return LegacyJavaScriptWriter.standard();
+    return new JacksonJavaScriptWriter();
   }
 
   /**
