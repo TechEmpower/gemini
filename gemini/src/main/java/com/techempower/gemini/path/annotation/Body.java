@@ -54,5 +54,12 @@ import com.techempower.gemini.path.RequestBodyAdapter;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Body
 {
+  /**
+   * The class used to adapt the request body to the type needed by
+   * the handler method with this annotation. Must be a concrete type
+   * with a public no-arguments constructor.
+   *
+   * @see RequestBodyAdapter
+   */
   Class<? extends RequestBodyAdapter<?>> value();
 }

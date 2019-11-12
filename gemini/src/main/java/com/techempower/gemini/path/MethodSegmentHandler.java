@@ -59,7 +59,7 @@ public class MethodSegmentHandler<C extends Context>
   private final Map<String, PathSegmentMethod> putRequestHandleMethods;
   private final Map<String, PathSegmentMethod> postRequestHandleMethods;
   private final Map<String, PathSegmentMethod> deleteRequestHandleMethods;
-  private final MethodAccess                   methodAccess; 
+  protected final MethodAccess                 methodAccess;
   private PathSegmentMethod                    defaultGetMethod;
   private PathSegmentMethod                    defaultPostMethod;
   private PathSegmentMethod                    defaultPutMethod;
@@ -345,31 +345,7 @@ public class MethodSegmentHandler<C extends Context>
     // Only allow accessible (public) methods
     if (Modifier.isPublic(method.getModifiers()))
     {
-      // Only allow methods that take zero arguments or a Context argument.
-      if (method.getParameterTypes().length == 0)
-      {
-        return new PathSegmentMethod(
-            method.getName(),
-            httpMethod,
-            methodAccess.getIndex(method.getName(), 
-                ReflectionHelper.NO_PARAMETERS),
-            false);
-      }
-      if (  (method.getParameterTypes().length == 1)
-         && (method.getParameterTypes()[0] == Context.class)
-         )
-      {
-        return new PathSegmentMethod(
-            method.getName(),
-            httpMethod,
-            methodAccess.getIndex(method.getName(), CONTEXT_PARAMETER), 
-            true);
-      }
-      else
-      {
-        throw new IllegalAccessError("Method " + method.getName() 
-            + " must take zero arguments or a single Context argument.");
-      }
+      return new PathSegmentMethod(method, httpMethod, methodAccess);
     }
     else
     {
@@ -485,19 +461,49 @@ public class MethodSegmentHandler<C extends Context>
       // override this default by calling template(name) themselves before 
       // rendering a response.
       defaultTemplate(method.name);
-      
-      if (method.contextParameter) 
+
+      try
       {
-        return (Boolean)methodAccess.invoke(this, method.index, context);
+        return (Boolean)methodAccess.invoke(this, method.index,
+            this.getVariableArguments(method, context));
       }
-      else
+      catch (RequestBodyException e)
       {
-        return (Boolean)methodAccess.invoke(this, method.index, 
-            ReflectionHelper.NO_VALUES);
+        log().log("Got RequestBodyException.", LogLevel.DEBUG, e);
+        return this.error(e.getStatusCode(), e.getMessage());
       }
     }
 
     return false;
+  }
+
+  private Object[] getVariableArguments(PathSegmentMethod method, C context)
+      throws RequestBodyException
+  {
+    final boolean contextParameter = method.contextParameter;
+    final RequestBodyParameter bodyParameter = method.bodyParameter;
+
+    if (contextParameter || bodyParameter != null)
+    {
+      final Object[] args = new Object[(contextParameter ? 1 : 0)
+              + (bodyParameter != null ? 1 : 0)];
+
+      if (contextParameter)
+      {
+        // The context parameter is always the first (or only) parameter.
+        args[0] = context;
+      }
+
+      if (bodyParameter != null)
+      {
+        // The body parameter is always the last (or only) parameter.
+        args[args.length - 1] = bodyParameter.readBody(context);
+      }
+
+      return args;
+    }
+
+    return ReflectionHelper.NO_VALUES;
   }
 
   @Override
@@ -550,20 +556,73 @@ public class MethodSegmentHandler<C extends Context>
   /**
    * Details of an annotated path segment method.
    */
-  protected static class PathSegmentMethod
+  protected static class PathSegmentMethod extends BasicPathHandlerMethod
   {
     public final String name;      // For debugging purposes only.
     public final HttpMethod httpMethod;
     public final int index;
     public final boolean contextParameter;
     
-    public PathSegmentMethod(String name, HttpMethod httpMethod, int index, 
-        boolean contextParameter)
+    public PathSegmentMethod(Method method, HttpMethod httpMethod,
+        MethodAccess methodAccess)
     {
-      this.name = name;
+      super(method);
+
+      this.name = method.getName();
       this.httpMethod = httpMethod;
-      this.index = index;
-      this.contextParameter = contextParameter;
+
+      final Class<?>[] parameterTypes = method.getParameterTypes();
+      this.index = methodAccess.getIndex(method.getName(), parameterTypes);
+
+      if (parameterTypes.length == 0)
+      {
+        // No arguments, which means no context or body parameter. If this
+        // incorrectly has a @Body parameter then the base class will have
+        // caught that by now.
+        this.contextParameter = false;
+      }
+      else if (parameterTypes.length == 1)
+      {
+        // One parameter could be either a context or body parameter.
+        // Check the parameter type to find out.
+        // TODO should this be something like parameterTypes[0].isAssignableFrom(Context.class)?
+        //      If so, make sure to adjust the below checks as well.
+        if (parameterTypes[0] == Context.class)
+        {
+          this.contextParameter = true;
+        }
+        else if (this.bodyParameter != null)
+        {
+          this.contextParameter = false;
+        }
+        else
+        {
+          throw new IllegalArgumentException("Handler method is configured "
+                  + "incorrectly. It accepts 1 parameter but it is not the context, "
+                  + "and is not annotated with @Body. See " + getClass().getName() + "#"
+                  + method.getName());
+        }
+      }
+      else if (parameterTypes.length == 2)
+      {
+        if (parameterTypes[0] != Context.class || this.bodyParameter == null)
+        {
+          throw new IllegalArgumentException("Handler method is configured "
+                  + "incorrectly. The first parameter must be the context and "
+                  + "the method must be annotated with @Body in order "
+                  + "for the second parameter to accept the adapted request body. "
+                  + "See " + getClass().getName() + "#" + method.getName());
+        }
+        else
+        {
+          this.contextParameter = true;
+        }
+      }
+      else
+      {
+        throw new IllegalArgumentException("Handler method must accept 2 or fewer "
+                + "parameters. See " + getClass().getName() + "#" + method.getName());
+      }
     }
     
     @Override

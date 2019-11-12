@@ -26,6 +26,9 @@
  *******************************************************************************/
 package com.techempower.gemini.path;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import com.techempower.cache.*;
@@ -35,6 +38,7 @@ import com.techempower.gemini.Request.*;
 import com.techempower.gemini.context.*;
 import com.techempower.gemini.input.*;
 import com.techempower.gemini.mustache.*;
+import com.techempower.gemini.path.annotation.Body;
 import com.techempower.helper.*;
 import com.techempower.js.*;
 import com.techempower.log.*;
@@ -739,4 +743,111 @@ public abstract class BasicPathHandler<C extends Context>
     }
   }
 
+  /**
+   * A base class representing a single handler method that provides logic
+   * for dealing with the {@link Body} annotation. While subclasses of
+   * {@link BasicPathHandler} make use of their own routing-related
+   * annotations, the {@link Body} annotation should be supported by all
+   * handler implementations. The {@link #bodyParameter} member variable is
+   * non-null if a body annotation was detected on the method. Due to the
+   * flexibility that subclasses have with method parameters and invocation,
+   * it is up to the subclass to verify that the method signature itself
+   * matches what is expected based on the data available. Additionally,
+   * when routing a request to a method, the subclass is responsible for
+   * using the {@link #bodyParameter} to adapt the raw request body in
+   * order to pass to the handler method.
+   */
+  protected static abstract class BasicPathHandlerMethod
+  {
+    public final Method method;
+    public final RequestBodyParameter bodyParameter;
+
+    BasicPathHandlerMethod(Method method)
+    {
+      this.method = method;
+
+      Body body = method.getAnnotation(Body.class);
+      // We allow users to create their own annotations (that must be annotated
+      // with @Body), so scan the method's annotations.
+      if (body == null)
+      {
+        for (Annotation annotation : method.getAnnotations())
+        {
+          body = annotation.annotationType().getAnnotation(Body.class);
+          if (body != null)
+          {
+            break;
+          }
+        }
+      }
+      if (body != null)
+      {
+        // A body parameter may be generic, for example Map<String, Object>,
+        // so use the generic parameter type for the body parameter, which
+        // will return a ParameterizedType if necessary.
+        final Type[] genericParameterTypes = method.getGenericParameterTypes();
+
+        if (genericParameterTypes.length == 0)
+        {
+          throw new IllegalArgumentException("Methods annotated with @Body must "
+                  + "accept at least 1 parameter, where the last parameter is "
+                  + "for the body. See " + getClass().getName() + "#"
+                  + method.getName());
+        }
+
+        this.bodyParameter = new RequestBodyParameter(body.value(),
+                genericParameterTypes[genericParameterTypes.length - 1]);
+      }
+      else
+      {
+        this.bodyParameter = null;
+      }
+    }
+  }
+
+  /**
+   * <p>Represents a parameter that is populated from the request body.
+   * This must be the last parameter to the handler method, and is
+   * created when we detect a {@link Body} annotation (or a custom
+   * annotation that has {@link Body}).</p>
+   *
+   * <p>The {@link #adapter} is an instance of the adapter class
+   * that was specified by the body annotation {@link Body#value()},
+   * created by invoking the class's empty constructor.</p>
+   *
+   * <p>The {@link #type} is the generic parameter type of the last
+   * parameter to the method.</p>
+   */
+  protected static class RequestBodyParameter
+  {
+    public final RequestBodyAdapter<?> adapter;
+    public final Type type;
+
+    private RequestBodyParameter(Class<? extends RequestBodyAdapter<?>> adapterClass,
+        Type type)
+    {
+      try
+      {
+        this.adapter = adapterClass.getDeclaredConstructor().newInstance();
+        this.type = type;
+      }
+      catch (Exception e)
+      {
+        throw new IllegalArgumentException("Unable to construct request body adapter of type "
+                + adapterClass.getName());
+      }
+    }
+
+    /**
+     * Adapt the request body in the specified context using the adapter and type
+     * on this instance.
+     *
+     * @see RequestBodyAdapter#read(Context, Type)
+     */
+    @SuppressWarnings({ "unchecked" })
+    <C extends Context> Object readBody(C context) throws RequestBodyException
+    {
+      return ((RequestBodyAdapter<C>) adapter).read(context, type);
+    }
+  }
 }
