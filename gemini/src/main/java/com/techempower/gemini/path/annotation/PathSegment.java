@@ -31,7 +31,9 @@ import java.lang.annotation.*;
 /**
  * PathSegment annotation.  Identifies a method within a PathHandler to
  * associate with a specified path segment.  A method annotated as a 
- * PathSegment may accept either zero arguments or one Context argument.
+ * PathSegment may accept either zero arguments, one Context argument,
+ * one body argument (if annotated with {@link Body}), or both (Context
+ * is first and body second, also requires {@link Body}).
  *   <p>
  * By default, the method's name will be used as the URI segment for routing,
  * but a list of alternative URI segments can be provided instead. 

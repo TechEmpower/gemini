@@ -26,16 +26,20 @@
  *******************************************************************************/
 package com.techempower.gemini.path;
 
+import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
 import com.esotericsoftware.reflectasm.*;
+import com.fasterxml.jackson.databind.JavaType;
 import com.techempower.gemini.*;
 import com.techempower.gemini.Request.*;
 import com.techempower.gemini.path.MethodUriHandler.PathUriMethod.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
+import com.techempower.log.LogLevel;
 
 /**
  * Building on the BasicPathHandler, the MethodUriHandler provides easy
@@ -52,7 +56,7 @@ public class MethodUriHandler<C extends Context>
   
   /**
    * Constructor.
-   * 
+   *
    * @param app The GeminiApplication reference.
    * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param jsw A JavaScriptWriter to use when serializing objects as JSON; if
@@ -320,14 +324,22 @@ public class MethodUriHandler<C extends Context>
         // number of args in their declarations to match the variable count
         // in the respective URI. So, create an array of values and try to set
         // them via retrieving them as segments.
-        return (Boolean)methodAccess.invoke(this, method.index, 
-            this.getVariableArguments(method));
+        try
+        {
+          return (Boolean)methodAccess.invoke(this, method.index,
+                  this.getVariableArguments(method, context));
+        }
+        catch (RequestBodyException e)
+        {
+          log().log("Got RequestBodyException.", LogLevel.DEBUG, e);
+          return this.error(e.getStatusCode(), e.getMessage());
+        }
       }
     }
 
     return false;
   }
-  
+
   /**
    * Private helper method for capturing the values of the variable annotated
    * methods and returning them as an argument array (in order or appearance).
@@ -340,7 +352,7 @@ public class MethodUriHandler<C extends Context>
    * @return Array of corresponding values.
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  private Object[] getVariableArguments(PathUriMethod method)
+  private Object[] getVariableArguments(PathUriMethod method, C context) throws RequestBodyException
   {
     final Object[] args = new Object[method.method.getParameterTypes().length];
     int argsIndex = 0;
@@ -433,7 +445,14 @@ public class MethodUriHandler<C extends Context>
         argsIndex ++;
       }
     }
-    
+
+    // Handle adapting and injecting the request body if configured.
+    final RequestBodyParameter bodyParameter = method.bodyParameter;
+    if (bodyParameter != null && argsIndex < args.length)
+    {
+      args[argsIndex] = bodyParameter.readBody(context);
+    }
+
     return args;
   }
   
@@ -617,21 +636,21 @@ public class MethodUriHandler<C extends Context>
   /**
    * Details of an annotated path segment method.
    */
-  protected static class PathUriMethod
+  protected static class PathUriMethod extends BasicPathHandlerMethod
   {
     public final Method method;
     public final String uri;
     public final UriSegment[] segments;
-    public final HttpMethod httpMethod;
     public final int index;
     
     public PathUriMethod(Method method, String uri, HttpMethod httpMethod,
         MethodAccess methodAccess)
     {
+      super(method, httpMethod);
+
       this.method = method;
       this.uri = uri;
       this.segments = this.parseSegments(this.uri);
-      this.httpMethod = httpMethod;
       int variableCount = 0;
       final Class<?>[] classes = 
           new Class[method.getGenericParameterTypes().length];
@@ -646,6 +665,20 @@ public class MethodUriHandler<C extends Context>
           variableCount ++;
         }
       }
+
+      // Check for and configure the method to receive a parameter for the
+      // request body. If desired, it's expected that the body parameter is
+      // the last one. So it's only worth checking if variableCount indicates
+      // that there's room left in the classes array. If there is a mismatch
+      // where there is another parameter and no @Body annotation, or there is
+      // a @Body annotation and no extra parameter for it, the below checks
+      // will find that and throw accordingly.
+      if (variableCount < classes.length && this.bodyParameter != null)
+      {
+        classes[variableCount] = method.getParameterTypes()[variableCount];
+        variableCount++;
+      }
+
       if (variableCount == 0)
       {
         try

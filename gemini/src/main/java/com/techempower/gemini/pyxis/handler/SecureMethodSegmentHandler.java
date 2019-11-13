@@ -28,6 +28,7 @@ package com.techempower.gemini.pyxis.handler;
 
 import java.lang.reflect.*;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import com.techempower.gemini.*;
 import com.techempower.gemini.Request.*;
 import com.techempower.gemini.path.*;
@@ -147,15 +148,13 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
   @Override
   protected PathSegmentMethod analyzeAnnotatedMethod(Method method, HttpMethod httpMethod)
   {
-    final PathSegmentMethod superAnalysis = super.analyzeAnnotatedMethod(method, httpMethod);
     final PathBypassAuth bypassAnnotation = method.getAnnotation(PathBypassAuth.class);
     final boolean authorizationRequired = (bypassAnnotation == null);
 
     return new SecurePathSegmentMethod(
-        superAnalysis.name,
-        superAnalysis.httpMethod,
-        superAnalysis.index, 
-        superAnalysis.contextParameter, 
+        method,
+        httpMethod,
+        this.methodAccess,
         authorizationRequired);
   }
 
@@ -249,10 +248,10 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
   {
     final boolean authorizationRequired;
     
-    protected SecurePathSegmentMethod(String name, HttpMethod httpMethod, int index, 
-        boolean contextParameter, boolean authorizationRequired)
+    protected SecurePathSegmentMethod(Method method, HttpMethod httpMethod,
+        MethodAccess methodAccess, boolean authorizationRequired)
     {
-      super(name, httpMethod, index, contextParameter);
+      super(method, httpMethod, methodAccess);
       this.authorizationRequired = authorizationRequired;
     }
   }
