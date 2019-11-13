@@ -759,12 +759,17 @@ public abstract class BasicPathHandler<C extends Context>
    */
   protected static abstract class BasicPathHandlerMethod
   {
+    private static final Set<HttpMethod> SUPPORTED_BODY_METHODS = EnumSet.of(
+            HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH);
+
     public final Method method;
+    public final HttpMethod httpMethod;
     public final RequestBodyParameter bodyParameter;
 
-    BasicPathHandlerMethod(Method method)
+    BasicPathHandlerMethod(Method method, HttpMethod httpMethod)
     {
       this.method = method;
+      this.httpMethod = httpMethod;
 
       Body body = method.getAnnotation(Body.class);
       // We allow users to create their own annotations (that must be annotated
@@ -782,6 +787,14 @@ public abstract class BasicPathHandler<C extends Context>
       }
       if (body != null)
       {
+        if (!SUPPORTED_BODY_METHODS.contains(httpMethod))
+        {
+          throw new IllegalArgumentException("The " + httpMethod.name()
+                  + " HTTP method does not support request bodies, but there is "
+                  + "a @Body annotation present. See " + getClass().getName() + "#"
+                  + method.getName());
+        }
+
         // A body parameter may be generic, for example Map<String, Object>,
         // so use the generic parameter type for the body parameter, which
         // will return a ParameterizedType if necessary.

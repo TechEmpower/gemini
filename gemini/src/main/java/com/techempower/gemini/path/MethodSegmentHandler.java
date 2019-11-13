@@ -559,17 +559,15 @@ public class MethodSegmentHandler<C extends Context>
   protected static class PathSegmentMethod extends BasicPathHandlerMethod
   {
     public final String name;      // For debugging purposes only.
-    public final HttpMethod httpMethod;
     public final int index;
     public final boolean contextParameter;
     
     public PathSegmentMethod(Method method, HttpMethod httpMethod,
         MethodAccess methodAccess)
     {
-      super(method);
+      super(method, httpMethod);
 
       this.name = method.getName();
-      this.httpMethod = httpMethod;
 
       final Class<?>[] parameterTypes = method.getParameterTypes();
       this.index = methodAccess.getIndex(method.getName(), parameterTypes);

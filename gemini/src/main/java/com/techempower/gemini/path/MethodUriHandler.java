@@ -641,18 +641,16 @@ public class MethodUriHandler<C extends Context>
     public final Method method;
     public final String uri;
     public final UriSegment[] segments;
-    public final HttpMethod httpMethod;
     public final int index;
     
     public PathUriMethod(Method method, String uri, HttpMethod httpMethod,
         MethodAccess methodAccess)
     {
-      super(method);
+      super(method, httpMethod);
 
       this.method = method;
       this.uri = uri;
       this.segments = this.parseSegments(this.uri);
-      this.httpMethod = httpMethod;
       int variableCount = 0;
       final Class<?>[] classes = 
           new Class[method.getGenericParameterTypes().length];
