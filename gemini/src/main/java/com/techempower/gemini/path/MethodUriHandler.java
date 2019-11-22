@@ -26,13 +26,10 @@
  *******************************************************************************/
 package com.techempower.gemini.path;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
 import com.esotericsoftware.reflectasm.*;
-import com.fasterxml.jackson.databind.JavaType;
 import com.techempower.gemini.*;
 import com.techempower.gemini.Request.*;
 import com.techempower.gemini.path.MethodUriHandler.PathUriMethod.*;

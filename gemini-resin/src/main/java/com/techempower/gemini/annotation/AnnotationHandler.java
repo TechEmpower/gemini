@@ -447,9 +447,9 @@ public final class AnnotationHandler
       {
         try
         {
-          intercept = clazz.newInstance();
+          intercept = clazz.getConstructor().newInstance();
         }
-        catch (InstantiationException e) 
+        catch (InstantiationException | NoSuchMethodException | InvocationTargetException e) 
         {
           this.log.log("Error: Intercept (" + clazz.getName() + ") has not defined a default constructor.");
         } 
@@ -584,9 +584,9 @@ public final class AnnotationHandler
               {
                 try
                 {
-                  paramInjector = clazz.newInstance();
+                  paramInjector = clazz.getConstructor().newInstance();
                 }
-                catch (InstantiationException e) 
+                catch (InstantiationException | NoSuchMethodException | InvocationTargetException e) 
                 {
                   this.log.log("Error: Injector (" + clazz.getName() + ") has not defined a default constructor.");
                 } 
@@ -680,9 +680,9 @@ public final class AnnotationHandler
           {
             try
             {
-              response = clazz.newInstance();
+              response = clazz.getConstructor().newInstance();
             }
-            catch (InstantiationException e) 
+            catch (InstantiationException | NoSuchMethodException | InvocationTargetException e) 
             {
               this.log.log("Error: Response (" + clazz.getName() + ") has not defined a default constructor.");
             } 

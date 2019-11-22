@@ -102,7 +102,7 @@ public class ReflectiveFilter
    * @param filterValue The value stored in the filter to compare with.
    * @return Whether all tests were passed
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked", "rawtypes", "unlikely-arg-type" })
   protected <V extends Object, F extends Object> boolean allow(V value, F filterValue)
   {
     // if a range was stored then test for membership,

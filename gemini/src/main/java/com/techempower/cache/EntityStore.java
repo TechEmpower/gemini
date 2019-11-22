@@ -1374,7 +1374,7 @@ public class EntityStore
         @Override
         public void run() {
           // Finally, look for any TypeAdapter classes that are annotated
-          for (Class<? extends TypeAdapter> clazz :
+          for (@SuppressWarnings("rawtypes") Class<? extends TypeAdapter> clazz :
               reflections.getSubTypesOf(TypeAdapter.class))
           {
             // We check for the existence of any known annotations, including

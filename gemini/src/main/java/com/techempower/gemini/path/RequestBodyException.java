@@ -8,6 +8,7 @@ package com.techempower.gemini.path;
  */
 public class RequestBodyException extends Exception
 {
+  private static final long serialVersionUID = 3381361290493468966L;
   private final int statusCode;
 
   public RequestBodyException(int statusCode, String message, Throwable cause)

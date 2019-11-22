@@ -50,11 +50,6 @@ import com.techempower.log.*;
 public class MethodSegmentHandler<C extends Context>
      extends BasicPathHandler<C>  
 {
-
-  private static final Class<?>[] CONTEXT_PARAMETER = new Class[] { 
-        Context.class 
-      }; 
-
   private final Map<String, PathSegmentMethod> getRequestHandleMethods;
   private final Map<String, PathSegmentMethod> putRequestHandleMethods;
   private final Map<String, PathSegmentMethod> postRequestHandleMethods;
