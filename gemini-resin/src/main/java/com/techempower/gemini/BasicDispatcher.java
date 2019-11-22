@@ -873,9 +873,9 @@ public class BasicDispatcher
           {
             try
             {
-              obj = clazz.newInstance();
+              obj = clazz.getDeclaredConstructor().newInstance();
             }
-            catch (InstantiationException | IllegalAccessException e)
+            catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
             {
               this.log.log("Warning: Class " + clazz.getName() + " could not be instantiated.", e);
             }

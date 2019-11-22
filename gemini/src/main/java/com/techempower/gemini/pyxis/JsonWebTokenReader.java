@@ -126,8 +126,7 @@ public class JsonWebTokenReader
           }
         }
       }
-      catch(MalformedJwtException | SignatureException | 
-          IllegalArgumentException se)
+      catch(MalformedJwtException | IllegalArgumentException se)
       {
         // Cannot do anything about this on the server; this means the auth
         // token is not valid (very likely due to the client munging data and

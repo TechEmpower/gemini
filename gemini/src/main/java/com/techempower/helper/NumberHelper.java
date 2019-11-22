@@ -434,7 +434,7 @@ public final class NumberHelper
     }
 
     return java.math.BigDecimal.valueOf(value).setScale(decimalPlaces, 
-        java.math.BigDecimal.ROUND_HALF_UP).doubleValue();
+        java.math.RoundingMode.HALF_UP).doubleValue();
   }
 
   /**

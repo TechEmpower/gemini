@@ -329,7 +329,9 @@
           <version>${maven-javadoc-plugin.version}</version>
           <configuration>
             <source>8</source>
-            <additionalOptions>-Xdoclint:none</additionalOptions>
+            <additionalOptions>
+              <additionalOption>-Xdoclint:none</additionalOption>
+            </additionalOptions>
           </configuration>
           <executions>
             <execution>

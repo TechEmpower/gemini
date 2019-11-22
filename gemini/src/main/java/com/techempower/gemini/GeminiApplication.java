@@ -53,7 +53,6 @@ import com.techempower.gemini.session.*;
 import com.techempower.gemini.simulation.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
-import com.techempower.js.legacy.*;
 import com.techempower.log.*;
 import com.techempower.util.*;
 

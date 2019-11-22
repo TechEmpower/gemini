@@ -239,7 +239,6 @@ public final class CreditCardHelper
    * array of byte-sized integers.  Non-numeric characters such as spaces
    * or hyphens will be stripped.
    */
-  @SuppressWarnings("cast")
   public static byte[] toIntArray(String number)
   {
     if (StringHelper.isNonEmpty(number))

@@ -31,11 +31,15 @@ import java.time.*;
 import java.time.temporal.*;
 import java.util.*;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import com.techempower.collection.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.crypto.*;
 import com.techempower.helper.*;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 
 /**
  * JsonWebToken provides an implementation of the Json Web Token specification.
@@ -105,7 +109,7 @@ public class JsonWebToken
    * Constructor for creating a JsonWebToken from the given serialized token.
    */
   public JsonWebToken(GeminiApplicationInterface application, String serialized)
-    throws MalformedJwtException, SignatureException, IllegalArgumentException
+    throws MalformedJwtException, IllegalArgumentException
   {
     this.application = application;
     
@@ -384,11 +388,13 @@ public class JsonWebToken
     {
       builder.claim(key, claims.get(key));
     }
+    
+    final byte[] keyBytes = Decoders.BASE64.decode(application.getSecurity().getSettings().getMacSigningKey());
+    final SecretKey key = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
         
     return builder
         // Sign the token
-        .signWith(SignatureAlgorithm.HS256,
-            application.getSecurity().getSettings().getMacSigningKey())
+        .signWith(key, SignatureAlgorithm.HS256)
         // Encode and compact
         .compact();
   }
