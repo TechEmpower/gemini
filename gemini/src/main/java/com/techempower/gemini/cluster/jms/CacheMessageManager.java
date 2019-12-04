@@ -35,7 +35,7 @@ import com.techempower.gemini.cluster.DistributionListener;
 import com.techempower.gemini.cluster.message.BroadcastMessage;
 import com.techempower.gemini.cluster.message.CacheMessage;
 import com.techempower.gemini.cluster.message.CachedRelationMessage;
-import com.techempower.log.ComponentLog;
+import com.techempower.log.*;
 import com.techempower.util.Configurable;
 import com.techempower.util.EnhancedProperties;
 import com.techempower.util.Identifiable;
@@ -484,8 +484,16 @@ public class CacheMessageManager
                     + ", existing entity: " + entity);
               }
             }
-            else
+            else if (group instanceof EntityGroup)
             {
+              // No problem! Some instance has this as a CacheGroup, thus it is
+              // sent over the message queue. But *this* instance does not have
+              // it as a CacheGroup, only an EntityGroup, which means we have
+              // nothing to update here.
+              log.log("Received 'cache object expired' for an EntityGroup, so not cached. Ignoring:" + cacheMessage,
+                  LogLevel.DEBUG);
+            }
+            else            {
               log.log("Receiving 'cache object expired' but group id is invalid:"
                   + cacheMessage + ", group: " + group);
               application.getNotifier().addNotification(
