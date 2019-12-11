@@ -25,8 +25,7 @@ public class JsonRequestBodyAdapter implements RequestBodyAdapter<Context>
     final Request request = context.getRequest();
 
     // Ensure that the requests had the right content type.
-    if (!StringHelper.equalsIgnoreCase(
-            request.getRequestContentType(), GeminiConstants.CONTENT_TYPE_JSON))
+    if (!request.getRequestContentType().contains(GeminiConstants.CONTENT_TYPE_JSON))
     {
       throw new RequestBodyException(400, "Invalid content type: "
           + request.getRequestContentType());
