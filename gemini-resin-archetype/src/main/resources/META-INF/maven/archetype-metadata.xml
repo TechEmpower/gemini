@@ -8,25 +8,6 @@
       <defaultValue>com.techempower</defaultValue>
     </requiredProperty>
     <requiredProperty key="package" />
-    <requiredProperty key="app.properties">
-      <defaultValue>app.properties</defaultValue>
-    </requiredProperty>
-    <requiredProperty key="machineName"/>
-    <requiredProperty key="databaseHost">
-      <defaultValue>localhost</defaultValue>
-    </requiredProperty>
-    <requiredProperty key="databaseName">
-      <defaultValue>gemini_dev</defaultValue>
-    </requiredProperty>
-    <requiredProperty key="databaseUsername">
-      <defaultValue>gemini</defaultValue>
-    </requiredProperty>
-    <requiredProperty key="databasePassword">
-      <defaultValue>password</defaultValue>
-    </requiredProperty>
-    <requiredProperty key="databasePort">
-      <defaultValue>5432</defaultValue>
-    </requiredProperty>
   </requiredProperties>
 
   <fileSets>
@@ -41,10 +22,11 @@
       <includes>
         <exclude>pom.xml</exclude>
         <include>README.md</include>
-        <include>dockerfile</include>
+        <include>Dockerfile</include>
         <include>db/migration/**/*</include>
         <include>src/main/webapp/WEB-INF/configuration/**/*</include>
         <include>src/main/webapp/WEB-INF/web.xml</include>
+        <include>src/main/webapp/WEB-INF/resin.xml</include>
       </includes>
     </fileSet>
     <fileSet filtered="false" packaged="false">
@@ -52,10 +34,6 @@
       <includes>
         <include>src/main/resources/**/*</include>
         <include>src/test/resources/**/*</include>
-        <include>src/main/webapp/css/**/*</include>
-        <include>src/main/webapp/html/**/*</include>
-        <include>src/main/webapp/images/**/*</include>
-        <include>src/main/webapp/js/**/*</include>
         <include>src/main/webapp/WEB-INF/**/*</include>
       </includes>
       <excludes>

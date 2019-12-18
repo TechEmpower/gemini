@@ -22,7 +22,7 @@
   <url>https://github.com/TechEmpower/gemini</url>
   <groupId>com.techempower</groupId>
   <artifactId>gemini-parent</artifactId>
-  <version>2.26.0-SNAPSHOT</version>
+  <version>3.0.0-SNAPSHOT</version>
   <developers>
     <developer>
       <id>msmith</id>
@@ -66,6 +66,7 @@
     <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
     <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
     <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
+    <maven-war-plugin.version>3.1.1</maven-war-plugin.version>
     <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
     <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
     <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
@@ -75,7 +76,8 @@
          a workaround to a multithreading issue in 0.9.10.
          See https://github.com/ronmamo/reflections/issues/81 -->
     <reflections.version>0.9.9</reflections.version>
-    <resin.version>4.0.46</resin.version>
+    <resin.version>4.0.63</resin.version>
+    <servlet.version>3.1.0</servlet.version>
     <trove4j.version>3.0.3</trove4j.version>
     <jsonwebtoken.version>0.10.6</jsonwebtoken.version>
     <jms.version>2.0.1</jms.version>
@@ -89,23 +91,6 @@
     <connection>scm:git:https://github.com/TechEmpower/gemini.git</connection>
     <developerConnection>scm:git:git@github.com:TechEmpower/gemini.git</developerConnection>
   </scm>
-
-
-  <repositories>
-    <repository>
-      <id>caucho</id>
-      <name>Caucho's public Maven repository, which hosts Resin</name>
-      <url>http://caucho.com/m2</url>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-        <updatePolicy>always</updatePolicy>
-      </snapshots>
-    </repository>
-  </repositories>
 
   <distributionManagement>
     <snapshotRepository>
@@ -222,11 +207,31 @@
         <groupId>com.caucho</groupId>
         <artifactId>resin</artifactId>
         <version>${resin.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
         <artifactId>jsp-api</artifactId>
         <version>${jsp.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-api</artifactId>
+        <version>${javaee.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax</groupId>
+        <artifactId>javaee-web-api</artifactId>
+        <version>${javaee.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>io.jsonwebtoken</groupId>
@@ -247,6 +252,7 @@
         <groupId>javax.jms</groupId>
         <artifactId>javax.jms-api</artifactId>
         <version>${jms.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.zaxxer</groupId>
@@ -292,8 +298,8 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven-compiler-plugin.version}</version>
           <configuration>
-            <source>1.8</source>
-            <target>1.8</target>
+            <source>11</source>
+            <target>11</target>
             <encoding>UTF-8</encoding>
           </configuration>
         </plugin>
@@ -320,6 +326,26 @@
               <manifestEntries>
                 <geminiVersion>${project.version}</geminiVersion>
               </manifestEntries>
+              <manifest>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              </manifest>
+            </archive>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>${maven-war-plugin.version}</version>
+          <configuration>
+            <archive>
+              <manifestEntries>
+                <geminiVersion>${project.version}</geminiVersion>
+              </manifestEntries>
+              <manifest>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+              </manifest>
             </archive>
           </configuration>
         </plugin>
@@ -328,7 +354,7 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven-javadoc-plugin.version}</version>
           <configuration>
-            <source>8</source>
+            <source>11</source>
             <additionalOptions>
               <additionalOption>-Xdoclint:none</additionalOption>
             </additionalOptions>
@@ -386,6 +412,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
