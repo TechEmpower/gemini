@@ -11,13 +11,19 @@
   <name>A custom Gemini project</name>
 
   <properties>
-    <maven.compiler.source>10</maven.compiler.source>
-    <maven.compiler.target>10</maven.compiler.target>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.caucho</groupId>
+      <artifactId>resin</artifactId>
+      <version>4.0.63</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>com.techempower</groupId>
       <artifactId>gemini</artifactId>
@@ -39,13 +45,4 @@
     <!-- <artifactId>gemini-hikaricp</artifactId> -->
     <!-- </dependency> -->
   </dependencies>
-
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/webapp/WEB-INF/configuration</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-  </build>
 </project>

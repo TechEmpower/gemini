@@ -19,7 +19,7 @@
   <parent>
     <artifactId>gemini-parent</artifactId>
     <groupId>com.techempower</groupId>
-    <version>2.26.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>gemini</artifactId>

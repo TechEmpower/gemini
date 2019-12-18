@@ -26,12 +26,15 @@
  *******************************************************************************/
 package com.techempower.gemini.email.outbound;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.techempower.gemini.*;
-import com.techempower.gemini.email.*;
-import com.techempower.log.*;
-import com.techempower.util.*;
+import com.techempower.gemini.GeminiApplication;
+import com.techempower.gemini.email.EmailPackage;
+import com.techempower.log.ComponentLog;
+import com.techempower.util.Configurable;
+import com.techempower.util.EnhancedProperties;
+import com.techempower.util.EnhancedProperties.Focus;
 
 /**
  * An EmailTemplater is responsible for management and execution/processing
@@ -67,6 +70,8 @@ public abstract class EmailTemplater
 
   private final GeminiApplication application;
   private final ComponentLog      log;
+  
+  protected boolean enabled = false;
 
   //
   // Member methods.
@@ -91,6 +96,8 @@ public abstract class EmailTemplater
   public void configure(EnhancedProperties props)
   {
     // Does nothing here.
+    final Focus focus = props.focus(COMPONENT_CODE);
+    enabled = focus.getBoolean("Enabled", enabled);
   }
 
   /**

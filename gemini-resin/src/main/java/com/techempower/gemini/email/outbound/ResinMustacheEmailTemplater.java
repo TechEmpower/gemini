@@ -45,9 +45,12 @@ public class ResinMustacheEmailTemplater extends MustacheEmailTemplater
   {
     super.configure(props);
     
-    String aTemplatePath = props.get(Configurator.PROP_WEBINF) + "/emails/";
-    this.templatePath = props.get(PROPS_PREFIX + "TemplatePath", aTemplatePath);
-    this.mustacheFactory = getMustacheFactory();
+    if (super.enabled)
+    {
+      String aTemplatePath = props.get(Configurator.PROP_WEBINF) + "/emails/";
+      this.templatePath = props.get(PROPS_PREFIX + "TemplatePath", aTemplatePath);
+      this.mustacheFactory = getMustacheFactory();
+    }
   }
   
   @Override

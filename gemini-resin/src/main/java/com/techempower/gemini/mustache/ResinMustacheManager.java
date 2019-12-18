@@ -52,8 +52,11 @@ public class ResinMustacheManager
     super.configure(props);
     final EnhancedProperties.Focus focus = props.focus("Mustache.");
     this.mustacheDirectory = focus.get("Directory", "${Servlet.WebInf}/mustache/");
-    validateMustacheDirectory();
-    setupTemplateCache();
+    if (super.enabled)
+    {
+      validateMustacheDirectory();
+      setupTemplateCache();
+    }
   }
   
   /**

@@ -7,8 +7,6 @@ import com.techempower.gemini.exceptionhandler.*;
 import com.techempower.gemini.path.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.handler.*;
-import com.techempower.js.*;
-import com.techempower.Version;
 import ${package}.handlers.*;
 
 /**
@@ -63,22 +61,10 @@ public class Application
   {
     return (Security)super.getSecurity();
   }
-  
-  @Override
-  public JavaScriptWriter constructJavaScriptWriter()
-  {
-    return new JacksonJavaScriptWriter();
-  }
 
   //
   // Protected methods.
   //
-  
-  @Override
-  protected Version constructVersion()
-  {
-    return new AppVersion();
-  }
 
   /**
    * Constructs a Security reference. This is overloaded to return a custom
@@ -105,24 +91,12 @@ public class Application
       .add("user", new UserHandler(this))
       .add("admin", new AdminHandler(this))
       .add("login", new LoginHandler<Context>(this))
-      .add("logout", new LogoutHandler<Context>(this))
-      .add("password-reset", new PasswordResetHandler<>(this));
+      .add("logout", new LogoutHandler<Context>(this));
     
     // Add ExceptionHandlers
-    config
-      .add(new LoggingExceptionHandler(this))
-      .add(new NotificationExceptionHandler(this));
+    config.add(new BasicExceptionHandler(this));
 
     return new PathDispatcher<>(this, config);
-  }
-
-  /**
-   * Constructs an ApplicationEmailTemplater reference.
-   */
-  @Override
-  protected AppEmailTemplater constructEmailTemplater()
-  {
-    return new AppEmailTemplater(this);
   }
 
   @Override
