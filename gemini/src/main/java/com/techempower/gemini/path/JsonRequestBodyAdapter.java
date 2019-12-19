@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import com.techempower.gemini.Context;
 import com.techempower.gemini.GeminiConstants;
 import com.techempower.gemini.Request;
-import com.techempower.helper.StringHelper;
 import com.techempower.js.JavaScriptError;
 
 /**
