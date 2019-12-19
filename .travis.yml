@@ -6,7 +6,7 @@ hosts:
 jdk:
   - oraclejdk11
 
-install: mvn clean compile install -Dgpg.skip
+install: mvn -U clean compile install -Dgpg.skip
 
 before_script:
   - mvn archetype:update-local-catalog
