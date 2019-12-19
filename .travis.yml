@@ -9,14 +9,12 @@ jdk:
 install: mvn install -Dgpg.skip
 
 before_script:
-  - psql -c 'create database gemini_test;' -U postgres
   - mvn archetype:update-local-catalog
   - >
       mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local
       -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype
       -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0
       -DmachineName=TRAVIS -DinteractiveMode=false
-  - cp .travis.conf test-artifact-id/src/main/webapp/WEB-INF/configuration/Base.conf
   - cd test-artifact-id && mvn compile war:war
   - curl -sL http://caucho.com/download/resin-4.0.63.tar.gz | tar xz --strip-components=1
   - rm -rf webapps/*
