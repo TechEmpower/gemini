@@ -15,7 +15,7 @@ before_script:
       -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype
       -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0
       -DmachineName=TRAVIS -DinteractiveMode=false
-  - cd test-artifact-id && mvn compile war:war
+  - cd test-artifact-id && mvn clean compile war:war
   - curl -sL http://caucho.com/download/resin-4.0.63.tar.gz | tar xz --strip-components=1
   - rm -rf webapps/*
   - cp target/test-artifact-id-1.0.war webapps/ROOT.war
