@@ -6,15 +6,15 @@ hosts:
 jdk:
   - oraclejdk11
 
-install: cat ~/.m2/settings.xml && mvn clean compile install -Dgpg.skip
+install: mvn clean compile install -Dgpg.skip -U
 
 before_script:
-  - mvn archetype:update-local-catalog
+  - mvn archetype:update-local-catalog -U
   - >
       mvn archetype:generate -DarchetypeRepository=local -DarchetypeCatalog=local
       -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype
       -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0
-      -DmachineName=TRAVIS -DinteractiveMode=false
+      -DmachineName=TRAVIS -DinteractiveMode=false -U
   - cd test-artifact-id && mvn clean compile war:war
   - curl -sL http://caucho.com/download/resin-4.0.63.tar.gz | tar xz --strip-components=1
   - rm -rf webapps/*
