@@ -6,7 +6,7 @@ hosts:
 jdk:
   - oraclejdk11
 
-install: mvn -U clean compile install -Dgpg.skip
+install: cat ~/.m2/settings.xml && mvn clean compile install -Dgpg.skip
 
 before_script:
   - mvn archetype:update-local-catalog
