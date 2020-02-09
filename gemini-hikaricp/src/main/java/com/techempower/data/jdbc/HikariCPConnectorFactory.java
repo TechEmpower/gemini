@@ -93,7 +93,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
    *          the prefix to apply to all property names in the conf file; default
    *          is "db.HikariCP."
    */
-  public HikariCPConnectorFactory(TechEmpowerApplication application, String propertyPrefix)
+  public HikariCPConnectorFactory(String propertyPrefix)
   {
     // Use default prefix if an empty String is provided.
     if (StringHelper.isNonEmpty(propertyPrefix))
@@ -104,6 +104,13 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     {
       this.propertyPrefix = DEFAULT_PROPERTY_PREFIX;
     }
+  }
+
+  @Deprecated(forRemoval = true)
+  public HikariCPConnectorFactory(TechEmpowerApplication application,
+                                  String propertyPrefix)
+  {
+    this(propertyPrefix);
   }
 
   /**

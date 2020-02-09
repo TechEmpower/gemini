@@ -92,7 +92,7 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
    *          the prefix to apply to all property names in the conf file; default
    *          is "db.Jndi."
    */
-  public JndiConnectorFactory(TechEmpowerApplication application, String propertyPrefix)
+  public JndiConnectorFactory(String propertyPrefix)
   {
     // Use default prefix if an empty String is provided.
     if (StringHelper.isNonEmpty(propertyPrefix))
@@ -103,6 +103,13 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
     {
       this.propertyPrefix = DEFAULT_PROPERTY_PREFIX;
     }
+  }
+
+  @Deprecated(forRemoval = true)
+  public JndiConnectorFactory(TechEmpowerApplication application,
+                              String propertyPrefix)
+  {
+    this(propertyPrefix);
   }
 
   /**
