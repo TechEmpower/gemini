@@ -57,6 +57,7 @@
     <javassist.version>3.24.1-GA</javassist.version>
     <javax-activation.version>1.1.1</javax-activation.version>
     <javax-mail.version>1.6.2</javax-mail.version>
+    <javax-servlet.version>3.1.0</javax-servlet.version>
     <jbcrypt.version>0.4</jbcrypt.version>
     <jsp.version>2.2.1-b03</jsp.version>
     <junit.version>4.12</junit.version>
@@ -156,6 +157,11 @@
         <groupId>com.sun.mail</groupId>
         <artifactId>javax.mail</artifactId>
         <version>${javax-mail.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${javax-servlet.version}</version>
       </dependency>
       <dependency>
         <groupId>org.im4java</groupId>
