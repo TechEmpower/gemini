@@ -34,8 +34,9 @@ import com.techempower.*;
 import com.techempower.asynchronous.*;
 import com.techempower.data.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The "ConnectorFactory" object--that is either a BasicConnectorFactory
@@ -108,9 +109,9 @@ public class BasicConnectorFactory
   private final    String       propertyPrefix;
   private volatile JdbcConnectionAttributes attributes = null;
   private volatile JdbcConnectionManager    connectionManager = null;
-  private final    TechEmpowerApplication app;
-  private final    ComponentLog log;
-  private final    AtomicLong   queryCount = new AtomicLong(0L);
+  private final    TechEmpowerApplication   app;
+  private final    Logger                   log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final    AtomicLong               queryCount = new AtomicLong(0L);
   
   private boolean      enabled               = true;
   private boolean      queryCounting         = false;
@@ -146,7 +147,6 @@ public class BasicConnectorFactory
     }
     
     this.app = application;
-    this.log = application.getLog(COMPONENT_CODE);
 
     // By default the connector factory itself will be the listener.
     dbListener = this;
@@ -189,23 +189,23 @@ public class BasicConnectorFactory
       }
       
       // Display information about the configuration.
-      debug("Configured using \"" + propertyPrefix + "\" prefix.");
+      log.debug("Configured using \"{}\" prefix.", propertyPrefix);
       if (StringHelper.isNonEmpty(attributes.getConnectString()))
       {
-        debug("Database connect string: " + attributes.getConnectString());
-        debug("Database connection pool size: " 
-            + attributes.getMinimumPoolSize() + " to "
-            + attributes.getMaximumPoolSize() + ".");
-        debug("Database timers: " 
-            + attributes.getStaleTimeout() + "ms until stale; "
-            + attributes.getAbortTimeout() + "ms until abort.");
+        log.debug("Database connect string: {}",
+            attributes.getConnectString());
+        log.debug("Database connection pool size: {} to {}.",
+            attributes.getMinimumPoolSize(), attributes.getMaximumPoolSize());
+        log.debug("Database timers: {}ms until stale; {}ms until abort.",
+            attributes.getStaleTimeout(), attributes.getAbortTimeout());
         checkForCommonConfigurationMistakes(attributes);
   
         //displayProperties();
       }
       else
       {
-        debug("No connect string specified with \"" + propertyPrefix + "\" prefix.");
+        log.debug("No connect string specified with \"{}\" prefix.",
+            propertyPrefix);
       }
   
       if (dbListener != null && dbListener != this)
@@ -219,23 +219,23 @@ public class BasicConnectorFactory
     }
     else
     {
-      log.log("Database connector factory disabled.");
+      log.info("Database connector factory disabled.");
     }
   }
   
   @Override
   public void determineIdentifierQuoteString()
   {
-    debug("Determining identifier quote string from database.");
+    log.debug("Determining identifier quote string from database.");
     try (ConnectionMonitor monitor = getConnectionMonitor())
     {
       identifierQuoteString = monitor.getConnection().getMetaData().getIdentifierQuoteString();
     }
     catch (Exception e)
     {
-      debug("Exception while reading identifier quote string.", e);
+      log.debug("Exception while reading identifier quote string.", e);
     }
-    debug("Identifier quote string: " + identifierQuoteString);
+    log.debug("Identifier quote string: {}", identifierQuoteString);
   }
 
   /**
@@ -270,30 +270,6 @@ public class BasicConnectorFactory
   {
     return enabled;
   }
-  
-  /**
-   * Logs a String to the ComponentLog.
-   *
-   * @param logString string to log.
-   */
-  protected void debug(String logString)
-  {
-    debug(logString, null);
-  }
-
-  /**
-   * Logs a String to the ComponentLog.
-   *
-   * @param logString string to log.
-   * @param e an exception or error to log.
-   */
-  protected void debug(String logString, Throwable e)
-  {
-    if (log != null)
-    {
-      log.log(logString, e);
-    }
-  }
 
   /**
    * Checks for some common configuration mistakes and outputs debug messages
@@ -308,27 +284,27 @@ public class BasicConnectorFactory
     // Display a message if only 1 connection is permitted.
     if (jca.getMinimumPoolSize() == 1)
     {
-      debug("ONLY 1 database connection is specified by " + propertyPrefix + "Driver.Pooling!");
+      log.debug("ONLY 1 database connection is specified by {}Driver.Pooling!", propertyPrefix);
     }
     
     if (StringHelper.isEmpty(jca.getJdbcURLPrefix()))
     {
-      debug("WARNING: " + propertyPrefix + "Driver.UrlPrefix not specified.");
+      log.debug("WARNING: {}Driver.UrlPrefix not specified.", propertyPrefix);
     }
 
     if (!conn.equals(conn.trim()))
     {
-      debug("WARNING: " + propertyPrefix + "ConnectString contains extraneous white space.");
+      log.debug("WARNING: {}ConnectString contains extraneous white space.", propertyPrefix);
     }
 
     if (!un.equals(un.trim()))
     {
-      debug("WARNING: " + propertyPrefix + "LoginName contains extraneous white space.");
+      log.debug("WARNING: {}LoginName contains extraneous white space.", propertyPrefix);
     }
 
     if (!pw.equals(pw.trim()))
     {
-      debug("WARNING: " + propertyPrefix + "LoginPass contains extraneous white space.");
+      log.debug("WARNING: {}LoginPass contains extraneous white space.", propertyPrefix);
     }
   }
   
@@ -370,7 +346,7 @@ public class BasicConnectorFactory
       long count = queryCount.incrementAndGet();
       if (count % queryCountFrequency == 0)
       {
-        log.log(count + " queries executed.");
+        log.info("{} queries executed.", count);
       }
     }
   }
@@ -445,7 +421,7 @@ public class BasicConnectorFactory
   {
     if (retrySleep > 0)
     {
-      log.log("Retrying query in " + retrySleep + "ms.", LogLevel.ALERT);
+      log.warn("Retrying query in {}ms.", retrySleep);
 
       try
       {
@@ -458,7 +434,7 @@ public class BasicConnectorFactory
       }
     }
 
-    log.log("Retrying query.", LogLevel.ALERT);
+    log.warn("Retrying query.");
 
     return DatabaseConnectionListener.INSTRUCT_RETRY;
   }
