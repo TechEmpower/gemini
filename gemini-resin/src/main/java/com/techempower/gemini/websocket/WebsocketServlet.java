@@ -33,7 +33,8 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple foundation for WebSocket support in Gemini applications.
@@ -55,8 +56,8 @@ public class WebsocketServlet
   // Member variables.
   //
   
-  private final ComponentLog      log;
-  private final WebsocketAdapter  adapter;
+  private final Logger           log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final WebsocketAdapter adapter;
   private final ConcurrentHashMap<String, WebsocketHandler> listeners;
   
   //
@@ -66,11 +67,17 @@ public class WebsocketServlet
   /**
    * Constructor.
    */
-  protected WebsocketServlet(GeminiApplication application, WebsocketAdapter adapter)
+  protected WebsocketServlet(WebsocketAdapter adapter)
   {
     this.adapter = adapter;
-    this.log = application.getLog(COMPONENT_CODE);
     this.listeners = new ConcurrentHashMap<>();
+  }
+  
+  @Deprecated(forRemoval = true)
+  protected WebsocketServlet(GeminiApplication application,
+                             WebsocketAdapter adapter)
+  {
+    this(adapter);
   }
   
   /**
@@ -119,7 +126,7 @@ public class WebsocketServlet
     }
     else
     {
-      this.log.log("Bad WebSocket protocol: " + protocol, LogLevel.DEBUG);
+      this.log.debug("Bad WebSocket protocol: {}", protocol);
     }
     
     // If we get here, response with a "forbidden" code.

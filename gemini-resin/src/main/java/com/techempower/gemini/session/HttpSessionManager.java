@@ -29,8 +29,9 @@ package com.techempower.gemini.session;
 import javax.servlet.http.*;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages the creation of user session objects.  Initializes new sessions 
@@ -65,9 +66,9 @@ public class HttpSessionManager
   // Member variables.
   //
 
-  private int               timeoutSeconds     = DEFAULT_TIMEOUT;
-  private ComponentLog      log;
-  private boolean           refererTracking    = false;
+  private int     timeoutSeconds     = DEFAULT_TIMEOUT;
+  private Logger  log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private boolean refererTracking    = false;
   private long              sessionAccumulator = 0L;
   private boolean           strictSessions     = false;
 
@@ -80,7 +81,6 @@ public class HttpSessionManager
    */
   public HttpSessionManager(GeminiApplication application)
   {
-    log = application.getLog(COMPONENT_CODE);
     application.getConfigurator().addConfigurable(this);
   }
 
@@ -91,17 +91,17 @@ public class HttpSessionManager
   public void configure(EnhancedProperties props)
   {
     setTimeoutSeconds(props.getInt("SessionTimeout", DEFAULT_TIMEOUT));
-    log.log("Session timeout: " + getTimeoutSeconds() + " seconds.");
+    log.info("Session timeout: {} seconds.", getTimeoutSeconds());
     
     refererTracking  = props.getBoolean("RefererTracking", refererTracking);
     if (refererTracking)
     {
-      log.log("Referer tracking enabled.");
+      log.info("Referer tracking enabled.");
     }
     strictSessions   = props.getBoolean("StrictSessions", strictSessions);
     if (strictSessions)
     {
-      log.log("Scrict sessions enabled.");
+      log.info("Scrict sessions enabled.");
     }
   }
 
@@ -193,8 +193,8 @@ public class HttpSessionManager
         {
           //log.debug("Request hash: " + requestHash);
           //log.debug("Session hash: " + sessionHash);
-          log.log("Session hash mismatch.  Invalidating session " 
-            + session.getId());
+          log.info("Session hash mismatch.  Invalidating session {}",
+              session.getId());
           session.invalidate();
           
           // Probably not necessary to request a new session, but we'll do

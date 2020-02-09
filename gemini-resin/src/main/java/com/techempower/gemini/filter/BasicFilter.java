@@ -35,7 +35,8 @@ import javax.servlet.http.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A foundation for simple filters.
@@ -50,8 +51,8 @@ public class BasicFilter
 
   private ServletContext    servletContext;
   private GeminiApplication app;
-  private ComponentLog      log;
-  private boolean           debugEnabled;
+  protected Logger          log = LoggerFactory.getLogger(
+      StringHelper.truncate(getClass().getSimpleName(), 4));
   private String            filterName;
   private String            errorPage          = "/access-error.jsp";
 
@@ -66,11 +67,10 @@ public class BasicFilter
   public void init(FilterConfig config)
   {
     servletContext = config.getServletContext();
-    debugEnabled = getInitParameter(config, "DebugEnabled", false);
     errorPage = getInitParameter(config, "ErrorPage", errorPage);
     filterName = config.getFilterName();
   }
-  
+
   /**
    * Finds the GeminiApplication that is using this filter.
    */
@@ -81,9 +81,8 @@ public class BasicFilter
       app = ApplicationRegistrar.getMain();
       if (app != null)
       {
-        log = app.getLog(StringHelper.truncate(getClass().getSimpleName(), 4));
-        debug(app.getVersion().getProductName() +  " app and " + filterName 
-            + " connected.");
+        log.info("{} app and {} connected.",
+            app.getVersion().getProductName(), filterName);
         initAfterAppConnection();
       }
     }
@@ -238,52 +237,6 @@ public class BasicFilter
     catch (IOException |ServletException e)
     {
       // Do nothing.
-    }
-  }
-
-  /**
-   * Writes a debug statement to System.out.
-   */
-  protected void debug(String text)
-  {
-    debug(text, LogLevel.NORMAL);
-  }
-
-  /**
-   * Writes a debug statement to System.out.
-   */
-  protected void debug(String text, Throwable t)
-  {
-    debug(text, LogLevel.NORMAL, t);
-  }
-
-  /**
-   * Writes a debug statement to System.out.
-   */
-  protected void debug(String text, int level)
-  {
-    if (log != null)
-    {
-      log.log(text, level);
-    }
-    else if (debugEnabled)
-    {
-      System.out.println(filterName + ": " + text);
-    }
-  }
-
-  /**
-   * Writes a debug statement to System.out.
-   */
-  protected void debug(String text, int level, Throwable t)
-  {
-    if (log != null)
-    {
-      log.log(text, level, t);
-    }
-    else if (debugEnabled)
-    {
-      System.out.println(filterName + ": " + text + "\n" + t.toString());
     }
   }
   

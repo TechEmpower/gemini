@@ -34,8 +34,9 @@ import javax.servlet.http.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.feature.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic implementation of ExceptionHandler that shows the exception
@@ -45,8 +46,6 @@ import com.techempower.util.*;
  * <ul>
  *   <li>BasicExceptionHandler.LogExceptions - Show exceptions in the log
  *       file.  Default: on</li>
- *   <li>BasicExceptionHandler.LogStackTraces - If LogExceptions is enabled,
- *       should the full stack trace also be logged?  Default: off</li>
  *   <li>BasicExceptionHandler.RevealStackTrace - Should the stack trace
  *       be revealed to site users in error displays?</li>
  *   <li>BasicExceptionHandler.UseErrorCode500 - Should a response code of
@@ -93,11 +92,10 @@ public class BasicExceptionHandler
   //
 
   private final GeminiApplication application;
-  private final FeatureManager    fm;
-  private final ComponentLog      log;
+  private final FeatureManager fm;
+  private final Logger         log = LoggerFactory.getLogger(COMPONENT_CODE);
   
   private boolean           displayExceptionsInLog = true;
-  private boolean           displayStackTracesInLog = false;
   private boolean           revealStackTrace = true;
   private boolean           useErrorCode500 = false;
   private boolean           useJson = true;
@@ -113,7 +111,6 @@ public class BasicExceptionHandler
   public BasicExceptionHandler(GeminiApplication app)
   {
     this.application = app;
-    this.log = app.getLog(COMPONENT_CODE);
     this.fm = app.getFeatureManager();
     app.getConfigurator().addConfigurable(this);
     
@@ -127,15 +124,14 @@ public class BasicExceptionHandler
     EnhancedProperties.Focus focus = props.focus("BasicExceptionHandler.");
     
     displayExceptionsInLog = focus.getBoolean("LogExceptions", true);
-    displayStackTracesInLog = focus.getBoolean("LogStackTraces", false);
     revealStackTrace = focus.getBoolean("RevealStackTrace", revealStackTrace);
     useErrorCode500 = focus.getBoolean("UseErrorCode500", useErrorCode500);
     useJson = focus.getBoolean("UseJson", useJson);
     errorTemplate = focus.get("ErrorPage", null);
     if (errorTemplate != null)
     {
-      log.log(focus.name("ErrorPage") + " is deprecated; use " 
-          + focus.name("ErrorTemplate") + " instead.");
+      log.info("{} is deprecated; use {} instead.",
+          focus.name("ErrorPage"), focus.name("ErrorTemplate"));
     }
     errorTemplate = focus.get("ErrorTemplate", errorTemplate);
   }
@@ -201,17 +197,12 @@ public class BasicExceptionHandler
     {
       if (StringHelper.isNonEmpty(description))
       {
-        log.log("Exception (" + description + "):\n" + exception);
+        log.info("Exception ({}}):", description, exception);
       }
       else
       {
-        log.log("Exception:\n" + exception);
+        log.info("Exception:" + exception);
       }
-    }
-
-    if (displayStackTracesInLog)
-    {
-      log.log("Stack trace: " + ThrowableHelper.getStackTrace(exception));
     }
   }
 

@@ -40,8 +40,8 @@ import com.techempower.gemini.annotation.intercept.*;
 import com.techempower.gemini.annotation.response.*;
 import com.techempower.gemini.exceptionhandler.*;
 import com.techempower.gemini.prehandler.*;
-import com.techempower.helper.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The BasicDispatcher is a standard implementation of the Dispatcher
@@ -79,8 +79,8 @@ public class BasicDispatcher
   // Member variables.
   //
 
-  protected final ComponentLog       log;
-  protected final GeminiApplication  application;
+  protected final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  protected final GeminiApplication application;
 
   protected final CopyOnWriteArrayList<Handler<? extends BasicDispatcher,? extends Context>>
     dispatchHandlers  = new CopyOnWriteArrayList<>();
@@ -125,7 +125,6 @@ public class BasicDispatcher
   public BasicDispatcher(GeminiApplication application)
   {
     this.application = application;
-    this.log = application.getLog(COMPONENT_CODE);
     installHandlers();
   }
 
@@ -151,14 +150,6 @@ public class BasicDispatcher
     // ... By default, a BasicHandler is used.
     // Example:
     //    setDefaultHandler(homeHandler);
-  }
-
-  /**
-   * Gets the ComponentLog.
-   */
-  public ComponentLog getLog()
-  {
-    return this.log;
   }
 
   /**
@@ -260,7 +251,7 @@ public class BasicDispatcher
       handler = this.dispatchHandlers.get(i);
       if (handler == null)
       {
-        this.log.log("Handler " + i + " is null!");
+        this.log.info("Handler {} is null!", i);
       }
       else
       {
@@ -279,7 +270,7 @@ public class BasicDispatcher
     String[] descriptions = getHandlerDescriptions();
     for (int i = 0; i < descriptions.length; i++)
     {
-      this.log.log(i + ": " + descriptions[i]);
+      this.log.info("{}: {}", i, descriptions[i]);
     }
   }
 
@@ -307,7 +298,7 @@ public class BasicDispatcher
    */
   protected void displayDispatch(Context context, String command)
   {
-    this.log.log(context.getClientId() + "; dispatching: " + command);
+    this.log.info("{}; dispatching: {}", context.getClientId(), command);
   }
 
   /**
@@ -526,23 +517,6 @@ public class BasicDispatcher
   }
 
   /**
-   * When the handleException method handles an exception, it may be useful
-   * to have a stack trace displayed on the standard-out line for
-   * development.  This is useful when an application is not specifying its
-   * own error handler JSP page.
-   *   <p>
-   * Overload this method to return true if a stack trace is desired on
-   * standard out in the event of an exception caught by the Servlet.
-   *   <p>
-   * Note: This method has no function if an ExceptionHandler is being used.
-   * It is only used by the internal exception-handling logic.
-   */
-  protected boolean showExceptionTraces()
-  {
-    return false;
-  }
-
-  /**
    * Dispatches an Exception to the list of ExceptionHandlers.  The dispatch
    * model here is very simple.  Each ExceptionHandler is merely provided
    * a reference to the Context and the Exception.
@@ -581,14 +555,14 @@ public class BasicDispatcher
       }
       else
       {
-        this.log.log("Cannot dispatch exception; no ExceptionHandlers have been specified.");
+        this.log.info("Cannot dispatch exception; no ExceptionHandlers have been specified.");
       }
     }
     catch (Exception exc)
     {
       // It's a bummer to have an exception thrown while processing another
       // one.  In that case, let's hope we can log something.
-      this.log.log("Exception while processing earlier exception: " + exc);
+      this.log.info("Exception while processing earlier exception: ", exc);
     }
   }
 
@@ -726,7 +700,7 @@ public class BasicDispatcher
       // only allow accessible (public) methods
       if (!Modifier.isPublic(method.getModifiers()))
       {
-        this.log.log("Error: Trying to use a non-public method as an annotated handler: " + c.getSimpleName() + "." + method.getName());
+        this.log.info("Error: Trying to use a non-public method as an annotated handler: {}.{}", c.getSimpleName(), method.getName());
         continue;
       }
 
@@ -865,7 +839,7 @@ public class BasicDispatcher
           }
           catch (SecurityException | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e)
           {
-            this.log.log("Warning: Class " + clazz.getName() + " could not be instantiated.", e);
+            this.log.warn("Class {} could not be instantiated.", clazz.getName(), e);
           }
 
           // no constructor with GeminiApplication, try the default constructor
@@ -877,14 +851,14 @@ public class BasicDispatcher
             }
             catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
             {
-              this.log.log("Warning: Class " + clazz.getName() + " could not be instantiated.", e);
+              this.log.warn("Class {} could not be instantiated.", clazz.getName(), e);
             }
           }
 
           // we didn't find a valid constructor, log this
           if (obj == null)
           {
-            this.log.log("Warning: class " + clazz + " is an annotated handler without a valid constructor, so it has not been added as a handler.");
+            this.log.warn("Class {} is an annotated handler without a valid constructor, so it has not been added as a handler.", clazz);
           }
           else
           {
@@ -896,7 +870,7 @@ public class BasicDispatcher
     }
     catch (ReflectionsException e)
     {
-      this.log.log("Warning: exception with reflection in " + packageName + ", aborting addHandlers", e);
+      this.log.warn("Exception with reflection in {}, aborting addHandlers", packageName, e);
     }
   }
 
@@ -1009,12 +983,12 @@ public class BasicDispatcher
             }
           }
 
-          this.log.log("No handler for: " + command);
+          this.log.info("No handler for: {}", command);
         }
         else
         {
           // Command was null.
-          this.log.log(context.getClientId() + "; dispatching with no command specified.");
+          this.log.info("{}; dispatching with no command specified.", context.getClientId());
         }
 
         // If nothing handled the request, go to the default handler.
@@ -1032,7 +1006,7 @@ public class BasicDispatcher
         {
           // Default handler returned false on handleRequest?  That really
           // should not happen!
-          this.log.log("Default handler's handleRequest method returned false!");
+          this.log.info("Default handler's handleRequest method returned false!");
           return false;
         }
       }
@@ -1051,7 +1025,7 @@ public class BasicDispatcher
     // Null context.
     else
     {
-      this.log.log("Error: dispatch() called with a null Context.");
+      this.log.info("Error: dispatch() called with a null Context.");
       return false;
     }
   }
@@ -1100,7 +1074,7 @@ public class BasicDispatcher
     context.incrementDispatches();
     final int redispatchCount = context.getDispatches();
 
-    this.log.log("Redispatching: " + command + " (" + redispatchCount + ")");
+    this.log.info("Redispatching: {} ({})", command, redispatchCount);
 
     if (redispatchCount <= REDISPATCH_LIMIT)
     {
@@ -1110,8 +1084,8 @@ public class BasicDispatcher
     {
       try
       {
-        this.log.log("Dispatcher redispatched " + redispatchCount + " times.");
-        this.log.log("Redispatch abort limit hit!  Sending basic error message to user.");
+        this.log.info("Dispatcher redispatched {} times.", redispatchCount);
+        this.log.info("Redispatch abort limit hit!  Sending basic error message to user.");
         context.print(getRedispatchAbortMessage());
       }
       // Catch exceptions and errors.  This method must return true.
@@ -1123,8 +1097,8 @@ public class BasicDispatcher
     }
     else
     {
-      this.log.log("Dispatcher redispatched " + redispatchCount + " times.");
-      this.log.log("This is likely the cause of a dispatch loop; redirecting to "
+      this.log.info("Dispatcher redispatched {} times.", redispatchCount);
+      this.log.info("This is likely the cause of a dispatch loop; redirecting to "
           + getRedispatchLimitCommand() + ".");
       context.setCommand(getRedispatchLimitCommand());
     }
@@ -1185,26 +1159,7 @@ public class BasicDispatcher
 
     // Log the exception to the log file for further evaluation.
 
-    this.log.log("InfrastructureServlet caught exception:\n" + exception);
-
-    if (exception != null)
-    {
-      if (showExceptionTraces())
-      {
-        //exception.printStackTrace();
-        this.log.log(ThrowableHelper.getStackTrace(exception));
-      }
-  
-      if (exception.getCause() != null)
-      {
-        this.log.log("Cause of the exception: ", exception.getCause());
-        if (showExceptionTraces())
-        {
-          //exception.printStackTrace();
-          this.log.log(ThrowableHelper.getStackTrace(exception.getCause()));
-        }
-      }
-    }
+    this.log.info("InfrastructureServlet caught exception:", exception);
 
     // Send a response if the Context is non-null.
     if (rawContext != null)
@@ -1280,7 +1235,7 @@ public class BasicDispatcher
       }
       else
       {
-        this.log.log("Exception received from error handler.  Not processing.");
+        this.log.info("Exception received from error handler.  Not processing.");
       }
     }
   }

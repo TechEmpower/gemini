@@ -38,8 +38,9 @@ import javax.servlet.http.*;
 import com.techempower.gemini.jsp.*;
 import com.techempower.gemini.session.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of Request that's specific to HttpServlet. This request is a
@@ -60,9 +61,9 @@ public class HttpRequest
   // Member variables.
   //
   
-  private final GeminiApplication     application;
-  private final ComponentLog          log;
-  private final HttpServletRequest    request;
+  private final GeminiApplication  application;
+  private final Logger             log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final HttpServletRequest request;
   private final HttpServletResponse   response;
   private final ServletContext        servletContext;
   private final BasicInfrastructure   infrastructure;
@@ -89,15 +90,12 @@ public class HttpRequest
     this.servletContext  = servletContext;
     this.infrastructure  = this.application.getInfrastructure();
     
-    // Get a log reference.
-    this.log = this.application.getLog(COMPONENT_CODE);
-    
     // Set the method of the request.
     HttpMethod httpMethod;
     try {
       httpMethod = HttpMethod.valueOf(request.getMethod());
     } catch (IllegalArgumentException e) {
-      log.log("Unsupported HTTP method: " + request.getMethod());
+      log.info("Unsupported HTTP method: {}", request.getMethod());
       httpMethod = null;
     }
     method = httpMethod;
@@ -178,7 +176,7 @@ public class HttpRequest
       catch (IOException ioe)
       {
         // This cannot really happen in practice.
-        this.log.log("Exception thrown trying to request request stream", ioe);
+        this.log.info("Exception thrown trying to request request stream", ioe);
       }
     }
   }
@@ -189,14 +187,6 @@ public class HttpRequest
   protected GeminiApplication getApplication()
   {
     return this.application;
-  }
-  
-  /**
-   * Gets a reference to the request's ComponentLog.
-   */
-  protected ComponentLog getLog()
-  {
-    return this.log;
   }
   
   /**
@@ -1051,7 +1041,7 @@ public class HttpRequest
     }
     catch (IOException e)
     {
-      this.log.log("IOException while including file.", LogLevel.NORMAL, e);
+      this.log.info("IOException while including file.", e);
       return false;
     }
 

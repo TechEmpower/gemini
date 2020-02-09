@@ -29,8 +29,9 @@ package com.techempower.gemini.filestore;
 
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic implementation of a File Store Handler, allowing a user to
@@ -62,7 +63,7 @@ public class BasicFileStoreHandler
   //
 
   private final GeminiApplication application;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
   private final FileStore         fileStore;
 
   //
@@ -91,7 +92,6 @@ public class BasicFileStoreHandler
   public BasicFileStoreHandler(GeminiApplication application, FileStore fileStore, String propsPrefix)
   {
     this.fileStore = fileStore;
-    this.log = application.getLog(COMPONENT_CODE);
 
     this.application = application;
     application.getConfigurator().addConfigurable(this);
@@ -135,7 +135,7 @@ public class BasicFileStoreHandler
   @Override
   public boolean handleRequest(BasicDispatcher dispatcher, LegacyContext context, String command)
   {
-    this.log.log("Handling: " + command);
+    this.log.info("Handling: {}", command);
     if (command.equalsIgnoreCase(CMD_LIST_FILES))
     {
       return listFiles(dispatcher, context);
