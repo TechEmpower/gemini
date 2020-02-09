@@ -29,7 +29,7 @@ package com.techempower.data.jdbc;
 import java.sql.*;
 import java.util.*;
 
-import com.techempower.log.*;
+import org.slf4j.Logger;
 
 /**
  * A pure-static helper class for the JDBC components.
@@ -42,12 +42,11 @@ final class JdbcHelper
    * 
    * @param driverClassName the JDBC driver's classname.
    */
-  public static void loadDriver(String driverClassName, ComponentLog componentLog)
+  public static void loadDriver(String driverClassName, Logger log)
   {
-    if (componentLog != null)
+    if (log != null)
     {
-      componentLog.log("Loading JDBC driver: " + driverClassName,
-          LogLevel.NORMAL);
+      log.info("Loading JDBC driver: {}", driverClassName);
     }
 
     try
@@ -57,11 +56,10 @@ final class JdbcHelper
     }
     catch (java.lang.ClassNotFoundException cnfexc)
     {
-      if (componentLog != null)
+      if (log != null)
       {
-        componentLog.log(
-            "ClassNotFound while attempting to load JDBC driver: ",
-            LogLevel.CRITICAL,
+        log.error(
+            "ClassNotFound while attempting to load JDBC driver",
             cnfexc);
       }
     }

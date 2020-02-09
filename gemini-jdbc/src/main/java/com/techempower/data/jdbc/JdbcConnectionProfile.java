@@ -31,12 +31,12 @@ import java.io.*;
 import java.sql.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
-import java.util.logging.*;
 
 import com.techempower.data.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Encapsulates each instance of a connection to a database.
@@ -96,7 +96,7 @@ public class JdbcConnectionProfile
   /**
    * A ComponentLog for debugging.
    */
-  private final ComponentLog log;
+  private final Logger log = LoggerFactory.getLogger(JdbcConnectionAttributes.COMPONENT_CODE);
 
   /**
    * A reference to the connection.
@@ -126,7 +126,6 @@ public class JdbcConnectionProfile
   protected JdbcConnectionProfile(int id, JdbcConnectionManager manager)
   {
     this.manager = manager;
-    this.log = manager.getLog();
     this.id = id;
   }
   
@@ -174,23 +173,21 @@ public class JdbcConnectionProfile
         // Connect to the database.
         try
         {
-          log("Establishing database connection: [" 
-            + connectionUrl + ", " 
-            + attributes.getUsername() + "]", 
-            LogLevel.MINIMUM);
+          log.trace("{}Establishing database connection: [{}, {}]",
+              logPrefix(), connectionUrl, attributes.getUsername());
           
           connection = new ConnectionWrapper(this, DriverManager.getConnection(connectionUrl,
             attributes.getUsername(), attributes.getPassword()));
         }
         catch (SQLException sqlexc)
         {
-          log("SQL Exception while connecting.", LogLevel.ALERT, sqlexc);
+          log.warn("{}SQL Exception while connecting.", logPrefix(), sqlexc);
           connection = null;
         }
       }
       else
       {
-        log("JDBC URL prefix or connect string is empty; cannot connect to database.", LogLevel.ALERT);
+        log.warn("{}JDBC URL prefix or connect string is empty; cannot connect to database.", logPrefix());
       }
     }
   }
@@ -207,27 +204,6 @@ public class JdbcConnectionProfile
       establishDatabaseConnection();
     }
     return connection;
-  }
-  
-  /**
-   * Write something to the log, with a prefix identifying the current
-   * connection number and reservation-holding thread ID.
-   */
-  protected void log(String string)
-  {
-    log.log("[c" + getId() + ";t" + reservedForThread.get() + "] " + string);
-  }
-  protected void log(String string, int level)
-  {
-    log.log("[c" + getId() + ";t" + reservedForThread.get() + "] " + string, level);
-  }
-  protected void log(String string, int level, Throwable throwable) 
-  {
-    log.log("[c" + getId() + ";t" + reservedForThread.get() + "] " + string, level, throwable);
-  }
-  protected void log(String string, Throwable throwable) 
-  {
-    log.log("[c" + getId() + ";t" + reservedForThread.get() + "] " + string, throwable);
   }
   
   /**
@@ -269,20 +245,20 @@ public class JdbcConnectionProfile
                     // connection alive.  But let's log something if they differ.
                     if (!expectedResult.equals(actualResult))
                     {
-                      log("Expected \"" + expectedResult 
-                          + "\" but received \"" + actualResult + "\".", LogLevel.ALERT);
+                      log.warn("{}Expected \"{}\" but received \"{}\".",
+                          logPrefix(), expectedResult, actualResult);
                     }
                   }
                   else
                   {
-                    log("No results from keep-alive query.", LogLevel.ALERT);
+                    log.warn("{}No results from keep-alive query.", logPrefix());
                   }
                 }
               }
             }
             catch (SQLException sqlexc)
             {
-              log("SQLException during keep-alive: ", LogLevel.ALERT, sqlexc);
+              log.warn("{}SQLException during keep-alive: ", logPrefix(), sqlexc);
               
               // Close this connection (it will be reconnected on next use).
               close(true);
@@ -301,13 +277,13 @@ public class JdbcConnectionProfile
         }
         catch (RejectedExecutionException rje)
         {
-          log("Cannot keep alive connection: ", rje);
+          log.info("{}Cannot keep alive connection: ", logPrefix(), rje);
           close();
         }
       }
       else
       {
-        log("Unable to run keep-alive. This is normal if a query is running.", LogLevel.DEBUG);
+        log.debug("{}Unable to run keep-alive. This is normal if a query is running.", logPrefix());
         
         // If we were unable to claim this profile, let's see how long it has
         // been executing a query.  If it's longer than the query timeout, we
@@ -315,7 +291,8 @@ public class JdbcConnectionProfile
         final long time = System.currentTimeMillis() - lastUsed;
         if (time > manager.getAttributes().getAbortTimeout())
         {
-          log("Query timeout.  Stopping query running for " + time + "ms.");
+          log.info("{}Query timeout.  Stopping query running for {}ms.",
+              logPrefix(), time);
           close(true);
         }
       }
@@ -479,7 +456,8 @@ public class JdbcConnectionProfile
     }
     catch (SQLException sqlexc)
     {
-      log("SQLException while determining connection's closed status.", LogLevel.ALERT, sqlexc);
+      log.warn("{}SQLException while determining connection's closed status.",
+          logPrefix(), sqlexc);
     }
 
     // Connection is null, or we got an exception when asking if the
@@ -515,6 +493,10 @@ public class JdbcConnectionProfile
       connection = null;
     }
   }
+
+  private String logPrefix() {
+    return "[c" + getId() + ";t" + reservedForThread.get() + "] ";
+  }
   
   /**
    * Used by the close() method above. 
@@ -531,7 +513,8 @@ public class JdbcConnectionProfile
     @Override
     public void run()
     {
-      debug("Closing connection profile " + JdbcConnectionProfile.this.id + ".");
+      log.debug("{}Closing connection profile {}.", logPrefix(),
+          JdbcConnectionProfile.this.id);
       
       try
       {
@@ -539,13 +522,9 @@ public class JdbcConnectionProfile
       }
       catch (SQLException sqlexc)
       {
-        debug("SQLException while closing connection: " + sqlexc);
+        log.debug("{}SQLException while closing connection: ",
+            logPrefix(), sqlexc);
       }
-    }
-    
-    public void debug(String debug)
-    {
-      JdbcConnectionProfile.this.log(debug);
     }
   }
 
@@ -597,7 +576,7 @@ public class JdbcConnectionProfile
       }
       catch (SQLException exc)
       {
-        log("Exception while fetching meta data.", LogLevel.ALERT, exc);
+        log.warn("{}Exception while fetching meta data.", logPrefix(), exc);
       }
     }
     
@@ -631,7 +610,7 @@ public class JdbcConnectionProfile
     }
 
     @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException
+    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException
     {
       throw new SQLFeatureNotSupportedException();
     }

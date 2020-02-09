@@ -30,8 +30,8 @@ package com.techempower.data.jdbc;
 import com.techempower.*;
 import com.techempower.data.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.LoggerFactory;
 
 /**
  * A set of attributes about JDBC Connections: URL prefix, username, etc.
@@ -53,7 +53,6 @@ class JdbcConnectionAttributes
   public static final String  COMPONENT_CODE = "jdCA";
   public static final int     DEFAULT_MINIMUM_POOL_SIZE = 3;
   public static final int     DEFAULT_MAXIMUM_POOL_MULTIPLIER = 5;
-  public static final int     DEFAULT_WARNING_LEVEL = LogLevel.ALERT;
   public static final DatabaseAffinity DEFAULT_DATABASE_AFFINITY = DatabaseAffinity.MYSQL;
   public static final String  DEFAULT_TEST_QUERY = "SELECT 1 AS Result";
   public static final String  DEFAULT_TEST_VALUE = "1";
@@ -73,12 +72,9 @@ class JdbcConnectionAttributes
   private final String                     username;
   private final String                     password;
   private final String                     driverClassName;
-  private final ComponentLog               log;
   private final TechEmpowerApplication     application;
   private final int                        minimumPoolSize;
   private final int                        maximumPoolSize;
-  private final boolean                    logWarnings;
-  private final int                        warningLogLevel;
   private final DatabaseAffinity           databaseAffinity;
 
   private final boolean                    testEnabled;
@@ -105,8 +101,7 @@ class JdbcConnectionAttributes
       String prefix)
   {
     this.application = application;
-    this.log = application.getLog(COMPONENT_CODE);
-    
+
     EnhancedProperties.Focus focus = props.focus(prefix);
     this.connectString = focus.get("ConnectString");
     this.displayName = focus.get("DisplayName", StringHelper.truncateEllipsis(this.connectString, 25));
@@ -116,8 +111,6 @@ class JdbcConnectionAttributes
     this.minimumPoolSize = focus.getInt("Driver.Pooling", DEFAULT_MINIMUM_POOL_SIZE);
     this.maximumPoolSize = focus.getInt("Driver.MaxPooling", DEFAULT_MAXIMUM_POOL_MULTIPLIER * this.minimumPoolSize);
     this.driverClassName = focus.get("Driver.Class");
-    this.logWarnings = focus.getBoolean("LogWarnings", true);
-    this.warningLogLevel = focus.getInt("WarningLogLevel", DEFAULT_WARNING_LEVEL);
     this.databaseAffinity = focus.getEnum("DatabaseAffinity",
         DatabaseAffinity.class, DatabaseAffinity.MYSQL);
     this.testEnabled = focus.getBoolean("TestEnabled", true);
@@ -130,7 +123,8 @@ class JdbcConnectionAttributes
     this.listener = listener;
     
     // Load driver
-    JdbcHelper.loadDriver(this.driverClassName, this.log);
+    JdbcHelper.loadDriver(this.driverClassName,
+        LoggerFactory.getLogger(COMPONENT_CODE));
   }
   
   /**
@@ -180,14 +174,6 @@ class JdbcConnectionAttributes
   {
     return maximumPoolSize;
   }
-
-  /**
-   * Gets the ComponentLog reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return log;
-  }
   
   /**
    * Gets the Database Connection Listener.
@@ -203,22 +189,6 @@ class JdbcConnectionAttributes
   protected TechEmpowerApplication getApplication()
   {
     return this.application;
-  }
-
-  /**
-   * Whether to log SQLWarnings.
-   */
-  public boolean getLogWarnings()
-  {
-    return this.logWarnings;
-  }
-
-  /**
-   * At what level to log SQLWarnings.
-   */
-  public int getWarningLogLevel()
-  {
-    return this.warningLogLevel;
   }
 
   /**
