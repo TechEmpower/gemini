@@ -325,7 +325,6 @@
             <archive>
               <manifestEntries>
                 <geminiVersion>${project.version}</geminiVersion>
-                <servletVersion>${servlet.version}</servletVersion>
               </manifestEntries>
               <manifest>
                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -342,7 +341,6 @@
             <archive>
               <manifestEntries>
                 <geminiVersion>${project.version}</geminiVersion>
-                <servletVersion>${servlet.version}</servletVersion>
               </manifestEntries>
               <manifest>
                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>

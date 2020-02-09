@@ -29,7 +29,6 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>3.1.0</version>
-      <scope>runtime</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -46,11 +45,6 @@
       <groupId>com.techempower</groupId>
       <artifactId>gemini-jdbc</artifactId>
       <version>${geminiVersion}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${servletVersion}</version>
     </dependency>
     <!-- gemini-hikaricp is an alternative to gemini-jdbc -->
     <!-- <dependency> -->
