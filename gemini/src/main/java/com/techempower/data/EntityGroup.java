@@ -116,12 +116,13 @@ public class EntityGroup<T extends Identifiable>
    * Gets a suitable default Comparator for the group, using the natural order
    * if the type is Comparable, and the IDs if not.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public static <C extends Identifiable> Comparator<? super C> defaultComparator(Class<C> type)
   {
     if (Comparable.class.isAssignableFrom(type))
     {
-        return (Comparator<C>)Comparator.naturalOrder();
+        Comparator comparator = Comparator.naturalOrder();
+        return (Comparator<C>)comparator;
     }
     else
     {

@@ -1026,8 +1026,8 @@ public class EntityStore
 
   /**
    * Refreshes a single object in the cache.
-   * 
-   * @param id the id of the object
+   *
+   * @param ids the ids of the objects
    */
   public void refresh(Class<? extends Identifiable> type, long... ids)
   {
@@ -1383,7 +1383,7 @@ public class EntityStore
             {
               try
               {
-                register(clazz.getConstructor(NO_PARAMETERS).newInstance());
+                register((TypeAdapter<?, ?>) clazz.getConstructor(NO_PARAMETERS).newInstance());
               }
               catch (InstantiationException
                   | IllegalAccessException
