@@ -30,9 +30,10 @@ import java.util.*;
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Does nothing; for testing/demonstration purposes only.  Typical usage for
@@ -60,8 +61,8 @@ public class NoOpEvent
   // Member variables.
   //
 
-  private final GeminiApplication     application;
-  private final ComponentLog          log;
+  private final GeminiApplication application;
+  private final Logger            log = LoggerFactory.getLogger(LOCAL_COMPONENT_CODE);
   
   //
   // Member methods.
@@ -77,8 +78,7 @@ public class NoOpEvent
 
     // Get local references set up.
     this.application = application;
-    this.log         = application.getLog(LOCAL_COMPONENT_CODE);
-    
+
     // Get configured.
     this.application.getConfigurator().addConfigurable(this);
   }
@@ -159,11 +159,11 @@ public class NoOpEvent
     }
     catch (Exception exc)
     {
-      this.log.log("Exception: " + exc);
+      this.log.error("Exception", exc);
     }
 
     // Log the event completion.
-    this.log.log(this + " complete.");
+    this.log.info("{} complete.", this);
 
     // If this execution was a scheduled execution, let's reschedule for
     // the same time, but one day later.
@@ -185,7 +185,7 @@ public class NoOpEvent
    */
   public void doNothing()
   {
-    this.log.log("Doing nothing; this is a no-op event.");
+    this.log.info("Doing nothing; this is a no-op event.");
   }
   
   /**

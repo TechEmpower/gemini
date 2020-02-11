@@ -34,8 +34,9 @@ import com.techempower.gemini.email.*;
 import com.techempower.gemini.email.outbound.*;
 import com.techempower.gemini.feature.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of ExceptionHandler that emails a system administrator
@@ -81,8 +82,8 @@ public class EmailExceptionHandler
   //
   
   private final GeminiApplication application;
-  private final FeatureManager    fm;
-  private final ComponentLog      log;
+  private final FeatureManager fm;
+  private final Logger         log = LoggerFactory.getLogger(COMPONENT_CODE);
   
   private String            fromMailAddress = "exceptions@techempower.com";
   private String            toMailAddress = this.fromMailAddress;
@@ -101,7 +102,6 @@ public class EmailExceptionHandler
   public EmailExceptionHandler(GeminiApplication app)
   {
     this.application = app;
-    this.log = this.application.getLog(COMPONENT_CODE);
     app.getConfigurator().addConfigurable(this);
     
     this.fm = this.application.getFeatureManager();
@@ -117,7 +117,7 @@ public class EmailExceptionHandler
     
     if (props.get("EmailExceptionHandler.Enabled") != null)
     {
-      this.log.log("EmailExceptionHandler.Enabled is deprecated.  Use Feature.exc-email instead.");
+      this.log.info("EmailExceptionHandler.Enabled is deprecated.  Use Feature.exc-email instead.");
       this.fm.set("exc-email", props.getBoolean("EmailExceptionHandler.Enabled", true));
     }
     
@@ -131,7 +131,7 @@ public class EmailExceptionHandler
        || (StringHelper.isEmpty(this.toMailAddress))
        )
     {
-      this.log.log("EmailExceptionHandler disabled.");
+      this.log.info("EmailExceptionHandler disabled.");
     }
   }
   
@@ -171,7 +171,7 @@ public class EmailExceptionHandler
         String message = ExceptionHandlerHelper.renderExceptionAsReport(context, this.application, exception, description, this.skipped.get());
         this.skipped.set(0);
         
-        this.log.log("Sending exception report to " + this.toMailAddress);
+        this.log.info("Sending exception report to {}", this.toMailAddress);
         //log.debug("Message: " + message);
         
         // Send the mail.

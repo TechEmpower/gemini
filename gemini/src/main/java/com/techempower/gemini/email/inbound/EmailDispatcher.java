@@ -32,9 +32,10 @@ import java.util.*;
 import com.techempower.asynchronous.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.email.*;
-import com.techempower.log.*;
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * EmailDispatcher is the core of the revised inbound email processing
@@ -89,9 +90,9 @@ public class EmailDispatcher
   // Member variables.
   //
   
-  private final GeminiApplication  application;
-  private final ComponentLog       log;
-  private final String             propertyPrefix;
+  private final GeminiApplication application;
+  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final String            propertyPrefix;
   private final List<EmailHandler> handlers;
   
   private final EmailDispatcherThread thread;
@@ -110,7 +111,6 @@ public class EmailDispatcher
   public EmailDispatcher(GeminiApplication application, String propertyPrefix)
   {
     this.application = application;
-    this.log = application.getLog(COMPONENT_CODE);
     this.propertyPrefix = propertyPrefix;
     this.handlers = new ArrayList<>(8);
     this.thread = new EmailDispatcherThread(this);
@@ -137,7 +137,7 @@ public class EmailDispatcher
     maximumSleep = focus.getInt(PROPERTY_MAXIMUM_SLEEP, DEFAULT_MAXIMUM_SLEEP);
     minimumSleep = focus.getInt(PROPERTY_MINIMUM_SLEEP, DEFAULT_MINIMUM_SLEEP);
     
-    log.log("Email Dispatcher configured.");
+    log.info("Email Dispatcher configured.");
   }
   
   /**
@@ -250,14 +250,6 @@ public class EmailDispatcher
   {
     return totalProcessed;
   }
-
-  /**
-   * Gets a reference to the log.
-   */
-  public ComponentLog getLog()
-  {
-    return log;
-  }
   
   /**
    * Gets a reference to the EmailDispatcherThread.
@@ -330,7 +322,7 @@ public class EmailDispatcher
   @Override
   public void begin()
   {
-    log.log("Email Dispatcher starting.");
+    log.info("Email Dispatcher starting.");
     thread.setName("Email Dispatcher Thread (" + application.getVersion().getAbbreviatedProductName() + ")");
     thread.start();
   }
@@ -341,7 +333,7 @@ public class EmailDispatcher
   @Override
   public void end()
   {
-    log.log("Email Dispatcher ending.");
+    log.info("Email Dispatcher ending.");
     thread.setKeepRunning(false);
   }
   

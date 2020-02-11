@@ -29,6 +29,8 @@ package com.techempower.gemini.email.inbound;
 
 import com.techempower.helper.*;
 import com.techempower.thread.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A thread used by EmailDispatcher to regularly check for inbound email.
@@ -45,6 +47,7 @@ public class EmailDispatcherThread
   
   private boolean         pause = false;
   private boolean         onDemandCheck = false;
+  private Logger          log = LoggerFactory.getLogger(EmailDispatcher.COMPONENT_CODE);
 
   //
   // Member methods.
@@ -87,7 +90,7 @@ public class EmailDispatcherThread
           {
             if (this.onDemandCheck)
             {
-              this.dispatcher.getLog().log("Processing on-demand email check.");
+              log.info("Processing on-demand email check.");
               this.onDemandCheck = false;
             }
             
@@ -96,9 +99,8 @@ public class EmailDispatcherThread
             
             if (processed > 0)
             {
-              this.dispatcher.getLog().log(
-                processed + " inbound email" + StringHelper.pluralize(processed) 
-                + " processed.");
+              log.info("{} inbound email{} processed.", processed,
+                  StringHelper.pluralize(processed));
               setMinimumSleep();
             }
             else
@@ -108,7 +110,7 @@ public class EmailDispatcherThread
           }
           catch (Exception exc)
           {
-            this.dispatcher.getLog().log("Exception while checking inbound email: " + exc);
+            log.error("Exception while checking inbound email", exc);
           }
         }
         else
@@ -121,7 +123,7 @@ public class EmailDispatcherThread
     }
     finally
     {
-      this.dispatcher.getLog().log("EmailDispatcherThread ending.");
+      log.info("EmailDispatcherThread ending.");
     }
   }
   

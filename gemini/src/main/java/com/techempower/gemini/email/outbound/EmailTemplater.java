@@ -31,10 +31,11 @@ import java.util.Map;
 
 import com.techempower.gemini.GeminiApplication;
 import com.techempower.gemini.email.EmailPackage;
-import com.techempower.log.ComponentLog;
 import com.techempower.util.Configurable;
 import com.techempower.util.EnhancedProperties;
 import com.techempower.util.EnhancedProperties.Focus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An EmailTemplater is responsible for management and execution/processing
@@ -69,7 +70,7 @@ public abstract class EmailTemplater
   //
 
   private final GeminiApplication application;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
   
   protected boolean enabled = false;
 
@@ -83,8 +84,7 @@ public abstract class EmailTemplater
   public EmailTemplater(GeminiApplication application)
   {
     this.application = application;
-    this.log         = application.getLog(COMPONENT_CODE);
-    
+
     // Get configured.
     application.getConfigurator().addConfigurable(this);
   }
@@ -186,14 +186,6 @@ public abstract class EmailTemplater
   protected GeminiApplication getApplication()
   {
     return this.application;
-  }
-  
-  /**
-   * Gets the ComponentLog reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return this.log;
   }
   
   //
