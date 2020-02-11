@@ -32,6 +32,8 @@ import java.util.*;
 import com.techempower.gemini.*;
 import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * GeminiLocaleManager is the "main" class of the Gemini internationalization
@@ -81,7 +83,7 @@ public class GeminiLocaleManager
   // Member variables.
   //
   
-  private final    ComponentLog      log;
+  private final    Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
   private volatile ResourceManager   resourceManager;
   private final    GeminiApplication application;
   private final    String            productName;
@@ -104,7 +106,6 @@ public class GeminiLocaleManager
       GeminiResources defaultResources)
   {
     this.application   = application;
-    this.log           = application.getLog(COMPONENT_CODE);
     this.productName   = application.getVersion().getAbbreviatedProductName();
     this.defaultLocale = new Locale(DEFAULT_LANGUAGE_CODE, DEFAULT_COUNTRY_CODE);
     
@@ -114,7 +115,7 @@ public class GeminiLocaleManager
     }
     else
     {
-      this.log.log("Instantiating built-in default (US English) resources.");
+      this.log.info("Instantiating built-in default (US English) resources.");
       this.defaultResources = new DefaultGeminiResources(application);
     }
     

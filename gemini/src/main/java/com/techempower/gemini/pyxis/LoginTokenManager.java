@@ -37,9 +37,10 @@ import com.techempower.gemini.manager.*;
 import com.techempower.gemini.pyxis.listener.*;
 import com.techempower.gemini.pyxis.password.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages authentication tokens for cookie-based logins.  These tokens are
@@ -169,10 +170,11 @@ public class LoginTokenManager
 
   private final PurgeEvent purgeEvent;
   private final ClearTokensOnPasswordChange clearTokenListener;
+  private final Logger                      log = LoggerFactory.getLogger("lTkn");
 
   public LoginTokenManager(GeminiApplication application)
   {
-    super(application, "lTkn");
+    super(application);
     purgeEvent = this.new PurgeEvent();
     clearTokenListener = new ClearTokensOnPasswordChange();
   }
@@ -198,7 +200,7 @@ public class LoginTokenManager
     {
       tokenExpirationInDays = focus.getInt("MaxTokenAgeInDays", 
           DEFAULT_PURGE_EVENT_MAX_TOKEN_AGE_IN_DAYS, 0, Integer.MAX_VALUE);
-      l("LoginTokenManager.MaxTokenAgeInDays is deprecated. Use LoginTokenManager.TokenExpirationInDays instead.");
+      log.info("LoginTokenManager.MaxTokenAgeInDays is deprecated. Use LoginTokenManager.TokenExpirationInDays instead.");
     }
     tokenExpirationInDays = focus.getInt("TokenExpirationInDays", 
         DEFAULT_PURGE_EVENT_MAX_TOKEN_AGE_IN_DAYS, 0, Integer.MAX_VALUE);
@@ -219,7 +221,7 @@ public class LoginTokenManager
     {
       app().getScheduler().scheduleEvent(purgeEvent);
     }
-    l("Configured " + this, LogLevel.NORMAL);
+    log.info("Configured {}", this);
   }
 
   @Override
@@ -373,7 +375,7 @@ public class LoginTokenManager
       statement.setString(1, staleTimestamp);
       staleTokensPurged = statement.executeUpdate();
     }
-    l("Purged " + staleTokensPurged + " stale tokens.", LogLevel.NORMAL);
+    log.info("Purged {} stale tokens.", staleTokensPurged);
   }
 
   // Public API
@@ -388,13 +390,12 @@ public class LoginTokenManager
     Objects.requireNonNull(context);
     if (user != null)
     {
-      l("Deleting automatic login cookie for " 
-          + user.getUserUsername() 
-          + " [" + user.getId() + "].", LogLevel.MINIMUM);
+      log.trace("Deleting automatic login cookie for {} [{}].",
+          user.getUserUsername(), user.getId());
     }
     else
     {
-      l("Deleting automatic login cookie for null user.", LogLevel.MINIMUM);
+      log.trace("Deleting automatic login cookie for null user.");
     }
     context.cookies().remove(generateCookieName());
   }
@@ -436,8 +437,8 @@ public class LoginTokenManager
         }
         catch (SQLException e)
         {
-          l("Error while persisting new token for user: " + username,
-              LogLevel.ALERT, e);
+          log.warn("Error while persisting new token for user: {}",
+              username, e);
         }
         // Unfortunately, we have need of "LIMIT" or "TOP" here, and that's not
         // standard across database vendors.
@@ -464,8 +465,8 @@ public class LoginTokenManager
           }
           catch (SQLException e)
           {
-            l("Error while trimming excess tokens for user: " + username,
-                LogLevel.ALERT, e);
+            log.warn("Error while trimming excess tokens for user: {}",
+                username, e);
           }
         }
         else
@@ -488,8 +489,8 @@ public class LoginTokenManager
           }
           catch (SQLException e)
           {
-            l("Error while trimming excess tokens for user: " + username,
-                LogLevel.ALERT, e);
+            log.warn("Error while trimming excess tokens for user: {}",
+                username, e);
           }
         }
       }
@@ -512,7 +513,7 @@ public class LoginTokenManager
       @Override
       public void run()
       {
-        l("Clearing all cookie login tokens for " + username + ".", LogLevel.DEBUG);
+        log.debug("Clearing all cookie login tokens for {}.", username);
         try (ConnectionMonitor monitor = app().getConnectorFactory().getConnectionMonitor();
             PreparedStatement statement = monitor.getConnection().prepareStatement(
                 "DELETE FROM " + enquote(databaseTableName)
@@ -524,8 +525,7 @@ public class LoginTokenManager
         }
         catch (SQLException e)
         {
-          l("Error while clearing tokens for user: " + username,
-              LogLevel.ALERT, e);
+          log.warn("Error while clearing tokens for user: {}", username, e);
         }
       }
     });
@@ -566,8 +566,7 @@ public class LoginTokenManager
     final int pipeIndex = cookieValue.indexOf('|');
     if (pipeIndex < 0 || pipeIndex == cookieValue.length() - 1)
     {
-      l("Prompting client to remove improperly formatted login token.", 
-          LogLevel.DEBUG);
+      log.debug("Prompting client to remove improperly formatted login token.");
       context.cookies().remove(cookieName);
       return TokenValidation.FAILURE;
     }
@@ -605,8 +604,7 @@ public class LoginTokenManager
         }
       }
     }
-    l("Prompting client to remove invalid token for " + username + ".", 
-        LogLevel.DEBUG);
+    log.debug("Prompting client to remove invalid token for {}.", username);
     context.cookies().remove(cookieName);
     return new TokenValidation(false, username);
   }
@@ -649,8 +647,8 @@ public class LoginTokenManager
       }
       catch (SQLException e)
       {
-        l(getName() + " had an exception during scheduled execution.",
-            LogLevel.ALERT, e);
+        log.warn("{} had an exception during scheduled execution.",
+            getName(), e);
       }
       finally
       {

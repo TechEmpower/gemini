@@ -37,6 +37,8 @@ import com.techempower.gemini.pyxis.*;
 import com.techempower.helper.*;
 import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A FileStore provides a managed collection of directories and files that
@@ -91,6 +93,7 @@ public class FileStore
   private String            configurationPrefix;
   private boolean           enabled = true;
   private int               filenameLengthMaximum = DEFAULT_FILENAME_LENGTH_MAX;
+  private Logger            log = LoggerFactory.getLogger("FSto");
   
   //
   // Member methods.
@@ -109,7 +112,7 @@ public class FileStore
    */
   public FileStore(GeminiApplication application, String configurationPrefix)
   {
-    super(application, "FSto");
+    super(application);
     this.configurationPrefix = configurationPrefix;
     typesToCodes = new HashMap<>();
   }
@@ -137,7 +140,7 @@ public class FileStore
     else
     {
       setEnabled(false);
-      l("No file system root specified in configuration file!", LogLevel.ALERT);
+      log.warn("No file system root specified in configuration file!");
     }
   }
   
@@ -251,8 +254,8 @@ public class FileStore
     // Construct file objects.
     final File sourceFile = new File(sourceName);
     final File destFile = new File(destName);
-    
-    l("Converting " + sourceFile + " to " + destFile);
+
+    log.info("Converting {} to {}", sourceFile, destFile);
     
     app().getImageHelper().transformImage(
         new ImageHelper.TransformParams(sourceFile, destFile), 
@@ -279,7 +282,7 @@ public class FileStore
     }
     else
     {
-      l("New filename is already in use: " + newFilename);
+      log.info("New filename is already in use: {}", newFilename);
       return false;
     }
   }
@@ -327,7 +330,7 @@ public class FileStore
     }
     catch (IOException ioexc)
     {
-      l("IOException while storing file " + filename + ".", ioexc);
+      log.error("IOException while storing file {}.", filename, ioexc);
       return false;
     }
     
@@ -350,7 +353,7 @@ public class FileStore
     }
     catch (IOException ioexc)
     {
-      l("IOException while storing file " + sourceFile + ".", ioexc);
+      log.error("IOException while storing file {}.", sourceFile, ioexc);
       return false;
     }
   }
@@ -457,7 +460,7 @@ public class FileStore
             outcome.success = false;
           }
           outcome.addUploadedFile(filename);
-          l(user + " uploaded " + filename);
+          log.info("{} uploaded {}", user, filename);
         }
       }
     }
@@ -473,7 +476,7 @@ public class FileStore
           if (deleteFile(forObject, deletion))
           {
             outcome.addDeletedFile(deletion);
-            l(deletion + " deleted (multiple)");
+            log.info("{} deleted (multiple)", deletion);
           }
         }
       }
@@ -485,7 +488,7 @@ public class FileStore
           )
         {
           outcome.addDeletedFile(delete);
-          l(delete + " deleted (single)");
+          log.info("{} deleted (single)", delete);
         }
       }
     }
@@ -589,12 +592,12 @@ public class FileStore
       }
       else
       {
-        l("Move: Source file " + sourceFile + " not found.");
+        log.info("Move: Source file {} not found.", sourceFile);
       }
     }
     catch (IOException ioexc)
     {
-      l("IOException while moving file " + sourceFilename + ".", ioexc);
+      log.error("IOException while moving file {}.", sourceFilename, ioexc);
     }
 
     return false;

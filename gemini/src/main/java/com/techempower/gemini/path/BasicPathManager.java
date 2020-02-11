@@ -56,9 +56,9 @@ public class BasicPathManager<A extends GeminiApplication, C extends Context>
   /**
    * Constructor.
    */
-  public BasicPathManager(A application, String componentCode)
+  public BasicPathManager(A application)
   {
-    super(application, componentCode);
+    super(application);
   }
   
   /**

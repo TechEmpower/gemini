@@ -37,8 +37,9 @@ import javax.mail.internet.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.manager.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Accepts EmailPackage objects and delivers them using JavaMail.
@@ -139,6 +140,7 @@ public class EmailTransport
   private String              defaultUsername       = null;
   private String              defaultPassword       = null;
   private Authenticator       defaultAuthenticator  = null;
+  private Logger              log                   = LoggerFactory.getLogger(COMPONENT_CODE);
   
   //
   // Member methods.
@@ -149,7 +151,7 @@ public class EmailTransport
    */
   public EmailTransport(GeminiApplication application)
   {
-    super(application, COMPONENT_CODE);
+    super(application);
   }
 
   /**
@@ -177,26 +179,26 @@ public class EmailTransport
     if (focus.has("MailDeliveryRetries"))
     {
       maximumRetries = focus.getInt("MailDeliveryRetries", maximumRetries);
-      l("MailDeliveryRetries is deprecated.  Use OutboundEmail.Retries instead.");
+      log.info("MailDeliveryRetries is deprecated.  Use OutboundEmail.Retries instead.");
     }
     maximumRetries = outboundFocus.getInt("Retries", maximumRetries);
         
     if (focus.has("MailServerEnabled"))
     {
       outboundMailEnabled = focus.getBoolean("MailServerEnabled", outboundMailEnabled);
-      l("MailServerEnabled is deprecated.  Use OutboundEmail.Enabled instead.");
+      log.info("MailServerEnabled is deprecated.  Use OutboundEmail.Enabled instead.");
     }
     if (focus.has("OutboundMailEnabled"))
     {
       outboundMailEnabled = focus.getBoolean("OutboundMailEnabled", outboundMailEnabled);
-      l("OutboundMailEnabled is deprecated.  Use OutboundEmail.Enabled instead.");
+      log.info("OutboundMailEnabled is deprecated.  Use OutboundEmail.Enabled instead.");
     }
     outboundMailEnabled = outboundFocus.getBoolean("Enabled", outboundMailEnabled);
 
     if (!outboundMailEnabled)
     {
       // Disable mail service.
-      l("Outbound email disabled.  Server definitions are still processed to permit inbound email as needed.");
+      log.info("Outbound email disabled.  Server definitions are still processed to permit inbound email as needed.");
     }
 
     // Support the old "DeliveryDomains" value name as well as the new
@@ -238,7 +240,7 @@ public class EmailTransport
         deliveryDomains.add(domain);
         if (outboundMailEnabled)
         {
-          l("Email permitted to domain " + domain);
+          log.info("Email permitted to domain {}", domain);
         }
       }
       
@@ -257,13 +259,12 @@ public class EmailTransport
       deriveServerReferenceCaches(mailServers);
       
       // Show a little summary report.
-      l(serverCount + " mail server" 
-          + StringHelper.pluralize(serverCount) 
-          + " specified"
-          + (serverCount > 0 ? ", shown below." : "."));
+      log.info("{} mail server{} specified{}", serverCount,
+          StringHelper.pluralize(serverCount),
+          serverCount > 0 ? ", shown below." : ".");
       for (int i = 0; i < serverCount; i++)
       {
-        l((i + 1) + " - " + mailServers[i]);
+        log.info("{} - {}", i + 1, mailServers[i]);
       }
     }
   }
@@ -344,7 +345,7 @@ public class EmailTransport
     // If the email server is disabled, do not send an email.
     if (!outboundMailEnabled)
     {
-      l("Outbound email disabled.");
+      log.info("Outbound email disabled.");
       
       // Return true to indicate the mail is consumed.
       return true;
@@ -381,7 +382,7 @@ public class EmailTransport
         // Not a permitted domain.
         if (!permitted)
         {
-          l("Mail not permitted to " + email.getRecipient());
+          log.info("Mail not permitted to {}", email.getRecipient());
 
           // Return true to indicate the mail is consumed.
           return true;
@@ -411,7 +412,7 @@ public class EmailTransport
         }
         else
         {
-          l("Mail failed to send because there are no servers defined.");
+          log.info("Mail failed to send because there are no servers defined.");
           return false;
         }
       }
@@ -679,13 +680,13 @@ public class EmailTransport
         catch (MessagingException exc)
         {
           email.setSent(false);
-          l("Exception during JavaMail transport.", exc);
+          log.warn("Exception during JavaMail transport.", exc);
         }
       } 
       catch (MessagingException exc)
       {
         email.setSent(false);
-        l("Exception prior to JavaMail transport.", exc);
+        log.warn("Exception prior to JavaMail transport.", exc);
       }
       finally
       {
@@ -696,7 +697,7 @@ public class EmailTransport
     else
     {
       // Oops, the EmailPackage was null.
-      l("Email is null!");
+      log.info("Email is null!");
     }
 
     // If we get here, there was a problem.
@@ -771,11 +772,11 @@ public class EmailTransport
     }
     catch (AuthenticationFailedException afexc)
     {
-      l("Authentication failure while checking for mail.", afexc);
+      log.warn("Authentication failure while checking for mail.", afexc);
     }
     catch (Exception exc)
     {
-      l("Exception while checking for mail.", exc);
+      log.warn("Exception while checking for mail.", exc);
     }
     finally
     {
@@ -796,7 +797,7 @@ public class EmailTransport
       }
       catch (javax.mail.MessagingException mexc)
       {
-        l("Exception while closing store/folder.", mexc);
+        log.warn("Exception while closing store/folder.", mexc);
       }
     }
     
@@ -871,11 +872,11 @@ public class EmailTransport
     }
     catch (MessagingException exc)
     {
-      l("MessagingException while processing e-mail.", exc);
+      log.warn("MessagingException while processing e-mail.", exc);
     }
     catch (IOException exc)
     {
-      l("IOException while processing e-mail.", exc);
+      log.warn("IOException while processing e-mail.", exc);
     }
     
     return null;
@@ -893,13 +894,13 @@ public class EmailTransport
     // Plain text messages are the easiest (and best!)
     if (contentType.startsWith("text/plain"))
     {
-      l("Adding plaintext part.", LogLevel.DEBUG);
+      log.debug("Adding plaintext part.");
       plaintext.append((String)message.getContent());
     }
     // Some jokers send only HTML messages.  They are jokers.
     else if (contentType.startsWith("text/html"))
     {
-      l("Adding html part.", LogLevel.DEBUG);
+      log.debug("Adding html part.");
       // Store the HTML in the HtmlBody but let's also store a reference
       // in the plaintext body as well.
       html.append((String)message.getContent());
@@ -909,7 +910,7 @@ public class EmailTransport
     // or a mixed-mode e-mail.
     else if (contentType.startsWith("multipart"))
     {
-      l("Parsing multipart email.", LogLevel.DEBUG);
+      log.debug("Parsing multipart email.");
       if (message.getContent() instanceof Multipart)
       {
         Multipart multi = (Multipart)message.getContent();
@@ -917,7 +918,7 @@ public class EmailTransport
       }
       else
       {
-        l("Content type identified as multipart, but content is not!");
+        log.info("Content type identified as multipart, but content is not!");
       }
     }
   }
@@ -939,46 +940,46 @@ public class EmailTransport
       String filename = part.getFileName();
       int size = part.getSize();
       //log.debug("Part: " + part);
-      l("Type: " + partType + "; filename: " + filename + "; " + size + " bytes.", LogLevel.DEBUG);
+      log.debug("Type: {}; filename: {}; {} bytes.", partType, filename, size);
                   
       // Is the part plaintext?
       if (partType.startsWith("text/plain"))
       {
-        l("Adding plaintext part.", LogLevel.DEBUG);
+        log.debug("Adding plaintext part.");
         plaintext.append((String)part.getContent());
       }
       // How about HTML?
       else if (partType.startsWith("text/html"))
       {
-        l("Adding HTML part.", LogLevel.DEBUG);
+        log.debug("Adding HTML part.");
         html.append((String)part.getContent());
       }
       else if ( (partType.startsWith("message"))
              && (part.getContent() instanceof Message)
              )
       {
-        l("Recursing embedded message.", LogLevel.DEBUG);
+        log.debug("Recursing embedded message.");
         processBody((Message)part.getContent(), plaintext, html, attachments);
       }
       // An attached file?
       else if (StringHelper.isNonEmpty(filename))
       {
         InputStream is = part.getInputStream();
-        l("Adding attachment part with " + is.available()
-            + " available bytes.", LogLevel.DEBUG);
+        log.debug("Adding attachment part with {} available bytes.",
+            is.available());
         EmailAttachment attachment = new EmailAttachment(
           is, filename);
         attachments.add(attachment);
       }
       else if (part.getContent() instanceof Multipart)
       {
-        l("Recursing embedded multipart.", LogLevel.DEBUG);
+        log.debug("Recursing embedded multipart.");
         processMultipart((Multipart)part.getContent(), plaintext, html, 
           attachments);
       }
       else
       {
-        l("Unknown part. Content: " + part.getContent());
+        log.info("Unknown part. Content: " + part.getContent());
       }
     }
   }

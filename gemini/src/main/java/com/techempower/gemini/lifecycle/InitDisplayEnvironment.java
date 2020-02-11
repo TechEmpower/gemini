@@ -27,8 +27,9 @@
 package com.techempower.gemini.lifecycle;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Displays a start-up banner to the log.  Includes basic information about 
@@ -38,13 +39,13 @@ import com.techempower.util.*;
 public class InitDisplayEnvironment
   implements InitializationTask
 {
+  private Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
 
   @Override
   public void taskInitialize(GeminiApplication app)
   {
-    final ComponentLog log = app.getLog(COMPONENT_CODE);
-    log.log("Environment details follow.");
-    log.log(app.getVersion().getVerboseDescription());
+    log.info("Environment details follow.");
+    log.info(app.getVersion().getVerboseDescription());
     
     final String javaVm = System.getProperty("java.vm.name", "Unknown");
     final String javaVmVersion = System.getProperty("java.vm.version", "?");
@@ -52,20 +53,18 @@ public class InitDisplayEnvironment
     final String osVersion = System.getProperty("os.version", "?");
     final String osArch = System.getProperty("os.arch", "Unknown");
     
-    log.log(javaVm + " (v" + javaVmVersion + ")");
-    log.log(osName + " (v" + osVersion + "; " + osArch + ")");
+    log.info("{} (v{})", javaVm, javaVmVersion);
+    log.info("{} (v{}; {})", osName, osVersion, osArch);
 
     if (app.getServletConfig() != null)
     {
-      log.log("Servlet Container: "
-          + app.getServletConfig().getServerInfo());
+      log.info("Servlet Container: {}",
+          app.getServletConfig().getServerInfo());
     }
     
-    log.log("JVM memory: " 
-      + (Runtime.getRuntime().totalMemory() / UtilityConstants.MEGABYTE) 
-      + "Mb; free: " 
-      + (Runtime.getRuntime().freeMemory() / UtilityConstants.MEGABYTE)
-      + "Mb");
+    log.info("JVM memory: {}Mb; free: {}Mb",
+        Runtime.getRuntime().totalMemory() / UtilityConstants.MEGABYTE,
+        Runtime.getRuntime().freeMemory() / UtilityConstants.MEGABYTE);
   }
   
 }

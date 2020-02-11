@@ -34,8 +34,9 @@ import java.util.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.email.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Processes inbound e-mails and (assuming a good match with the subclass-
@@ -52,8 +53,8 @@ public class FileStoreEmailHandler
   // Member variables.
   //
   
-  private final FileStore    store;
-  private final ComponentLog log;
+  private final FileStore store;
+  private final Logger    log = LoggerFactory.getLogger("temH");
   
   //
   // Member methods.
@@ -65,8 +66,7 @@ public class FileStoreEmailHandler
   public FileStoreEmailHandler(GeminiApplication app, FileStore store)
   {
     this.store = store;
-    this.log = app.getLog("temH");
-    }
+  }
 
   /**
    * Handle the inbound email.
@@ -79,7 +79,7 @@ public class FileStoreEmailHandler
     {
       try
       {
-        log.log("Processing email for " + ident);
+        log.info("Processing email for {}", ident);
         
         // Store the e-mail text.
         String emailText = "Subject: " + email.getSubject() 
@@ -107,15 +107,15 @@ public class FileStoreEmailHandler
           }
         }
         
-        log.log("Processed " + processed + " attachment" 
-          + StringHelper.pluralize(processed) + " (including body text)");
+        log.info("Processed {} attachment{} (including body text)",
+            processed, StringHelper.pluralize(processed));
         
         // Let's delete the e-mail since we've processed it.
         return true;
       }
       catch (Exception exc)
       {
-        log.log("Exception while handling email.", exc);
+        log.error("Exception while handling email.", exc);
         // Do nothing.
       }
     }
