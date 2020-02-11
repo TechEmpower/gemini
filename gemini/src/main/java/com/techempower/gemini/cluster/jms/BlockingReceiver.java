@@ -28,7 +28,8 @@
 package com.techempower.gemini.cluster.jms;
 
 import com.techempower.gemini.GeminiApplication;
-import com.techempower.log.ComponentLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 
@@ -39,9 +40,8 @@ import javax.jms.*;
 public abstract class BlockingReceiver
     implements AutoCloseable
 {
-  protected final GeminiApplication application;
   protected final Connection        connection;
-  protected ComponentLog            log;
+  protected       Logger            log = LoggerFactory.getLogger("BlkR");
   protected Session                 session;
   protected MessageConsumer         consumer;
   protected final String            destination;
@@ -54,13 +54,17 @@ public abstract class BlockingReceiver
    * a different connection/socket, since different sessions can be built from
    * the same connection object. Connection objects are resource heavy<br>
    */
+  public BlockingReceiver(Connection connection, String destination)
+  {
+    this.connection = connection;
+    this.destination = destination;
+  }
+
+  @Deprecated(forRemoval = true)
   public BlockingReceiver(GeminiApplication application,
       Connection connection, String destination)
   {
-    this.application = application;
-    this.connection = connection;
-    this.log = application.getLog("BlkR");
-    this.destination = destination;
+    this(connection, destination);
   }
 
   /**
@@ -180,8 +184,9 @@ public abstract class BlockingReceiver
     }
     catch (JMSException e)
     {
-      log.log("BlockingReceiver <" + consumer + "> exception while closing <"
-          + session + "> @queue://" + destination, e);
+      log.error(
+          "BlockingReceiver <{}> exception while closing <{}> @queue://{}",
+          consumer, session, destination, e);
     }
   }
 }

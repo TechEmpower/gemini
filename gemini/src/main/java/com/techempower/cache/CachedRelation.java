@@ -39,6 +39,8 @@ import com.techempower.data.*;
 import com.techempower.gemini.cluster.*;
 import com.techempower.helper.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A thread-safe {@link EntityRelation} that caches its contents and enforces
@@ -151,6 +153,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
   private final Collection<CachedRelationListener> listeners
       = new ArrayList<>();
+  private final Logger log = LoggerFactory.getLogger("chrl");
   private volatile boolean loaded = false;
 
   /**
@@ -278,8 +281,8 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while adding relation, left " + leftID 
-          + " and right " + rightID, e);
+      log.error("Exception while adding relation, left {} and right {}",
+          leftID, rightID, e);
       return false;
     }
     finally
@@ -454,7 +457,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while adding relations.", e);
+      log.error("Exception while adding relations.", e);
       return false;
     }
     finally
@@ -531,7 +534,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while clearing relations.", e);
+      log.error("Exception while clearing relations.", e);
     }
     finally
     {
@@ -835,7 +838,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while loading relations.", e);
+      log.error("Exception while loading relations.", e);
     }
     finally
     {
@@ -949,8 +952,8 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while removing relation, left " + leftID 
-          + " and right " + rightID + ".", e);
+      log.error("Exception while removing relation, left {} and right {}.",
+          leftID, rightID, e);
       return false;
     }
     finally
@@ -1125,7 +1128,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while removing relations.", e);
+      log.error("Exception while removing relations.", e);
       return false;
     }
     finally
@@ -1203,7 +1206,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while removing all for left " + leftID + ".", e);
+      log.error("Exception while removing all for left {}.", leftID, e);
       return false;
     }
     finally
@@ -1281,7 +1284,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while removing all for right " + rightID + ".", e);
+      log.error("Exception while removing all for right {}.", rightID, e);
       return false;
     }
     finally
@@ -1490,7 +1493,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
     catch (SQLException e)
     {
-      store.getLog().log("Exception while replacing relations.", e);
+      log.error("Exception while replacing relations.", e);
       return false;
     }
     finally

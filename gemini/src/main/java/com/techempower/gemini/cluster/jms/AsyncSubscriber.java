@@ -28,7 +28,8 @@
 package com.techempower.gemini.cluster.jms;
 
 import com.techempower.gemini.GeminiApplication;
-import com.techempower.log.ComponentLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 
@@ -40,7 +41,7 @@ public class AsyncSubscriber
     implements AutoCloseable
 {
   private final Connection   connection;
-  private final ComponentLog log;
+  private final Logger       log = LoggerFactory.getLogger("AsyS");
   private Session            session;
   private MessageConsumer    consumer;
   private final String       destination;
@@ -53,12 +54,17 @@ public class AsyncSubscriber
    * a different connection/socket, since different sessions can be built from
    * the same connection object. Connection objects are resource heavy
    */
+  public AsyncSubscriber(Connection connection, String destination)
+  {
+    this.connection = connection;
+    this.destination = destination;
+  }
+
+  @Deprecated(forRemoval = true)
   public AsyncSubscriber(GeminiApplication application,
       Connection connection, String destination)
   {
-    this.connection = connection;
-    this.log = application.getLog("AsyS");
-    this.destination = destination;
+    this(connection, destination);
   }
 
   /**
@@ -72,7 +78,7 @@ public class AsyncSubscriber
     consumer = session.createConsumer(session.createTopic(destination));
     consumer.setMessageListener(listener);
 
-    log.log(connection + " AsyncSubscriber@'" + destination + "'");
+    log.info("{} AsyncSubscriber@'{}'", connection, destination);
     return this;
   }
 
@@ -82,8 +88,8 @@ public class AsyncSubscriber
   @Override
   public void close()
   {
-    log.log("AsyncSubscriber <" + consumer + "> is closing session <"
-        + session + "> @topic://" + destination);
+    log.info("AsyncSubscriber <{}> is closing session <{}> @topic://{}",
+        consumer, session, destination);
     try
     {
       if (consumer != null)
@@ -97,9 +103,9 @@ public class AsyncSubscriber
     }
     catch (JMSException e)
     {
-      log.log("AsyncSubscriber <" + consumer
-          + "> exception while closing session <" + session + "> @topic://"
-          + destination, e);
+      log.error(
+          "AsyncSubscriber <{}> exception while closing session <{}> @topic://{}",
+          consumer, session, destination, e);
     }
   }
 }

@@ -29,7 +29,8 @@ package com.techempower.gemini.cluster.jms;
 
 import com.techempower.gemini.GeminiApplication;
 import com.techempower.gemini.cluster.message.Message;
-import com.techempower.log.ComponentLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 import java.util.Map;
@@ -43,7 +44,7 @@ public abstract class GeminiSender
     implements AutoCloseable
 {
   protected final Connection   connection;
-  protected final ComponentLog log;
+  protected final Logger       log = LoggerFactory.getLogger("JmsS");
   protected Session            session;
   protected MessageProducer    producer;
   protected final String       destination;
@@ -56,12 +57,17 @@ public abstract class GeminiSender
    * a different connection/socket, since different sessions can be built from
    * the same connection object. Connection objects are resource heavy
    */
+  public GeminiSender(final Connection connection, final String destination)
+  {
+    this.connection = connection;
+    this.destination = destination;
+  }
+
+  @Deprecated(forRemoval = true)
   public GeminiSender(final GeminiApplication application,
       final Connection connection, final String destination)
   {
-    this.connection = connection;
-    this.log = application.getLog("JmsS");
-    this.destination = destination;
+    this(connection, destination);
   }
 
   /**
@@ -150,7 +156,7 @@ public abstract class GeminiSender
   @Override
   public void close()
   {
-    log.log("GeminiSender is closing.");
+    log.info("GeminiSender is closing.");
     try
     {
       if (producer != null)
@@ -164,8 +170,8 @@ public abstract class GeminiSender
     }
     catch (JMSException e)
     {
-      log.log("GeminiSender exception while closing producer <" + producer
-          + "> session <" + session + "> @topic://" + destination, e);
+      log.error("GeminiSender exception while closing producer <{}> " +
+          "session <{}> @topic://{}", producer, session, destination, e);
     }
   }
 }

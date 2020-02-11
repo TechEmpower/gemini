@@ -41,9 +41,10 @@ import com.techempower.cache.*;
 import com.techempower.collection.*;
 import com.techempower.data.mapping.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.reflect.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages interactions with a SQL database to store and retrieve entities of a
@@ -160,7 +161,7 @@ public class EntityGroup<T extends Identifiable>
   private final EntityMaker<T> maker;
   private final Comparator<? super T> comparator;
   private final MethodAccess access;
-  private final ComponentLog log;
+  private final Logger log = LoggerFactory.getLogger("data");
   private final String quotedTable;
   private final String quotedIdField;
   private final String getSingleQuery;
@@ -277,12 +278,6 @@ public class EntityGroup<T extends Identifiable>
         + " WHERE " + quotedIdField + " = ?";
     this.deleteSingleQuery = "DELETE FROM " + quotedTable
         + " WHERE " + quotedIdField + " = ?";
-
-    // 
-    // Internal use only.
-    // 
-    
-    this.log = entityStore.getEntityLog(); 
   }
 
   // 
@@ -551,7 +546,7 @@ public class EntityGroup<T extends Identifiable>
     {
       statement.setLong(1, idToRemove);
       attachWhereArguments(2, statement);
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       statement.executeUpdate();
     }
     catch (Exception e)
@@ -590,7 +585,7 @@ public class EntityGroup<T extends Identifiable>
         statement.setLong(++i, longToDelete);
       }
       attachWhereArguments(ids.size() + 1, statement);
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       statement.executeUpdate();
     }
     catch (Exception e)
@@ -615,7 +610,7 @@ public class EntityGroup<T extends Identifiable>
         )
     {
       attachWhereArguments(1, statement);
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       try (ResultSet resultSet = statement.executeQuery())
       {
         resultSet.next();
@@ -646,7 +641,7 @@ public class EntityGroup<T extends Identifiable>
         )
     {
       attachWhereArguments(1, statement);
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       try (ResultSet resultSet = statement.executeQuery())
       {
         while (resultSet.next())
@@ -702,7 +697,7 @@ public class EntityGroup<T extends Identifiable>
         )
     {
       attachWhereArguments(1, statement);
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       try (ResultSet resultSet = statement.executeQuery())
       {
         while (resultSet.next())
@@ -748,7 +743,7 @@ public class EntityGroup<T extends Identifiable>
         statement.setLong(++i, idToSet);
       }
       attachWhereArguments(ids.size() + 1, statement);
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       try (ResultSet resultSet = statement.executeQuery())
       {
         while (resultSet.next())
@@ -914,7 +909,7 @@ public class EntityGroup<T extends Identifiable>
         final Object value = readValueForUpdate(object, field);
         applyValueToStatement(field, value, statement, index++);
       }
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       statement.executeUpdate();
       
       // If the entity is persistence aware, let's inform it that it has been
@@ -1049,13 +1044,13 @@ public class EntityGroup<T extends Identifiable>
           
           if (!objectsWithId.isEmpty())
           {
-            //this.log.log(statementWithId.toString(), LogLevel.DEBUG);
+            //this.log.debug(statementWithId.toString());
             statementWithId.executeBatch();
           }
           
           if (!objectsWithoutId.isEmpty())
           {
-            //this.log.log(statementWithoutId.toString(), LogLevel.DEBUG);
+            //this.log.debug(statementWithoutId.toString());
             statementWithoutId.executeBatch();
             
             // Gather the new ids from the Statement.
@@ -1118,7 +1113,7 @@ public class EntityGroup<T extends Identifiable>
         final Object value = readValueForUpdate(object, field);
         applyValueToStatement(field, value, statement, index++);
       }
-      //this.log.log(statement.toString(), LogLevel.DEBUG);
+      //this.log.debug(statement.toString());
       statement.executeUpdate();
     }
     catch (SQLException e)
@@ -1288,8 +1283,8 @@ public class EntityGroup<T extends Identifiable>
       }
       catch (IllegalArgumentException e)
       {
-        log.log("::readMap caught exception for " + object + ", properties: "
-            + properties, e);
+        log.error("::readMap caught exception for {}, properties: {}",
+            object, properties, e);
       }
       //catch (IllegalAccessException e) {}
       //catch (InvocationTargetException e) {}
@@ -1338,8 +1333,8 @@ public class EntityGroup<T extends Identifiable>
       }
       catch (IllegalArgumentException e)
       {
-        log.log("::writeMap caught exception for " + object
-            + ", properties: " + properties, e);
+        log.error("::writeMap caught exception for {}, properties: {}",
+            object, properties, e);
       }
       //catch (IllegalAccessException e) {}
       //catch (InvocationTargetException e) {}
@@ -1892,10 +1887,8 @@ public class EntityGroup<T extends Identifiable>
         }
         else
         {
-          entityStore.getLog().log("Unable to bind "
-              + table + "." + columnInfo.getColumnName()
-              + " to " + type.getSimpleName() + " class.", 
-              LogLevel.ALERT);
+          log.warn("Unable to bind {}.{} to {} class.",
+              table, columnInfo.getColumnName(), type.getSimpleName());
         }
       }
       

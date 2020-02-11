@@ -30,7 +30,8 @@ package com.techempower.audit;
 import java.util.*;
 
 import com.techempower.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AuditManager is the primary means of interaction with the com.techempower
@@ -84,8 +85,8 @@ public class AuditManager
   // Member variables.
   //
     
-  private final ComponentLog        log;
-  private       int                 maximumValueLength     = DEFAULT_MAXIMUM_VALUE_LENGTH;
+  private final Logger log                = LoggerFactory.getLogger(COMPONENT_CODE);
+  private       int    maximumValueLength = DEFAULT_MAXIMUM_VALUE_LENGTH;
   private final List<AuditListener> listeners;
   
   //
@@ -97,7 +98,6 @@ public class AuditManager
    */
   public AuditManager(TechEmpowerApplication application)
   {
-    log = application.getLog(COMPONENT_CODE);
     listeners = new ArrayList<>(2);
   }
   
@@ -120,7 +120,7 @@ public class AuditManager
   /**
    * Gets the log reference.
    */
-  public ComponentLog getLog()
+  public Logger getLog()
   {
     return log;
   }
@@ -297,7 +297,7 @@ public class AuditManager
   public void addListener(AuditListener listener)
   {
     listeners.add(listener);
-    log.log("Listener registered: " + listener.getAuditListenerName());
+    log.info("Listener registered: {}", listener.getAuditListenerName());
   }
   
   /**
@@ -306,7 +306,7 @@ public class AuditManager
   public void removeListener(AuditListener listener)
   {
     listeners.remove(listener);
-    log.log("Listener de-registered: " + listener.getAuditListenerName());
+    log.info("Listener de-registered: {}", listener.getAuditListenerName());
   }
   
   /**
@@ -351,7 +351,7 @@ public class AuditManager
       // listeners is 0 in size?  That's no good.
       else
       {
-        log.log("No AuditListeners are defined!  Audit information will not be recorded.");
+        log.info("No AuditListeners are defined!  Audit information will not be recorded.");
       }
     }
   }

@@ -31,9 +31,10 @@ import java.util.concurrent.atomic.*;
 
 import com.techempower.asynchronous.*;
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages a queue of updates to DataEntities and commits them to the database
@@ -63,8 +64,8 @@ public class EntityUpdater
   // Member variables.
   //
   
-  private final GeminiApplication          application;
-  private final ComponentLog               log;
+  private final GeminiApplication                   application;
+  private final Logger                              log = LoggerFactory.getLogger(COMPONENT_CODE);
   private final ConcurrentLinkedQueue<Identifiable> queue = new ConcurrentLinkedQueue<>();
   private final EntityUpdaterThread        thread;
   private final AtomicInteger              totalUpdateCount = new AtomicInteger();
@@ -82,7 +83,6 @@ public class EntityUpdater
     ConnectorFactory factory)
   {
     this.application = application;
-    this.log = application.getLog(COMPONENT_CODE);
     this.thread = new EntityUpdaterThread();
     
     application.addAsynchronous(this);
@@ -114,7 +114,7 @@ public class EntityUpdater
     // Start the thread.
     thread.setName("Entity Updater Thread (" + application.getVersion().getProductName() + ")");
     thread.setPriority(this.threadPriority);
-    log.log("Starting entity updater thread.", LogLevel.DEBUG);
+    log.debug("Starting entity updater thread.");
     thread.begin();
   }
 
@@ -133,7 +133,7 @@ public class EntityUpdater
    */
   protected void stopThread()
   {
-    log.log("Stopping entity updater thread.", LogLevel.DEBUG);
+    log.debug("Stopping entity updater thread.");
     thread.setKeepRunning(false);
   }
 
@@ -198,7 +198,7 @@ public class EntityUpdater
         }
         catch (Exception exc)
         {
-          EntityUpdater.this.log.log("Exception while flushing entity updater queue", exc);
+          log.error("Exception while flushing entity updater queue", exc);
         }
         if (updated > 0)
         {

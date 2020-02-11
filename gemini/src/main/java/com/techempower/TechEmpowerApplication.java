@@ -34,6 +34,8 @@ import com.techempower.helper.*;
 import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A base for applications' main classes.  Typically, an application that uses
@@ -48,9 +50,10 @@ public class TechEmpowerApplication
   // Member variables.
   //
 
+  private static final String COMPONENT_CODE = "teap";
   private final Version                  version;
   private final Log                      rootLog;
-  private final ComponentLog             log;
+  private final Logger                   log = LoggerFactory.getLogger(COMPONENT_CODE);
   private final Scheduler                scheduler;
   private final List<Asynchronous>       asynchronousRscs;
   private final List<DeferredStartAsynchronous> deferredRscs;
@@ -76,7 +79,6 @@ public class TechEmpowerApplication
     this.logManager.begin();
     
     this.rootLog          = constructLog();
-    this.log              = getLog("teap");
     this.scheduler        = constructScheduler();
   }
 
@@ -129,11 +131,12 @@ public class TechEmpowerApplication
   {
     return rootLog.getComponentLog(componentCode);
   }
-  
+
   /**
    * Gets the application's ComponentLog.
    */
-  protected ComponentLog getComponentLog()
+  @Deprecated
+  protected Logger log()
   {
     return log;
   }
