@@ -31,7 +31,8 @@ import java.util.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.exceptionhandler.*;
 import com.techempower.gemini.prehandler.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Dispatcher implementation that directs requests based on the first path
@@ -71,7 +72,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   //
   
   private final A                           application;
-  private final ComponentLog                log;
+  private final Logger                      log = LoggerFactory.getLogger("disp");
   private final Map<String, PathHandler<C>> handlers;
   private final PathHandler<C>              defaultHandler;
   private final PathHandler<C>              notImplementedHandler;
@@ -94,7 +95,6 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   public PathDispatcher(A application, Configuration<C> configuration)
   {
     this.application       = application;
-    this.log               = application.getLog("disp");
     this.handlers          = new HashMap<>(configuration.handlers);
     this.exceptionHandlers = configuration.exceptionHandlers.toArray(
         new ExceptionHandler[configuration.exceptionHandlers.size()]);
@@ -145,14 +145,6 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   protected A getApplication()
   {
     return application;
-  }
-  
-  /**
-   * Gets the ComponentLog reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return log;
   }
   
   /**
@@ -305,8 +297,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   {
     if (exception == null)
     {
-      log.log("dispatchException called with a null reference.", 
-          LogLevel.ALERT);
+      log.warn("dispatchException called with a null reference.");
       return;
     }
     
@@ -330,8 +321,9 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
       // In the especially worrisome case that we've encountered an exception
       // while attempting to handle another exception, we'll give up on the
       // request at this point and just write the exception to the log.
-      log.log("Exception encountered while processing earlier " + exception, 
-          LogLevel.ALERT, exc);
+      log.warn("Exception encountered while processing earlier {}",
+          exception, exc);
+      log.warn("Earlier exception encountered", exception);
     }
   }
   

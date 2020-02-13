@@ -27,7 +27,10 @@
 package com.techempower.gemini.path;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.function.BiConsumer;
 
 /**
  * Logs request dispatches.
@@ -35,26 +38,27 @@ import com.techempower.log.*;
 public class DispatchLogger
   implements DispatchListener {
 
-  private final ComponentLog log;
-  private final int level;
+  private final Logger  log = LoggerFactory.getLogger("disp");
+  private final BiConsumer<Logger, String> logMethod;
   private final boolean logIpAddress;
   
   /**
    * Constructor.
    */
-  public DispatchLogger(GeminiApplication app, int logLevel)
+  public DispatchLogger(GeminiApplication app,
+                        BiConsumer<Logger, String> logMethod)
   {
-    this(app, logLevel, true);
+    this(app, logMethod, true);
   }
 
   /**
    * Constructor.
    */
-  public DispatchLogger(GeminiApplication app, int logLevel, 
-      boolean logIpAddress)
+  public DispatchLogger(GeminiApplication app,
+                        BiConsumer<Logger, String> logMethod,
+                        boolean logIpAddress)
   {
-    this.log = app.getLog("disp");
-    this.level = logLevel;
+    this.logMethod = logMethod;
     this.logIpAddress = logIpAddress;
   }
   
@@ -63,11 +67,11 @@ public class DispatchLogger
       String command) {
     if(this.logIpAddress)
     {
-      log.log(context.getClientId() + " - " + command, level);
+      logMethod.accept(log, context.getClientId() + " - " + command);
     }
     else
     {
-      log.log(command, level);
+      logMethod.accept(log, command);
     }
   }
 

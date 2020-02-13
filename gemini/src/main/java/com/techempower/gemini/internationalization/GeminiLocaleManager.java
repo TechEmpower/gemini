@@ -30,7 +30,6 @@ package com.techempower.gemini.internationalization;
 import java.util.*;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

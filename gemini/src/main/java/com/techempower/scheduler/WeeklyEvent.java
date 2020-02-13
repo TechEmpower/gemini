@@ -30,6 +30,8 @@ import java.util.*;
 
 import com.techempower.helper.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An event that is executed on a weekly basis at a given hour-minute-day
@@ -44,7 +46,8 @@ public abstract class WeeklyEvent
   //
   // Member variables.
   //
-  
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private final int hour;
   private final int minute;
   private final int day;
@@ -124,7 +127,7 @@ public abstract class WeeklyEvent
     }
     catch (Exception exc)
     {
-      scheduler.getLog().log("Exception while executing " + this, exc);
+      log.error("Exception while executing {}", this, exc);
     }
     finally
     {

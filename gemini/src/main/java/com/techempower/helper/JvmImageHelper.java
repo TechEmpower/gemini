@@ -36,8 +36,8 @@ import javax.imageio.plugins.jpeg.*;
 import javax.imageio.stream.*;
 
 import com.mortennobel.imagescaling.*;
-import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a Pure JVM method for dealing with images.  A pure Java 
@@ -46,16 +46,8 @@ import com.techempower.log.*;
 public final class JvmImageHelper 
   extends ImageHelper
 {
-  private final ResampleFilter    resampleFilter;
-  private final GeminiApplication app;
-  private final ComponentLog      log;
-
-  public JvmImageHelper(GeminiApplication application) 
-  {
-    app = application;
-    log = app.getLog("JvIH");
-    resampleFilter = ResampleFilters.getLanczos3Filter();
-  }
+  private final ResampleFilter    resampleFilter = ResampleFilters.getLanczos3Filter();
+  private final Logger            log = LoggerFactory.getLogger("JvIH");
 
   /**
    * Mimics {@link ImageMagickHelper#transformImage}.
@@ -98,7 +90,7 @@ public final class JvmImageHelper
     }
     catch (IOException e)
     {
-      this.log.log("Exception while trying to transform image.", LogLevel.ALERT, e);
+      this.log.warn("Exception while trying to transform image.", e);
     }
     return null;
   }
@@ -216,7 +208,7 @@ public final class JvmImageHelper
       return correctImageColor(theImage);
     } catch (InterruptedException e)
     {
-      this.log.log("Exception while trying to create buffered image.", LogLevel.ALERT, e);
+      this.log.warn("Exception while trying to create buffered image.", e);
     }
     return null;
   }

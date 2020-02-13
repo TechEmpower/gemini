@@ -34,9 +34,9 @@ import javax.imageio.*;
 import org.im4java.core.*;
 import org.im4java.process.*;
 
-import com.techempower.gemini.*;
 import com.techempower.io.image.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides simple utility methods for dealing with images.
@@ -44,15 +44,11 @@ import com.techempower.log.*;
 public final class ImageMagickHelper 
   extends ImageHelper
 {
-  private final GeminiApplication app;
-  private final ComponentLog      log;
+  private final Logger log = LoggerFactory.getLogger("IMaH");
   
-  public ImageMagickHelper(GeminiApplication application)
+  public ImageMagickHelper()
   {
-    this.app = application;
-    this.log = this.app.getLog("IMaH");
-    
-    this.log.log("ImageMagickHelper instantiated.");
+    this.log.info("ImageMagickHelper instantiated.");
   }
 
   @Override
@@ -92,7 +88,7 @@ public final class ImageMagickHelper
     }
     catch (IOException ioe)
     {
-      this.log.log("Exception while trying to transform image.", LogLevel.ALERT, ioe);
+      this.log.warn("Exception while trying to transform image.", ioe);
     }
     return null;
   }
@@ -290,7 +286,7 @@ public final class ImageMagickHelper
     }
     catch (IOException | IM4JavaException | InterruptedException e)
     {
-      this.log.log("Exception while trying to transform image.", LogLevel.ALERT, e);
+      this.log.warn("Exception while trying to transform image.", e);
     }
     finally
     {
@@ -302,7 +298,7 @@ public final class ImageMagickHelper
         }
         catch (IOException ioe)
         {
-          this.log.log("Exception trying to close input stream.", LogLevel.ALERT, ioe);
+          this.log.warn("Exception trying to close input stream.", ioe);
         }
       }
     }

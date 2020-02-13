@@ -36,9 +36,10 @@ import javax.crypto.spec.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.configuration.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
 import com.techempower.util.EnhancedProperties.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AesGcmNoPaddingCryptograph provides a Cryptograph implementation using the
@@ -91,7 +92,7 @@ public final class AesGcmNoPaddingCryptograph
   private static final String CIPHER_NAME       = "AES/GCM/NoPadding";
   
   private final SecureRandom      random = new SecureRandom();
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
 
   private int     keyBitSize  = KEY_BIT_SIZES.get(0);
   private int     ivBitSize   = DEFAULT_IV_BIT_SIZS;
@@ -111,7 +112,6 @@ public final class AesGcmNoPaddingCryptograph
    */
   public AesGcmNoPaddingCryptograph(GeminiApplication app)
   {
-    log = app.getLog(COMPONENT_CODE);
     app.getConfigurator().addConfigurable(this);
   }
   
@@ -120,7 +120,6 @@ public final class AesGcmNoPaddingCryptograph
    */
   protected AesGcmNoPaddingCryptograph()
   {
-    this.log = null;
   }
 
   @Override
@@ -160,7 +159,7 @@ public final class AesGcmNoPaddingCryptograph
       
       if (log != null)
       {
-        log.log("Configured " + toString());
+        log.info("Configured {}", toString());
       }
     }
   }

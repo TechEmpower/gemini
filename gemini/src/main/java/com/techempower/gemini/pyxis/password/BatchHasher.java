@@ -32,9 +32,10 @@ import com.techempower.cache.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Converts non-hashed passwords of pre-existing Pyxis user records to 
@@ -47,7 +48,7 @@ public class BatchHasher<U extends PyxisUser>
   private static final long DEFAULT_PAUSE_INTERVAL = 100;
   
   private final GeminiApplication app;
-  private final ComponentLog log;
+  private final Logger log = LoggerFactory.getLogger("bHas");
   private final PyxisSecurity security;
   private final Class<U> userClass;
   private final EntityStore store;
@@ -61,7 +62,6 @@ public class BatchHasher<U extends PyxisUser>
   {
     this.app = application;
     this.store = app.getStore();
-    this.log = app.getLog("bHas");
     this.security = app.getSecurity();
     this.userClass = userClass;
     this.event = new BatchHasherEvent();
@@ -73,7 +73,7 @@ public class BatchHasher<U extends PyxisUser>
    */
   public void batchHashPasswords()
   {
-    log.log("Batch hasher looking for plaintext passwords.");
+    log.info("Batch hasher looking for plaintext passwords.");
     
     int converted = 0;
     
@@ -95,7 +95,7 @@ public class BatchHasher<U extends PyxisUser>
           // This password does not have the identifying prefix, so we will
           // construct a password-change proposal and ask the Security to make
           // the change.
-          log.log("Hashing password for user " + user.getId() + ".");
+          log.info("Hashing password for user {}.", user.getId());
           
           final PasswordProposal proposal = new PasswordProposal(
               cleartext,
@@ -124,12 +124,12 @@ public class BatchHasher<U extends PyxisUser>
       }
       else
       {
-        log.log("Password for user " + user.getId() + " is null.");
+        log.info("Password for user {} is null.", user.getId());
       }
     }
     
-    log.log("Batch hasher work complete, " + converted 
-        + " user password" + StringHelper.pluralize(converted) + " hashed.");
+    log.info("Batch hasher work complete, {} user password{} hashed.",
+        converted, StringHelper.pluralize(converted));
   }
 
   @Override
@@ -170,7 +170,7 @@ public class BatchHasher<U extends PyxisUser>
       }
       catch (Exception exc)
       {
-        log.log("Exception while hashing passwords.", LogLevel.ALERT, exc);
+        log.warn("Exception while hashing passwords.", exc);
       }
       
       // This event is not rescheduled.

@@ -27,8 +27,9 @@
 
 package com.techempower.scheduler;
 
-import com.techempower.log.*;
 import com.techempower.thread.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The thread that runs the scheduler event checks.
@@ -49,7 +50,7 @@ public class SchedulerThread
   //
 
   private final Scheduler    scheduler;
-  private final ComponentLog log;
+  private final Logger       log = LoggerFactory.getLogger(COMPONENT_CODE);
   private       long         nextCheck;
   
   //
@@ -64,7 +65,6 @@ public class SchedulerThread
     super("Scheduler Thread (" + scheduler.getApplication().getVersion().getProductName() + ")");
 
     this.scheduler = scheduler;
-    this.log       = scheduler.getApplication().getLog(COMPONENT_CODE);
   }
 
   /**
@@ -77,7 +77,9 @@ public class SchedulerThread
     // Capture the start time.
     setStartTime();
     
-    log.log("Scheduler thread started [" + scheduler.getApplication().getVersion().getProductName() + "; " + scheduler.hashCode() + "].");
+    log.info("Scheduler thread started [{}; {}].",
+        scheduler.getApplication().getVersion().getProductName(),
+        scheduler.hashCode());
 
     // Keep going until setKeepRunning(false) is called.
     while (checkPause())
@@ -90,7 +92,9 @@ public class SchedulerThread
       simpleSleep(scheduler.getSleepTime());
     }
 
-    log.log("Scheduler thread stopped [" + scheduler.getApplication().getVersion().getProductName() + "; " + scheduler.hashCode() + "].");
+    log.info("Scheduler thread stopped [{}; {}].",
+        scheduler.getApplication().getVersion().getProductName(),
+        scheduler.hashCode());
   }
   
   /**
@@ -108,7 +112,7 @@ public class SchedulerThread
 
     if (!isRunning())
     {
-      log.log("Stopping scheduler thread.");
+      log.info("Stopping scheduler thread.");
     }
   }
 

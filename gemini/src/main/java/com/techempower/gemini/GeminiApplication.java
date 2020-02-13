@@ -709,7 +709,7 @@ public abstract class GeminiApplication
    */
   protected ImageHelper constructImageHelper()
   {
-    return new JvmImageHelper(this);
+    return new JvmImageHelper();
   }
   
   /**

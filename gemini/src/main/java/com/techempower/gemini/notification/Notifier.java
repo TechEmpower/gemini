@@ -32,9 +32,10 @@ import java.util.concurrent.atomic.*;
 
 import com.techempower.asynchronous.*;
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Notifier along with its suite of listeners is responsible for 
@@ -81,7 +82,7 @@ public class Notifier
   //
   
   private final GeminiApplication app;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
   private final NotifierThread    thread;
   
   private NotificationListener[] listeners;
@@ -106,7 +107,6 @@ public class Notifier
   public Notifier(GeminiApplication app)
   {
     this.app = app;
-    this.log = app.getLog(COMPONENT_CODE);
     this.listeners = new NotificationListener[0];
     this.thread = new NotifierThread();
 
@@ -267,7 +267,7 @@ public class Notifier
         }
         catch (Exception exc)
         {
-          this.log.log("Exception while processing history.", exc);
+          this.log.info("Exception while processing history.", exc);
         }
       }
       
@@ -288,8 +288,7 @@ public class Notifier
       }
       catch (Exception exc)
       {
-        this.log.log("Exception while distributing " + notification + ".",
-            exc);
+        this.log.info("Exception while distributing {}.", notification, exc);
       }
     }
   }
@@ -401,7 +400,7 @@ public class Notifier
           }
           catch (Exception exc)
           {
-            Notifier.this.log.log("Exception while processing notification history.", exc);
+            Notifier.this.log.info("Exception while processing notification history.", exc);
           }
           nextProcess = now + intervalMs;
         }
@@ -413,7 +412,7 @@ public class Notifier
         }
         catch (Exception exc)
         {
-          Notifier.this.log.log("Exception while processing inbound notification queue.", exc);
+          Notifier.this.log.info("Exception while processing inbound notification queue.", exc);
         }
         
         simpleSleep();

@@ -113,7 +113,7 @@ public class ResinGeminiMonitor
       // Some Servlet containers do not allow the addition of a listener
       // from the Servlet itself; instead requiring the listener be specified
       // in a deployment descriptor.  We do nothing here.
-      log.log("Session listener not added automatically.");
+      log.info("Session listener not added automatically.");
     }
   }
 

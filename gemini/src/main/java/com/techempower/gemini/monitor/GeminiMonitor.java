@@ -39,9 +39,10 @@ import com.techempower.gemini.monitor.health.*;
 import com.techempower.gemini.monitor.session.*;
 import com.techempower.gemini.session.Session;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The main class for Gemini application-monitoring functionality.  
@@ -116,8 +117,8 @@ public abstract class GeminiMonitor
   // Member variables.
   //
   
-  protected final ComponentLog      log;
-  private final GeminiApplication app;
+  protected final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final   GeminiApplication app;
   private final FeatureManager    fm;
   private final MonitorListener   listener;          // Monitors other components such as the Dispatcher.
   private final Map<String, MonitoredCommand> commands;
@@ -164,7 +165,6 @@ public abstract class GeminiMonitor
   public GeminiMonitor(GeminiApplication app)
   {
     this.app = app;
-    this.log = app.getLog(COMPONENT_CODE);
     app.getConfigurator().addConfigurable(this);
     this.fm = app.getFeatureManager();
     enrollFeature(this.fm);
@@ -223,22 +223,24 @@ public abstract class GeminiMonitor
       // now deprecated.  Use FeatureManager settings instead.
       if (focus.get("Enabled") != null)
       {
-        log.log(focus.name("Enabled") + " is deprecated.  Use Feature.monitor instead.");
+        log.info("{} is deprecated.  Use Feature.monitor instead.",
+            focus.name("Enabled"));
 
         fm.set("monitor", focus.getBoolean("Enabled", true));
         if (!isEnabled())
         {
-          log.log("Gemini Monitor disabled.");
+          log.info("Gemini Monitor disabled.");
         }
       }
       if (focus.get("HealthEnabled") != null)
       {
-        log.log(focus.name("HealthEnabled") + " is deprecated.  Use Feature.monitor.health instead.");
+        log.info("{} is deprecated.  Use Feature.monitor.health instead.",
+            focus.name("HealthEnabled"));
 
         fm.set("health", focus.getBoolean("HealthEnabled", true));
         if (!isHealthEnabled())
         {
-          log.log("Health Monitoring sub-component disabled.");
+          log.info("Health Monitoring sub-component disabled.");
         }
       }
 
@@ -249,8 +251,8 @@ public abstract class GeminiMonitor
           DEFAULT_SNAPSHOT_INTERVAL, MINIMUM_SNAPSHOT_INTERVAL, UtilityConstants.YEAR);
       if (isEnabled())
       {
-        log.log("Health snapshots: " + healthSnapshotCount + " at " 
-            + healthIntervalLength + "ms intervals.");
+        log.info("Health snapshots: {} at {}ms intervals.",
+            healthSnapshotCount, healthIntervalLength);
       }
       
       // Create a new snapshots array if the size has been changed.
@@ -279,8 +281,8 @@ public abstract class GeminiMonitor
           DEFAULT_SNAPSHOT_INTERVAL, MINIMUM_SNAPSHOT_INTERVAL, UtilityConstants.YEAR);
       if (isEnabled())
       {
-        log.log("Session snapshots: " + sessionSnapshotCount + " at " 
-            + sessionIntervalLength + "ms intervals.");
+        log.info("Session snapshots: {} at {}ms intervals.",
+            sessionSnapshotCount, sessionIntervalLength);
       }
       
       // Create a new snapshots array if the size has been changed.
@@ -512,7 +514,7 @@ public abstract class GeminiMonitor
         }
         catch (Exception exc)
         {
-          log.log("Exception while evaluating health: " + exc);
+          log.info("Exception while evaluating health: ", exc);
         }
       }
     }
@@ -549,7 +551,7 @@ public abstract class GeminiMonitor
         }
         catch (Exception exc)
         {
-          log.log("Exception while evaluating CPU percentages: " + exc);
+          log.info("Exception while evaluating CPU percentages: ", exc);
         }
       }
     }
@@ -1079,13 +1081,13 @@ public abstract class GeminiMonitor
     @Override
     public void run()
     {
-      GeminiMonitor.this.log.log("Gemini Monitor thread started.");
+      GeminiMonitor.this.log.info("Gemini Monitor thread started.");
       while (checkPause())
       {
         evaluateIntervals();
         simpleSleep();
       }
-      GeminiMonitor.this.log.log("Gemini Monitor thread stopped.");
+      GeminiMonitor.this.log.info("Gemini Monitor thread stopped.");
     }
     
     @Override

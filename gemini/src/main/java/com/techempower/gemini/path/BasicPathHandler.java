@@ -41,7 +41,8 @@ import com.techempower.gemini.mustache.*;
 import com.techempower.gemini.path.annotation.Body;
 import com.techempower.helper.*;
 import com.techempower.js.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic implementation of PathHandler that provides a small suite of 
@@ -60,7 +61,7 @@ public abstract class BasicPathHandler<C extends Context>
   private final EntityStore                store;
   private final JavaScriptWriter           javaScriptWriter;
   private final MustacheManager            mustacheManager;
-  private final ComponentLog               log;
+  private final Logger                     log = LoggerFactory.getLogger(getClass());
   private       String                     baseUri;
   private       String                     baseTemplatePath;
   protected String responseContentType = "text/html; charset=UTF-8";
@@ -69,18 +70,15 @@ public abstract class BasicPathHandler<C extends Context>
    * Constructor.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param jsw A JavaScriptWriter to use when serializing objects as JSON; if
    *     null, the application's default JavaScriptWriter will be used.
    */
-  public BasicPathHandler(GeminiApplication app, String componentCode, 
-      JavaScriptWriter jsw)
+  public BasicPathHandler(GeminiApplication app, JavaScriptWriter jsw)
   {
     application = app;
     mustacheManager = app.getMustacheManager();
     javaScriptWriter = jsw != null ? jsw : app.getJavaScriptWriter();
     store = app.getStore();
-    log = app.getLog(componentCode);
   }
 
   /**
@@ -88,22 +86,10 @@ public abstract class BasicPathHandler<C extends Context>
    * serialization.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
-   */
-  public BasicPathHandler(GeminiApplication app, String componentCode)
-  {
-    this(app, componentCode, null);
-  }
-  
-  /**
-   * Constructor.  Use the application's default JavaScriptWriter for JSON
-   * serialization and use a default component code of "hdlr".
-   * 
-   * @param app The GeminiApplication reference.
    */
   public BasicPathHandler(GeminiApplication app)
   {
-    this(app, "hdlr", null);
+    this(app, null);
   }
   
   @Override
@@ -423,14 +409,6 @@ public abstract class BasicPathHandler<C extends Context>
   }
   
   /**
-   * Gets the ComponentLog reference.
-   */
-  protected ComponentLog log()
-  {
-    return log;
-  }
-  
-  /**
    * Gets the GeminiApplication reference.
    */
   protected GeminiApplication app()
@@ -452,33 +430,6 @@ public abstract class BasicPathHandler<C extends Context>
   protected JavaScriptWriter jsw()
   {
     return javaScriptWriter;
-  }
-  
-  /**
-   * Write something to the log.  This is just a convenience alias for
-   * log.debug.
-   */
-  protected void l(String toLog) 
-  {
-    log.log(toLog);
-  }
-  
-  /**
-   * Write something to the log.  This is just a convenience alias for
-   * log.debug.
-   */
-  protected void l(String toLog, int debugLevel) 
-  {
-    log.log(toLog, debugLevel);
-  }
-  
-  /**
-   * Write something to the log.  This is just a convenience alias for
-   * log.debug.
-   */
-  protected void l(String toLog, int debugLevel, Throwable throwable) 
-  {
-    log.log(toLog, debugLevel, throwable);
   }
   
   /**

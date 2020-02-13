@@ -30,9 +30,10 @@ import java.lang.management.*;
 import java.util.*;
 
 import com.techempower.gemini.monitor.*;
-import com.techempower.log.*;
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The main class (and thread) for CPU usage percentage monitoring, an 
@@ -54,7 +55,7 @@ public class PercentageMonitorThread
   //
   
   private final GeminiMonitor monitor;
-  private final ComponentLog  log;
+  private final Logger        log = LoggerFactory.getLogger("cpup");
   private final ThreadMXBean  jmx;
 
   private long thisInterval = 0L;
@@ -74,7 +75,6 @@ public class PercentageMonitorThread
     super("Gemini Monitor CPU Percentage (" + monitor.getApplication().getVersion().getProductName() + ")", (int)UtilityConstants.SECOND);
     
     this.monitor = monitor;
-    this.log = monitor.getApplication().getLog("cpup");
     this.jmx = ManagementFactory.getThreadMXBean();
   }
   
@@ -84,7 +84,7 @@ public class PercentageMonitorThread
   @Override
   public void run()
   {
-    log.log("Gemini Monitor CPU percentage thread started.");
+    log.info("Gemini Monitor CPU percentage thread started.");
     while (checkPause())
     {
       // Don't do anything if CPU percentage monitoring is disabled.
@@ -118,7 +118,7 @@ public class PercentageMonitorThread
         simpleSleep(SLEEP_PERIOD);
       }
     }
-    log.log("Gemini Monitor CPU percentage thread stopped.");
+    log.info("Gemini Monitor CPU percentage thread stopped.");
   }
   
   /**

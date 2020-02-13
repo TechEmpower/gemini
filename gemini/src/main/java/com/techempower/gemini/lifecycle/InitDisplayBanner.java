@@ -27,7 +27,6 @@
 package com.techempower.gemini.lifecycle;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

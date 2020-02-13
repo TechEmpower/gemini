@@ -30,8 +30,9 @@ import com.techempower.cache.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.listener.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Retains a configurable-length history of passwords used by a user.  The 
@@ -59,7 +60,7 @@ public class PasswordHistoryManager
   public static final int    HARD_MAXIMUM_HISTORY_SIZE    = 100;
   public static final int    DEFAULT_MAXIMUM_HISTORY_SIZE = 5;
   
-  private final ComponentLog  log;
+  private final Logger        log = LoggerFactory.getLogger(COMPONENT_CODE);
   private final PyxisSecurity security;
   private final EntityStore   store;
   
@@ -71,7 +72,6 @@ public class PasswordHistoryManager
    */
   public PasswordHistoryManager(GeminiApplication application, PyxisSecurity security)
   {
-    this.log      = application.getLog(COMPONENT_CODE);
     this.security = security;
     this.store    = application.getStore();
 
@@ -119,14 +119,16 @@ public class PasswordHistoryManager
         history.setId(proposal.user.getId());
       }
       
-      log.log("Recording new password hash for " + proposal.user.getUserUsername() + ".");
+      log.info("Recording new password hash for {}.",
+          proposal.user.getUserUsername());
       history.addHash(proposal.hashedPassword, maximumHistorySize);
       store.put(history);
     }
     else
     {
-      log.log("Not recording historical hash for " + proposal.user.getUserUsername() 
-          + " because password change was made by non-principal.");
+      log.info("Not recording historical hash for {} because password " +
+          "change was made by non-principal.",
+          proposal.user.getUserUsername());
     }
   }
 
@@ -145,21 +147,21 @@ public class PasswordHistoryManager
       if (history != null)
       {
         final String[] hashes = history.getHashesArray();
-        log.log("Checking proposed new password for " + proposal.username 
-            + " against " + hashes.length + " previous hashes.");
+        log.info("Checking proposed new password for {} against {} previous hashes.",
+            proposal.username, hashes.length);
   
         for (String hash : hashes)
         {
           if (security.getPasswordHasher().testPassword(proposal.password, hash))
           {
-            log.log("Proposed new password for " + proposal.username 
-                + " matches a previous hash; it does not pass validation.");
+            log.info("Proposed new password for {} matches a previous " +
+                "hash; it does not pass validation.", proposal.username);
             return "The provided password was used previously. Please create a new password.";
           }
         }
         
-        log.log("Proposed new password for " + proposal.username 
-            + " is not in recent history; it passes validation.");
+        log.info("Proposed new password for {} is not in recent " +
+            "history; it passes validation.", proposal.username);
       }
     }
     

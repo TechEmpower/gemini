@@ -41,8 +41,9 @@ import com.techempower.gemini.path.annotation.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.password.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides conventional password-reset functionality for Gemini/Pyxis web
@@ -114,7 +115,8 @@ public class PasswordResetHandler<C extends Context>
   
   private String                  fromAddress = "";
   private int                     expirationDays = DEFAULT_EXPIRATION_DAYS;
-  
+  private Logger                  log = LoggerFactory.getLogger(COMPONENT_CODE);
+
   //
   // Member methods.
   //
@@ -124,7 +126,7 @@ public class PasswordResetHandler<C extends Context>
    */
   public PasswordResetHandler(GeminiApplication application)
   {
-    super(application, COMPONENT_CODE);
+    super(application);
     
     this.security = application.getSecurity();
 
@@ -298,7 +300,7 @@ public class PasswordResetHandler<C extends Context>
     }
     else
     {
-      l("Email could not be fetched from EmailTemplater.");
+      log.info("Email could not be fetched from EmailTemplater.");
     }
   }
   
@@ -310,8 +312,8 @@ public class PasswordResetHandler<C extends Context>
   {
     if (StringHelper.isEmpty(this.fromAddress))
     {
-      l("Using administrator e-mail address for sending password-reset email: " 
-          + app().getAdministratorEmail(), LogLevel.MINIMUM);
+      log.trace("Using administrator e-mail address for sending password-reset email: {}",
+          app().getAdministratorEmail());
       
       return app().getAdministratorEmail();
     }

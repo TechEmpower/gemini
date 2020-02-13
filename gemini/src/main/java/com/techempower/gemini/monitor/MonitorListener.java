@@ -28,7 +28,8 @@
 package com.techempower.gemini.monitor;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Listens to database and Dispatcher events for the Gemini application-
@@ -57,7 +58,7 @@ public class MonitorListener
   //
   
   protected final GeminiMonitor monitor;
-  protected final ComponentLog  log;
+  protected final Logger        log = LoggerFactory.getLogger(COMPONENT_CODE);
   
   //
   // Member methods.
@@ -69,7 +70,6 @@ public class MonitorListener
   public MonitorListener(GeminiMonitor monitor)
   {
     this.monitor = monitor;
-    this.log = monitor.getApplication().getLog(COMPONENT_CODE);
   }
 
   //
@@ -132,7 +132,7 @@ public class MonitorListener
       catch (Exception exc)
       {
         // Get this logged if it happens.
-        log.log("Exception while processing MonitorSample.", LogLevel.ALERT, exc);
+        log.warn("Exception while processing MonitorSample.", exc);
       }
       finally
       {
