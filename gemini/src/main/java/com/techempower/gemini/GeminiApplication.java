@@ -64,7 +64,6 @@ import com.techempower.gemini.lifecycle.InitStartupNotification;
 import com.techempower.gemini.lifecycle.InitializationTask;
 import com.techempower.gemini.lifecycle.ShutdownTask;
 import com.techempower.gemini.log.GeminiComponentLog;
-import com.techempower.gemini.log.GeminiLog;
 import com.techempower.gemini.monitor.GeminiMonitor;
 import com.techempower.gemini.mustache.MustacheManager;
 import com.techempower.gemini.notification.Notifier;
@@ -81,7 +80,6 @@ import com.techempower.js.JacksonJavaScriptReader;
 import com.techempower.js.JacksonJavaScriptWriter;
 import com.techempower.js.JavaScriptReader;
 import com.techempower.js.JavaScriptWriter;
-import com.techempower.log.Log;
 import com.techempower.util.Chronograph;
 import com.techempower.util.Configurable;
 import com.techempower.util.EnhancedProperties;
@@ -516,12 +514,6 @@ public abstract class GeminiApplication
   protected BasicInfrastructure constructInfrastructure()
   {
     return new BasicInfrastructure(this);
-  }
-
-  @Override
-  protected Log constructLog()
-  {
-    return new GeminiLog(this);
   }
 
   /**

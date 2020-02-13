@@ -433,9 +433,6 @@ public class Configurator
   {
     // Configure the log and the application first.
 
-    // Configure log files.
-    application.getApplicationLog().configure(props, version);
-
     // Configure the application itself.
     application.configure(props);
 
