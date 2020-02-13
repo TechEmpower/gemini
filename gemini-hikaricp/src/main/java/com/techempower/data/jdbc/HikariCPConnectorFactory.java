@@ -138,7 +138,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
 
       try
       {
-        // TODO: Hook this into the Gemini ComponentLog
+        // TODO: Hook this into slf4j
         dataSource.setLogWriter(new PrintWriter(System.out));
       }
       catch (SQLException e)
@@ -181,7 +181,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     {
       log.debug("Exception while reading identifier quote string.", e);
     }
-    log.debug("Identifier quote string: " + identifierQuoteString);
+    log.debug("Identifier quote string: {}", identifierQuoteString);
   }
 
   /**
