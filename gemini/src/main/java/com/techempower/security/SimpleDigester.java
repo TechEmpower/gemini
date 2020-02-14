@@ -35,10 +35,10 @@ import com.techempower.helper.*;
 
 /**
  * SimpleDigester provides a simplified abstraction on the java.security
- * MessageDigest functionality.  To use this class, just create an instance
- * and then call getMD5 or getSHA.  Try to keep a single instance of this
- * class around at the scope of the application itself because it's undefined
- * how long it takes to create the MessageDigest objects.
+ * MessageDigest functionality. Internally it gets a new MessageDigest instance
+ * for every call to avoid synchronization. Re-using the MessageDigest instance
+ * only provided a modest speed increase that was deemed not worth the
+ * additional locking that was encountered.
  *   <p>
  * The standard Sun Java Virtual Machine comes with MD5 and SHA algorithms.
  * If a different security provider were to be used (fairly unlikely), the
@@ -52,86 +52,57 @@ public class SimpleDigester
   //
   // Constants.
   //
-  
+
   public static final int MD5_LENGTH = 32;
   public static final int HEXADECIMAL = 16;
-  
-  //
-  // Member variables.
-  //
-  
-  private MessageDigest shaDigest;
-  private MessageDigest md5Digest;
-  
-  //
-  // Member methods.
-  //
-  
-  /**
-   * Constructor.
-   */
-  public SimpleDigester()
-  {
-    // Does nothing.
-  }
-  
+
   /**
    * Gets the MD5 Digester.
    */
-  protected synchronized MessageDigest getMd5Digester()
+  protected static MessageDigest getMd5Digester()
   {
-    if (this.md5Digest == null)
+    try
     {
-      try
-      {
-        this.md5Digest = MessageDigest.getInstance("MD5");
-      }
-      catch (NoSuchAlgorithmException nsae)
-      {
-        // Do nothing.
-      }
+      return MessageDigest.getInstance("MD5");
     }
-
-    return this.md5Digest;
+    catch (NoSuchAlgorithmException nsae)
+    {
+      return null;
+    }
   }
-  
+
   /**
    * Gets the SHA Digester.
    */
-  protected synchronized MessageDigest getShaDigester()
+  protected static MessageDigest getShaDigester()
   {
-    if (this.shaDigest == null)
+    try
     {
-      try
-      {
-        this.shaDigest = MessageDigest.getInstance("SHA");
-      }
-      catch (NoSuchAlgorithmException nsae)
-      {
-        // Do nothing.
-      }
+      return MessageDigest.getInstance("SHA");
     }
-
-    return this.shaDigest;
+    catch (NoSuchAlgorithmException nsae)
+    {
+      return null;
+    }
   }
-  
+
   /**
    * Digest a String using MD5.
    */
-  public synchronized String getMD5(String sourceString)
+  public static String getMD5(String sourceString)
   {
     MessageDigest digest = getMd5Digester();
     byte[] results = digest.digest(sourceString.getBytes());
     digest.reset();
     return new String(results);
   }
-  
+
   /**
    * Get the MD5 hash of a String in hex
    * @param source The String to hash
    * @return the hashed String
    */
-  public synchronized String getMD5Hex(String source) {
+  public static String getMD5Hex(String source) {
     byte[] bytesOfMessage = source.getBytes(StandardCharsets.UTF_8);
     MessageDigest digest = getMd5Digester();
     digest.reset();
@@ -141,33 +112,33 @@ public class SimpleDigester
     String hashText = bigInt.toString(HEXADECIMAL);
     return StringHelper.padZero(hashText, MD5_LENGTH); // Pad to 32 digits
   }
-  
+
   /**
    * Digest a String using SHA.
    */
-  public synchronized String getSHA(String sourceString)
+  public static String getSHA(String sourceString)
   {
     MessageDigest digest = getShaDigester();
     byte[] results = digest.digest(sourceString.getBytes());
     digest.reset();
     return new String(results);
   }
-  
+
   /**
    * Digest a String using SHA, and return as a raw byte array.
    */
-  public synchronized byte[] getSHAAsByteArray(String sourceString)
+  public static byte[] getSHAAsByteArray(String sourceString)
   {
     MessageDigest digest = getShaDigester();
     byte[] results = digest.digest(sourceString.getBytes());
     digest.reset();    
     return results;
   }
-  
+
   /**
    * Digest a String using SHA, and return as a hexadecimal String.
    */
-  public synchronized String getSHAHex(String sourceString)
+  public static String getSHAHex(String sourceString)
   {
     byte[] bytesOfMessage = sourceString.getBytes(StandardCharsets.UTF_8);
     MessageDigest digest = getShaDigester();
@@ -175,23 +146,21 @@ public class SimpleDigester
     digest.reset();
     return result.toString(HEXADECIMAL);  // 16 radix = hexadecimal
   }
-  
+
   /**
    * Main tester method.
    */
   public static void main(String[] args)
   {
-    SimpleDigester sd = new SimpleDigester();
-    
     System.out.println("Simple digester.  " + args.length + " arguments.");
 
     for (String arg : args)
     {
       System.out.println(arg
           + "  MD5: "
-          + sd.getMD5Hex(arg)
+          + SimpleDigester.getMD5Hex(arg)
           + "  SHA: "
-          + sd.getSHAHex(arg));
+          + SimpleDigester.getSHAHex(arg));
     }
   }
 }
