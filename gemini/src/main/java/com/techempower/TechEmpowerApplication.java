@@ -49,9 +49,8 @@ public class TechEmpowerApplication
   // Member variables.
   //
 
-  private static final String COMPONENT_CODE = "teap";
   private final Version                  version;
-  private final Logger                   log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger                   log = LoggerFactory.getLogger(getClass());
   private final Scheduler                scheduler;
   private final List<Asynchronous>       asynchronousRscs;
   private final List<DeferredStartAsynchronous> deferredRscs;

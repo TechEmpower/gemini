@@ -39,20 +39,14 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class SecureHandler<D extends BasicDispatcher, C extends Context>
     implements Handler<D, C>
-{  
-  
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "secH";
+{
   
   //
   // Member variables.
   //
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final PyxisSecurity     security;
 
   private String[] publicCommands = new String[0];

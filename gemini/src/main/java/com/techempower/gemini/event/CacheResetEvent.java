@@ -66,7 +66,6 @@ public class CacheResetEvent
      extends ScheduledEvent 
   implements Configurable
 {
-  public static final String LOCAL_COMPONENT_CODE1 = "eRST";
 
   public static final String PROPS_PREFIX = "CacheReset.";
   public static final String PROPS_INTERVAL = "IntervalHours";
@@ -79,7 +78,7 @@ public class CacheResetEvent
   private boolean notifyListeners = false;
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(LOCAL_COMPONENT_CODE1);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
 
   /**
    * Constructor.

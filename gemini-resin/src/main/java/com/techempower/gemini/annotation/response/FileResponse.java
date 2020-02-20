@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 public class FileResponse<D extends BasicDispatcher, C extends LegacyContext> 
   implements HandlerResponse<D, C>
 {
-  private Logger log = LoggerFactory.getLogger("FiR");
+  private Logger log = LoggerFactory.getLogger(getClass());
   
   public FileResponse()
   {

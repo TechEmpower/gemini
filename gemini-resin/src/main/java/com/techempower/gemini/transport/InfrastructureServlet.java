@@ -78,19 +78,13 @@ public abstract class InfrastructureServlet
   extends    HttpServlet
 {
   private static final long   serialVersionUID   = 8642344935L;
-  
-  //
-  // Constants.
-  //
-
-  public static final String COMPONENT_CODE = "svlt";    // Four-letter component ID
 
   //
   // Member variables.
   //
 
   private final GeminiApplication application = getApplication();
-  private final Logger            log         = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log         = LoggerFactory.getLogger(getClass());
   private final Version           version     = this.application.getVersion();
   
   //

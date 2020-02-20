@@ -80,18 +80,12 @@ public abstract class InfrastructureJsp
 {
 
   //
-  // Constants.
-  //
-
-  public static final String COMPONENT_CODE = ".jsp";
-
-  //
   // Private variables.
   //
 
   private          ServletConfig     config;
   private volatile GeminiApplication application;
-  private          Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private          Logger            log = LoggerFactory.getLogger(getClass());
   private          ScriptsAndSheets  sas;
 
   //

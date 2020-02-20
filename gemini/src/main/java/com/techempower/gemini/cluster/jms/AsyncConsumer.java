@@ -40,7 +40,7 @@ import javax.jms.*;
 public class AsyncConsumer
 {
   private Connection      connection;
-  private Logger          log = LoggerFactory.getLogger("AsyC");
+  private Logger          log = LoggerFactory.getLogger(getClass());
   private Session         session;
   private MessageConsumer consumer;
   private String          destination;

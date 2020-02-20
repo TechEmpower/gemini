@@ -41,7 +41,7 @@ public abstract class BlockingReceiver
     implements AutoCloseable
 {
   protected final Connection        connection;
-  protected       Logger            log = LoggerFactory.getLogger("BlkR");
+  protected       Logger            log = LoggerFactory.getLogger(getClass());
   protected Session                 session;
   protected MessageConsumer         consumer;
   protected final String            destination;

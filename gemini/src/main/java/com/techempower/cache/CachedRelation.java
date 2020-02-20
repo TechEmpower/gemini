@@ -153,7 +153,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
   private final Collection<CachedRelationListener> listeners
       = new ArrayList<>();
-  private final Logger log = LoggerFactory.getLogger("chrl");
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private volatile boolean loaded = false;
 
   /**

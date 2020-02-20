@@ -51,8 +51,7 @@ public class BasicFilter
 
   private ServletContext    servletContext;
   private GeminiApplication app;
-  protected Logger          log = LoggerFactory.getLogger(
-      StringHelper.truncate(getClass().getSimpleName(), 4));
+  protected Logger          log = LoggerFactory.getLogger(getClass());
   private String            filterName;
   private String            errorPage          = "/access-error.jsp";
 

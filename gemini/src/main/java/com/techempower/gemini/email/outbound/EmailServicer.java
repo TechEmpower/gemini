@@ -72,7 +72,6 @@ public class EmailServicer
   // Constants.
   //
 
-  public static final String COMPONENT_CODE         = "emsv";
   public static final int    DEFAULT_SENDER_THREADS = 10;
   public static final long   DEFAULT_DELAY_MILLIS   = 0L;
   public static final IntRange REASONABLE_THREAD_COUNT = new IntRange(1, 500);
@@ -81,7 +80,7 @@ public class EmailServicer
   // Member variables.
   //
 
-  private final    Logger         log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final    Logger         log = LoggerFactory.getLogger(getClass());
   private final    EmailTransport transport;
 
   private final    AtomicInteger         queued;
@@ -412,7 +411,7 @@ public class EmailServicer
   {
     private final EmailServicer  servicer;
     private final EmailPackage   email;
-    private final Logger log = LoggerFactory.getLogger(EmailServicer.COMPONENT_CODE);
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     public Sender(EmailServicer servicer, EmailPackage email)
     {

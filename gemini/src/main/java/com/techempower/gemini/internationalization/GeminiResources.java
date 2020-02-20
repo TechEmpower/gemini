@@ -51,11 +51,6 @@ import org.slf4j.LoggerFactory;
  */
 public class GeminiResources
 {
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "reso";
 
   /**
    * A set of macro indicators that is reused for macro expansion.
@@ -70,7 +65,7 @@ public class GeminiResources
   // Member variables.
   //
 
-  private final Logger              log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger              log = LoggerFactory.getLogger(getClass());
   private final Locale              locale;
   private final GeminiResources     parent;
   private       Properties          properties;

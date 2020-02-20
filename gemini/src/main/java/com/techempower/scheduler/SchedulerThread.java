@@ -39,18 +39,13 @@ import org.slf4j.LoggerFactory;
 public class SchedulerThread
   extends    EndableThread
 {
-  //
-  // Constants.
-  //
-
-  public static final String COMPONENT_CODE = "sthr";    // Four-letter component ID
 
   //
   // Member variables.
   //
 
   private final Scheduler    scheduler;
-  private final Logger       log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger       log = LoggerFactory.getLogger(getClass());
   private       long         nextCheck;
   
   //

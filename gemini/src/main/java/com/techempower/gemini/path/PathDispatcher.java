@@ -72,7 +72,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   //
   
   private final A                           application;
-  private final Logger                      log = LoggerFactory.getLogger("disp");
+  private final Logger                      log = LoggerFactory.getLogger(getClass());
   private final Map<String, PathHandler<C>> handlers;
   private final PathHandler<C>              defaultHandler;
   private final PathHandler<C>              notImplementedHandler;

@@ -48,7 +48,7 @@ public class FlywayMigrator implements DatabaseMigrator
 {
 
   private FluentConfiguration flywayConfig;
-  private Logger              log = LoggerFactory.getLogger("DBMF");
+  private Logger              log = LoggerFactory.getLogger(getClass());
   private GeminiApplication   app;
 
   /**

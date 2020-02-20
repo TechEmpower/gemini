@@ -58,7 +58,6 @@ public class HttpSessionManager
   // Constants.
   //
 
-  public static final String COMPONENT_CODE     = "mSes";    // Four-letter component ID
   public static final int    DEFAULT_TIMEOUT    = 3600;      // One hour
   public static final String SESSION_HASH       = "Gemini-Session-Hash";
 
@@ -67,7 +66,7 @@ public class HttpSessionManager
   //
 
   private int     timeoutSeconds     = DEFAULT_TIMEOUT;
-  private Logger  log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private Logger  log = LoggerFactory.getLogger(getClass());
   private boolean refererTracking    = false;
   private long              sessionAccumulator = 0L;
   private boolean           strictSessions     = false;

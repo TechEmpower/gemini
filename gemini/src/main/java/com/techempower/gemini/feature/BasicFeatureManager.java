@@ -49,7 +49,7 @@ public class BasicFeatureManager
   // Variables.
   //
   
-  private final Logger                   log = LoggerFactory.getLogger("fMgr");
+  private final Logger                   log = LoggerFactory.getLogger(getClass());
   private final Map<String, FeatureNode> nodes;
   private final List<FeatureNode>        roots;
   

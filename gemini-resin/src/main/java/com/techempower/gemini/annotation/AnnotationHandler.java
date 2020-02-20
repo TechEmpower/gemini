@@ -206,7 +206,7 @@ public final class AnnotationHandler
   implements Handler<BasicDispatcher,LegacyContext>
 {
   private GeminiApplication application;
-  private Logger            log = LoggerFactory.getLogger("hAnn");
+  private Logger            log = LoggerFactory.getLogger(getClass());
   
   // Handler object associated with the handle method
   // this is required to invoke the method

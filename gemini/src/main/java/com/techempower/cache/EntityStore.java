@@ -82,8 +82,6 @@ public class EntityStore
   // Constants.
   //
 
-  public static final String     COMPONENT_CODE = "cach";
-  
   private static final Class<?>[] NO_PARAMETERS  = new Class[0];
   private static final Object[]   NO_VALUES      = new Object[0];
   private static final int        INITIAL_GROUPS_SIZE = 20;
@@ -98,7 +96,7 @@ public class EntityStore
   private final Map<Class<? extends Identifiable>,EntityGroup<? extends Identifiable>>
                                                         groups;
   private final ConnectorFactory                        connectorFactory;
-  private final Logger                                  log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger                                  log = LoggerFactory.getLogger(getClass());
   private volatile CacheListener[]                      listeners;
 
   private ExecutorService preinitializationTasks = Executors.newSingleThreadExecutor();

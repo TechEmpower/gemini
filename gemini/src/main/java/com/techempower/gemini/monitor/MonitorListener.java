@@ -48,17 +48,11 @@ public class MonitorListener
 {
 
   //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "MonL";
-
-  //
   // Member variables.
   //
   
   protected final GeminiMonitor monitor;
-  protected final Logger        log = LoggerFactory.getLogger(COMPONENT_CODE);
+  protected final Logger        log = LoggerFactory.getLogger(getClass());
   
   //
   // Member methods.

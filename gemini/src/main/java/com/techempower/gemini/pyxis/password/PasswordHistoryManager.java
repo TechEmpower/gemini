@@ -56,11 +56,10 @@ public class PasswordHistoryManager
              Configurable
 {
   
-  public static final String COMPONENT_CODE               = "PsHs";
   public static final int    HARD_MAXIMUM_HISTORY_SIZE    = 100;
   public static final int    DEFAULT_MAXIMUM_HISTORY_SIZE = 5;
   
-  private final Logger        log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger        log = LoggerFactory.getLogger(getClass());
   private final PyxisSecurity security;
   private final EntityStore   store;
   

@@ -47,7 +47,7 @@ public final class JvmImageHelper
   extends ImageHelper
 {
   private final ResampleFilter    resampleFilter = ResampleFilters.getLanczos3Filter();
-  private final Logger            log = LoggerFactory.getLogger("JvIH");
+  private final Logger            log = LoggerFactory.getLogger(getClass());
 
   /**
    * Mimics {@link ImageMagickHelper#transformImage}.

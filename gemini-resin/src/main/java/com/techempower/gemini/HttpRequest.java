@@ -51,18 +51,13 @@ import org.slf4j.LoggerFactory;
 public class HttpRequest
   implements Request
 {
-  //
-  // Constants.
-  //
 
-  public static final String   COMPONENT_CODE = "rqst"; // Four-letter component ID
-  
   //
   // Member variables.
   //
   
   private final GeminiApplication  application;
-  private final Logger             log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger             log = LoggerFactory.getLogger(getClass());
   private final HttpServletRequest request;
   private final HttpServletResponse   response;
   private final ServletContext        servletContext;

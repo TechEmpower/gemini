@@ -86,7 +86,7 @@ public class GeminiComponentLog
    * 
    * @return String
    */
-  private static String getContextInformation()
+  public static String getContextInformation()
   {
     return CONTEXT_INFO.getStringValue();
   }

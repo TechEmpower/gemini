@@ -61,7 +61,6 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
   // Constants.
   //
 
-  public static final String COMPONENT_CODE = "JnCf";
   public static final String DEFAULT_PROPERTY_PREFIX = "db.Jndi.";
 
   //
@@ -69,7 +68,7 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
   //
 
   private final String propertyPrefix;
-  private final Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private DataSource dataSource;
 

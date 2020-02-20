@@ -96,7 +96,6 @@ public class BasicConnectorFactory
   // Constants.
   //
 
-  public static final String COMPONENT_CODE = "cnfc";
   public static final String DEFAULT_PROPERTY_PREFIX = "db.";
   public static final long   DEFAULT_QUERY_COUNT_FREQUENCY = 1000L;
   public static final int    DEFAULT_MAX_RETRIES = 0;
@@ -110,7 +109,7 @@ public class BasicConnectorFactory
   private volatile JdbcConnectionAttributes attributes = null;
   private volatile JdbcConnectionManager    connectionManager = null;
   private final    TechEmpowerApplication   app;
-  private final    Logger                   log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final    Logger                   log = LoggerFactory.getLogger(getClass());
   private final    AtomicLong               queryCount = new AtomicLong(0L);
   
   private boolean      enabled               = true;

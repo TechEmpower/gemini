@@ -37,8 +37,7 @@ public class   InitManageAsynchronous
     implements InitializationTask,
                ShutdownTask
 {
-  private Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
-  private Logger shutdownLog = LoggerFactory.getLogger("shut");
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
   public void taskInitialize(GeminiApplication application) 
@@ -52,7 +51,7 @@ public class   InitManageAsynchronous
   @Override
   public void taskShutdown(GeminiApplication application) 
   {
-    shutdownLog.info("Stopping asynchronous resources.");
+    log.info("Stopping asynchronous resources.");
 
     // Stop the asynchronous resources.
     application.stopAsynchronousResources();

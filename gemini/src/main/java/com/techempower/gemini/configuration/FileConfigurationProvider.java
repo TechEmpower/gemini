@@ -101,7 +101,7 @@ import org.slf4j.LoggerFactory;
 public class FileConfigurationProvider
     implements ConfigurationProvider
 {
-  private final Logger log = LoggerFactory.getLogger(Configurator.COMPONENT_CODE);
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
    * Constructor.

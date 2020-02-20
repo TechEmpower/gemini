@@ -92,7 +92,7 @@ public class FileResourceManager
   private String                       resourceLocation;
   private Map<Locale, GeminiResources> loadedResources = new HashMap<>();
   private volatile GeminiResources     rootResources;
-  private          Logger              log = LoggerFactory.getLogger(ResourceManager.COMPONENT_CODE);
+  private          Logger              log = LoggerFactory.getLogger(getClass());
   
   //
   // Methods.

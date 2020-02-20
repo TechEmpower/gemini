@@ -63,7 +63,6 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
   // Constants.
   //
 
-  public static final String COMPONENT_CODE = "HkCf";
   public static final String DEFAULT_PROPERTY_PREFIX = "db.HikariCP.";
 
   //
@@ -71,7 +70,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
   //
 
   private final String propertyPrefix;
-  private final Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private HikariConfig hikariConfig;
   private HikariDataSource dataSource;

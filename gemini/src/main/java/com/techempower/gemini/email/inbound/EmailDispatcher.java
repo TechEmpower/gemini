@@ -79,7 +79,6 @@ public class EmailDispatcher
   // Constants.
   //
   
-  public static final String COMPONENT_CODE = "edsp";
   public static final String DEFAULT_PROPERTY_PREFIX = "InboundMail.";
   public static final String PROPERTY_MAXIMUM_SLEEP = "MaximumSleepMs";
   public static final String PROPERTY_MINIMUM_SLEEP = "MinimumSleepMs";
@@ -91,7 +90,7 @@ public class EmailDispatcher
   //
   
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final String            propertyPrefix;
   private final List<EmailHandler> handlers;
   

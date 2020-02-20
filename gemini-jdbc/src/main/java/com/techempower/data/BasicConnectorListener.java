@@ -65,7 +65,6 @@ public class BasicConnectorListener
   // Constants.
   //
 
-  public static final String        COMPONENT_CODE               = "dbcl";
   public static final String        DEFAULT_PROPERTY_PREFIX      = "ConnectorListener.";
   public static final int           DEFAULT_MAX_ALERTS_PER       = 10;
 
@@ -74,7 +73,7 @@ public class BasicConnectorListener
   //
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final List<String>      currentAlerts;
   private final String            propertyPrefix;
   

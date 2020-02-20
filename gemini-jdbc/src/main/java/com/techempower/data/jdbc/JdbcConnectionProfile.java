@@ -96,7 +96,7 @@ public class JdbcConnectionProfile
   /**
    * A ComponentLog for debugging.
    */
-  private final Logger log = LoggerFactory.getLogger(JdbcConnectionAttributes.COMPONENT_CODE);
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
    * A reference to the connection.

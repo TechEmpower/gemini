@@ -89,7 +89,6 @@ public class ThreadDumpHandler<C extends Context>
   // Constants.
   //
 
-  public static final String COMPONENT_CODE       = "hThd";
   public static final String DEFAULT_PROPS_PREFIX = "ThreadDump.";
   public static final int    MEGABYTE             = 1024 * 1024;
   public static final String DEFAULT_ROLE         = "threaddump";
@@ -107,7 +106,7 @@ public class ThreadDumpHandler<C extends Context>
   private final SynchronizedSimpleDateFormat dateFormatter = new SynchronizedSimpleDateFormat();
   private String            dumpOnStopLocation = "";
   private boolean           useJmx       = true;
-  private final Logger      log          = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger      log          = LoggerFactory.getLogger(getClass());
 
   //
   // Member methods.

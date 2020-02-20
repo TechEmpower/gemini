@@ -95,7 +95,6 @@ public class PasswordResetHandler<C extends Context>
   // Constants.
   //
   
-  public static final String COMPONENT_CODE           = "hPsR";
   public static final String DEFAULT_TEMPLATE_PATH    = "/auth/";
   public static final int    DEFAULT_EXPIRATION_DAYS  = 5;
  
@@ -115,7 +114,7 @@ public class PasswordResetHandler<C extends Context>
   
   private String                  fromAddress = "";
   private int                     expirationDays = DEFAULT_EXPIRATION_DAYS;
-  private Logger                  log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private Logger                  log = LoggerFactory.getLogger(getClass());
 
   //
   // Member methods.

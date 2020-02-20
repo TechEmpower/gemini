@@ -170,7 +170,7 @@ public class LoginTokenManager
 
   private final PurgeEvent purgeEvent;
   private final ClearTokensOnPasswordChange clearTokenListener;
-  private final Logger                      log = LoggerFactory.getLogger("lTkn");
+  private final Logger                      log = LoggerFactory.getLogger(getClass());
 
   public LoginTokenManager(GeminiApplication application)
   {

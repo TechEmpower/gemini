@@ -120,7 +120,7 @@ public class BasicInfrastructure
   //
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   
   private String            serverName              = DEFAULT_URL_PREFIX;
   private String            standardDomain          = DEFAULT_URL_PREFIX;

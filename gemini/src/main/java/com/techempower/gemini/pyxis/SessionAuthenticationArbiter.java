@@ -57,7 +57,7 @@ public class SessionAuthenticationArbiter
   private final GeminiApplication application;
   private final LoginTokenManager loginTokenManager;
   private final Map<Long,String>  userSessionIDs;
-  private final Logger            log = LoggerFactory.getLogger("SeAr");
+  private final Logger            log = LoggerFactory.getLogger(getClass());
 
   //
   // CONSTRUCTOR

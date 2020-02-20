@@ -38,7 +38,7 @@ import java.util.function.BiConsumer;
 public class DispatchLogger
   implements DispatchListener {
 
-  private final Logger  log = LoggerFactory.getLogger("disp");
+  private final Logger  log = LoggerFactory.getLogger(getClass());
   private final BiConsumer<Logger, String> logMethod;
   private final boolean logIpAddress;
   

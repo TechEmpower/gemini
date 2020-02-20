@@ -60,17 +60,11 @@ public abstract class EmailTemplater
 {
 
   //
-  // Constants.
-  //
-
-  public static final String COMPONENT_CODE = "emtm";
-
-  //
   // Member variables.
   //
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   
   protected boolean enabled = false;
 
@@ -96,7 +90,7 @@ public abstract class EmailTemplater
   public void configure(EnhancedProperties props)
   {
     // Does nothing here.
-    final Focus focus = props.focus(COMPONENT_CODE);
+    final Focus focus = props.focus("emtm");
     enabled = focus.getBoolean("Enabled", enabled);
   }
 

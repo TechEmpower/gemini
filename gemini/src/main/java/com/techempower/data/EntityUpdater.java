@@ -54,18 +54,13 @@ import org.slf4j.LoggerFactory;
 public class EntityUpdater
   implements Asynchronous
 {
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "entu";
   
   //
   // Member variables.
   //
   
   private final GeminiApplication                   application;
-  private final Logger                              log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger                              log = LoggerFactory.getLogger(getClass());
   private final ConcurrentLinkedQueue<Identifiable> queue = new ConcurrentLinkedQueue<>();
   private final EntityUpdaterThread        thread;
   private final AtomicInteger              totalUpdateCount = new AtomicInteger();

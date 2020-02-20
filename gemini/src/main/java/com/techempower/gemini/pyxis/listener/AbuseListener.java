@@ -49,7 +49,6 @@ public class AbuseListener
   // Constants.
   //
   
-  public static final String COMPONENT_CODE       = "Abus";
   public static final String DEFAULT_PROPS_PREFIX = "AbuseListener.";
   public static final int    THRESHOLD_MINUTE     = 20;
   public static final int    THRESHOLD_HOUR       = 200;
@@ -61,7 +60,7 @@ public class AbuseListener
   //
   
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final String            propsPrefix;
 
   private int                     thresholdMinute      = THRESHOLD_MINUTE;

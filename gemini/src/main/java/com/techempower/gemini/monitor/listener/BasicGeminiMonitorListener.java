@@ -61,7 +61,7 @@ public class BasicGeminiMonitorListener
   // Member variables.
   //
   
-  private final Logger log = LoggerFactory.getLogger("bgml");
+  private final Logger log = LoggerFactory.getLogger(getClass());
   
   private String fsLocation;
   

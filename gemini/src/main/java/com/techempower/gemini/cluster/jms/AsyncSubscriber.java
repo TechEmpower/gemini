@@ -41,7 +41,7 @@ public class AsyncSubscriber
     implements AutoCloseable
 {
   private final Connection   connection;
-  private final Logger       log = LoggerFactory.getLogger("AsyS");
+  private final Logger       log = LoggerFactory.getLogger(getClass());
   private Session            session;
   private MessageConsumer    consumer;
   private final String       destination;

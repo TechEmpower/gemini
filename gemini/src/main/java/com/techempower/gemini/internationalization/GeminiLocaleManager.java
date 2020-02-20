@@ -63,8 +63,6 @@ public class GeminiLocaleManager
   public static final String DEFAULT_LANGUAGE_CODE = "en";
   public static final String DEFAULT_COUNTRY_CODE = "US";
 
-  public static final String COMPONENT_CODE = "loca";
-  
   private static final String SESSION_LOCALE_SUFFIX = "-Locale";
   
   //
@@ -82,7 +80,7 @@ public class GeminiLocaleManager
   // Member variables.
   //
   
-  private final    Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final    Logger            log = LoggerFactory.getLogger(getClass());
   private volatile ResourceManager   resourceManager;
   private final    GeminiApplication application;
   private final    String            productName;

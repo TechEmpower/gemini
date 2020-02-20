@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InitDatabaseMigrations implements InitializationTask, Configurable
 {
-  private Logger  log     = LoggerFactory.getLogger(COMPONENT_CODE);
+  private Logger  log     = LoggerFactory.getLogger(getClass());
   private boolean enabled = false;
 
   /**

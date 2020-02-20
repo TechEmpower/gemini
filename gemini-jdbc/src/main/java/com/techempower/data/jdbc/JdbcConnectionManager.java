@@ -71,8 +71,7 @@ public class JdbcConnectionManager
   private final List<JdbcConnectionProfile>  profiles;
   private final ThreadLocal<JdbcConnectionProfile> profilesForThreads;
   private final TechEmpowerApplication      application;
-  private final Logger                      log = LoggerFactory.getLogger(
-      JdbcConnectionAttributes.COMPONENT_CODE);
+  private final Logger                      log = LoggerFactory.getLogger(getClass());
   private final JdbcConnectionManagerThread thread;
   private final AtomicInteger                profileIndexScanOffset = new AtomicInteger(0);        
   

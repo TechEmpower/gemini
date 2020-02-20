@@ -72,7 +72,6 @@ public class AuditManager
   // Constants.
   //
   
-  public static final String COMPONENT_CODE = "audt";
   public static final int    DEFAULT_MAXIMUM_VALUE_LENGTH = 100;
 
   //
@@ -85,7 +84,7 @@ public class AuditManager
   // Member variables.
   //
     
-  private final Logger log                = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger log                = LoggerFactory.getLogger(getClass());
   private       int    maximumValueLength = DEFAULT_MAXIMUM_VALUE_LENGTH;
   private final List<AuditListener> listeners;
   

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class InitPrepareForSoftKill
   implements InitializationTask
 {
-  private Logger log = LoggerFactory.getLogger("shut");
+  private Logger log = LoggerFactory.getLogger(getClass());
   @Override
   public void taskInitialize(final GeminiApplication application) 
   {

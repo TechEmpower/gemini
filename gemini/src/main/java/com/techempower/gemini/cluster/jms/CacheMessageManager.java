@@ -57,7 +57,6 @@ public class CacheMessageManager
     implements CacheListener, CachedRelationListener, DistributionListener, Configurable
 {
   public static final String      CACHE_TOPIC_DESTINATION = "CACHE.TOPIC";
-  public static final String      LOG_COMPONENT_CODE      = "CchL";
   public static final String      MESSAGE_PROPERTY_UUID   = "Gemini.CacheMgr.ClientUUID";
 
   //
@@ -65,7 +64,7 @@ public class CacheMessageManager
   //
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(LOG_COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final EntityStore       store;
   private Connection              connection;
   private GeminiPublisher         publisher;

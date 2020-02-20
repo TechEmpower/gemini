@@ -55,7 +55,7 @@ public class PercentageMonitorThread
   //
   
   private final GeminiMonitor monitor;
-  private final Logger        log = LoggerFactory.getLogger("cpup");
+  private final Logger        log = LoggerFactory.getLogger(getClass());
   private final ThreadMXBean  jmx;
 
   private long thisInterval = 0L;

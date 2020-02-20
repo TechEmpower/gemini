@@ -48,7 +48,7 @@ public class BatchHasher<U extends PyxisUser>
   private static final long DEFAULT_PAUSE_INTERVAL = 100;
   
   private final GeminiApplication app;
-  private final Logger log = LoggerFactory.getLogger("bHas");
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private final PyxisSecurity security;
   private final Class<U> userClass;
   private final EntityStore store;

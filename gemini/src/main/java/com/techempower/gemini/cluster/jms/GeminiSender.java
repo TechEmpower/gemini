@@ -44,7 +44,7 @@ public abstract class GeminiSender
     implements AutoCloseable
 {
   protected final Connection   connection;
-  protected final Logger       log = LoggerFactory.getLogger("JmsS");
+  protected final Logger       log = LoggerFactory.getLogger(getClass());
   protected Session            session;
   protected MessageProducer    producer;
   protected final String       destination;

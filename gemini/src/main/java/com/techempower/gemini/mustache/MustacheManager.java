@@ -73,7 +73,7 @@ public abstract class MustacheManager
 
   protected final GeminiApplication application;
   private final TemplateAppReferences applicationReferences;
-  private final Logger log = LoggerFactory.getLogger("MusM");
+  private final Logger log = LoggerFactory.getLogger(getClass());
   protected MustacheFactory mustacheFactory;
   protected String mustacheDirectory;
   protected boolean enabled;

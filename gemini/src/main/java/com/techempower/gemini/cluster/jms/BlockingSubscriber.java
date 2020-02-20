@@ -52,7 +52,7 @@ public class BlockingSubscriber
   public BlockingSubscriber(Connection connection, String destination)
   {
     super(connection, destination);
-    this.log = LoggerFactory.getLogger("BSub");
+    this.log = LoggerFactory.getLogger(getClass());
   }
 
   @Deprecated(forRemoval = true)

@@ -83,7 +83,7 @@ public class EmailExceptionHandler
   
   private final GeminiApplication application;
   private final FeatureManager fm;
-  private final Logger         log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger         log = LoggerFactory.getLogger(getClass());
   
   private String            fromMailAddress = "exceptions@techempower.com";
   private String            toMailAddress = this.fromMailAddress;

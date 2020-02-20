@@ -65,7 +65,6 @@ public class Configurator
   // Constants.
   //
 
-  public static final String COMPONENT_CODE             = "conf";    // Four-letter component ID
   public static final String CONFIGURATION_FILENAME_EXT = ".conf";
   
   // Special property names.
@@ -87,7 +86,7 @@ public class Configurator
 
   private final List<Configurable> configurableComponents = new CopyOnWriteArrayList<>();
   private final GeminiApplication           application;
-  private final Logger                      log       = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger                      log       = LoggerFactory.getLogger(getClass());
   private final List<ConfigurationProvider> providers = new ArrayList<>(1);
   
   private boolean              configured  = false;

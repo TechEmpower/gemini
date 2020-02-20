@@ -38,8 +38,7 @@ public class   InitDisplayBanner
                ShutdownTask
 {
 
-  private Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
-  private Logger shutdownLog = LoggerFactory.getLogger("shut");
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
   public void taskInitialize(GeminiApplication app) 
@@ -50,8 +49,7 @@ public class   InitDisplayBanner
   @Override
   public void taskShutdown(GeminiApplication app)
   {
-    shutdownLog.info(app.getVersion().getNameAndDeployment() + " shutting down.");
+    log.info(app.getVersion().getNameAndDeployment() + " shutting down.");
   }
-
 
 }

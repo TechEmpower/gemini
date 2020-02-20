@@ -68,7 +68,7 @@ public class JdbcConnector
   //
 
   private final        JdbcConnectionManager manager;
-  private final        Logger                log = LoggerFactory.getLogger(JdbcConnectionAttributes.COMPONENT_CODE);
+  private final        Logger                log = LoggerFactory.getLogger(getClass());
 
   private              int                   tryCount                = 0;     // How many times has this connector tried the query?
   private              Statement             statement               = null;  // Statement object.

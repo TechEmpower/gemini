@@ -48,7 +48,6 @@ public class BasicFileStoreHandler
   // Constants.
   //
 
-  public static final String COMPONENT_CODE       = "hFsh";
   public static final String DEFAULT_PROPS_PREFIX = "FileStoreHandler.";
 
   public static final String CMD_PREFIX           = "fs-";
@@ -63,7 +62,7 @@ public class BasicFileStoreHandler
   //
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final FileStore         fileStore;
 
   //

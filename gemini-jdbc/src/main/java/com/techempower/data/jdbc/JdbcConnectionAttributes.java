@@ -50,7 +50,6 @@ class JdbcConnectionAttributes
   // Constants.
   //
   
-  public static final String  COMPONENT_CODE = "jdCA";
   public static final int     DEFAULT_MINIMUM_POOL_SIZE = 3;
   public static final int     DEFAULT_MAXIMUM_POOL_MULTIPLIER = 5;
   public static final DatabaseAffinity DEFAULT_DATABASE_AFFINITY = DatabaseAffinity.MYSQL;
@@ -124,7 +123,7 @@ class JdbcConnectionAttributes
     
     // Load driver
     JdbcHelper.loadDriver(this.driverClassName,
-        LoggerFactory.getLogger(COMPONENT_CODE));
+        LoggerFactory.getLogger(getClass()));
   }
   
   /**

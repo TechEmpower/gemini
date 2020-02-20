@@ -155,7 +155,7 @@ public abstract class GeminiApplication
   // Member variables.
   //
 
-  private final Logger                     log = LoggerFactory.getLogger("gemi");
+  private final Logger                     log = LoggerFactory.getLogger(getClass());
   private       InitConfig                 initConfig;
   private final BasicInfrastructure        infrastructure;
   private final Configurator               configurator;

@@ -49,14 +49,13 @@ public class WebsocketServlet
   
   private static final long serialVersionUID = 4902296554565036185L;
 
-	public static final String COMPONENT_CODE = "wssv";    // Four-letter component ID
 	public static final String PROTOCOL_HEADER = "Sec-WebSocket-Protocol";
   
   //
   // Member variables.
   //
   
-  private final Logger           log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger           log = LoggerFactory.getLogger(getClass());
   private final WebsocketAdapter adapter;
   private final ConcurrentHashMap<String, WebsocketHandler> listeners;
   

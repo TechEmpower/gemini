@@ -90,7 +90,6 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   // Constants.
   //
 
-  public static final String COMPONENT_CODE               = "secu";
   public static final int    DEFAULT_FAILED_RESET_SECONDS = 300;  // 5 minutes.
   public static final String PROPS_PREFIX                 = "BasicSecurity.";
 
@@ -99,7 +98,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   //
 
   private final GeminiApplication          application;
-  private final Logger                     log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger                     log = LoggerFactory.getLogger(getClass());
   private final PyxisSettings              settings;
   private final EntityStore                store;
   private final Cryptograph                cryptograph;

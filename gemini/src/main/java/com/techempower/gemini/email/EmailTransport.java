@@ -114,7 +114,6 @@ public class EmailTransport
   // Constants.
   //
 
-  public static final String COMPONENT_CODE             = "emxp";    // Four-letter component ID
   public static final String DEFAULT_SERVER_ADDRESS     = "mail";    // No domain specified.
   public static final String MULTIPLE_SERVER_PREFIX     = "MailServer";
   public static final int    DEFAULT_SMTP_PORT          = 25;
@@ -140,7 +139,7 @@ public class EmailTransport
   private String              defaultUsername       = null;
   private String              defaultPassword       = null;
   private Authenticator       defaultAuthenticator  = null;
-  private Logger              log                   = LoggerFactory.getLogger(COMPONENT_CODE);
+  private Logger              log                   = LoggerFactory.getLogger(getClass());
   
   //
   // Member methods.

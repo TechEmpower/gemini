@@ -47,7 +47,7 @@ public class RobotsHandler
      extends BasicPathHandler<Context>
   implements Configurable
 {
-  private final       Logger log        = LoggerFactory.getLogger("robo");
+  private final       Logger log        = LoggerFactory.getLogger(getClass());
   public static final String DISALLOWED = "User-agent: *\nDisallow: /";
   
   private String body = DISALLOWED;

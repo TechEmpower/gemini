@@ -104,7 +104,6 @@ public abstract class GeminiMonitor
   // Constants.
   //
   
-  public static final String COMPONENT_CODE = "Moni";
   public static final String PROPS_PREFIX = "GeminiMonitor.";
   public static final int    DEFAULT_SNAPSHOT_HISTORY = 120;
   public static final long   DEFAULT_SNAPSHOT_INTERVAL = 5 * UtilityConstants.MINUTE;
@@ -117,7 +116,7 @@ public abstract class GeminiMonitor
   // Member variables.
   //
   
-  protected final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  protected final Logger            log = LoggerFactory.getLogger(getClass());
   private final   GeminiApplication app;
   private final FeatureManager    fm;
   private final MonitorListener   listener;          // Monitors other components such as the Dispatcher.

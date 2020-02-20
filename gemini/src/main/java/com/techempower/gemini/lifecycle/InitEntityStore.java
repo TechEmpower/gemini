@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class   InitEntityStore
     implements InitializationTask 
 {
-  private Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
   public void taskInitialize(GeminiApplication application) 

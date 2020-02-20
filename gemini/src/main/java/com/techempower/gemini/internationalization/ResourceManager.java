@@ -49,8 +49,7 @@ public abstract class ResourceManager
   
   private final GeminiApplication   application;
   private final GeminiLocaleManager localeManager;
-  protected static final String     COMPONENT_CODE = "rMgr";
-  private final Logger              log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger              log = LoggerFactory.getLogger(getClass());
   
   //
   // Methods.

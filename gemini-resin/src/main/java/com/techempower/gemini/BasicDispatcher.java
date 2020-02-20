@@ -70,7 +70,6 @@ public class BasicDispatcher
   // Constants.
   //
 
-  public static final String COMPONENT_CODE         = "disp"; // Four-letter component ID
   public static final int    REDISPATCH_LIMIT       = 5;      // Limit the number of redispatches (for endless-loop suppression).
   public static final int    REDISPATCH_ABORT_LIMIT = 15;     // If we reach 15 redispatches, abort the request entirely.
   public static final String INTERNAL_ERROR_PAGE    = "internal-error-handler";
@@ -79,7 +78,7 @@ public class BasicDispatcher
   // Member variables.
   //
 
-  protected final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  protected final Logger            log = LoggerFactory.getLogger(getClass());
   protected final GeminiApplication application;
 
   protected final CopyOnWriteArrayList<Handler<? extends BasicDispatcher,? extends Context>>

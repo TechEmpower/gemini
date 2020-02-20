@@ -46,11 +46,6 @@ public interface Infrastructure
   extends        Asynchronous,
                  Configurable
 {
-  //
-  // Constants.
-  //
-  
-  String COMPONENT_CODE = "infr";     // Four-letter component ID.
 
   //
   // Methods.

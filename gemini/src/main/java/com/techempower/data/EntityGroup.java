@@ -161,7 +161,7 @@ public class EntityGroup<T extends Identifiable>
   private final EntityMaker<T> maker;
   private final Comparator<? super T> comparator;
   private final MethodAccess access;
-  private final Logger log = LoggerFactory.getLogger("data");
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private final String quotedTable;
   private final String quotedIdField;
   private final String getSingleQuery;

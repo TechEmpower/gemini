@@ -69,7 +69,6 @@ public class Notifier
   // Constants.
   //
   
-  public static final String COMPONENT_CODE = "Ntfr";
   public static final String CONFIGURATION_PREFIX = "Notifier.";
   
   public static final int DEFAULT_HISTORY_SIZE = 50;
@@ -82,7 +81,7 @@ public class Notifier
   //
   
   private final GeminiApplication app;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final NotifierThread    thread;
   
   private NotificationListener[] listeners;

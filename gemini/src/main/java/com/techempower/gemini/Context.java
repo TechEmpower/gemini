@@ -40,8 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class Context
 {
-  public static final String        COMPONENT_CODE = "ctxt";
-  public static final String        SO_CONSUMABLE_REQUEST = 
+  public static final String        SO_CONSUMABLE_REQUEST =
       "_consumable_prior_request";
   protected static final ThreadLocal<Context> 
                                     CONTEXTS_BY_THREAD = new ThreadLocal<>();
@@ -50,7 +49,7 @@ public abstract class Context
       BaseEncoding.base32().omitPadding();
   
   protected final GeminiApplication   application;
-  protected final Logger              log = LoggerFactory.getLogger(COMPONENT_CODE);
+  protected final Logger              log = LoggerFactory.getLogger(getClass());
   protected final Dispatcher          dispatcher;
   protected final BasicInfrastructure infrastructure;
   protected final long                processingStart;

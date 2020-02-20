@@ -57,7 +57,6 @@ public class EmailNotificationListener
   // Constants
   //
   
-  public  static final String COMPONENT_CODE = "emNL";
   public  static final String PROPERTY_PREFIX = "EmailNotificationListener.";
   public  static final int    MAXIMUM_SYNOPSIS_LENGTH = 40;
   public  static final String DEFAULT_FROM_ADDRESS = "exceptions@techempower.com";
@@ -69,7 +68,7 @@ public class EmailNotificationListener
   //
   
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final SimpleDateFormat  format = new SimpleDateFormat("MM-dd HH:mm:ss");
   
   private String            fromMailAddress = DEFAULT_FROM_ADDRESS;

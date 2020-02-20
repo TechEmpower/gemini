@@ -54,7 +54,7 @@ public class FileStoreEmailHandler
   //
   
   private final FileStore store;
-  private final Logger    log = LoggerFactory.getLogger("temH");
+  private final Logger    log = LoggerFactory.getLogger(getClass());
   
   //
   // Member methods.

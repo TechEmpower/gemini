@@ -73,7 +73,6 @@ public class Scheduler
   // Constants.
   //
 
-  public static final String COMPONENT_CODE     = "schd";    // Four-letter component ID
   public static final int    DEFAULT_SLEEP_TIME = 5000;      // five seconds
   public static final int    MINIMUM_SLEEP_TIME_SECONDS = 0;
   public static final int    MAXIMUM_SLEEP_TIME_SECONDS = 600;  // 10 minutes.
@@ -83,7 +82,7 @@ public class Scheduler
   //
 
   private final TechEmpowerApplication  application;
-  private final Logger                  log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger                  log = LoggerFactory.getLogger(getClass());
   private final List<ScheduledEvent>    scheduledEvents  = new ArrayList<>();
   private final SchedulerThread         schedulerThread;
   private       long                    sleepTime        = DEFAULT_SLEEP_TIME;

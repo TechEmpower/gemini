@@ -60,19 +60,13 @@ import org.slf4j.LoggerFactory;
 public class BasicDatabaseAuditListener
   implements AuditListener
 {
-  
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "audb";
-  
+
   //
   // Member variables.
   //
   
   private final ConnectorFactory       connFactory;
-  private final Logger                 log        = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger                 log        = LoggerFactory.getLogger(getClass());
   private       String                 auditTable = "Audit";
   
   //

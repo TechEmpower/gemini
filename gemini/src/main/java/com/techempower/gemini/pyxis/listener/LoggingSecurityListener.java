@@ -39,18 +39,12 @@ import org.slf4j.LoggerFactory;
 public class LoggingSecurityListener
   implements SecurityListener<Context>
 {
-  
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE       = "NoSL";
-  
+
   //
   // Member variables.
   //
   
-  private final Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger log = LoggerFactory.getLogger(getClass());
   
   //
   // Member methods.

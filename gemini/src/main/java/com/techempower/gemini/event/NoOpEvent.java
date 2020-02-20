@@ -51,18 +51,13 @@ public class NoOpEvent
   extends    ScheduledEvent
   implements Configurable
 {
-  //
-  // Constants.
-  //
-
-  public static final String LOCAL_COMPONENT_CODE = "nevt";
 
   //
   // Member variables.
   //
 
   private final GeminiApplication application;
-  private final Logger            log = LoggerFactory.getLogger(LOCAL_COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   
   //
   // Member methods.

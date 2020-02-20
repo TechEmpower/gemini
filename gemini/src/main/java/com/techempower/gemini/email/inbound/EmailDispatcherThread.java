@@ -47,7 +47,7 @@ public class EmailDispatcherThread
   
   private boolean         pause = false;
   private boolean         onDemandCheck = false;
-  private Logger          log = LoggerFactory.getLogger(EmailDispatcher.COMPONENT_CODE);
+  private Logger          log = LoggerFactory.getLogger(getClass());
 
   //
   // Member methods.

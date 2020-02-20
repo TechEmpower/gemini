@@ -87,12 +87,11 @@ public final class AesGcmNoPaddingCryptograph
       new ArrayList<>(Arrays.asList(128, 120, 112, 104, 96));
   
   private static final String PROPS_PREFIX      = "AesGcmNoPadding.";
-  private static final String COMPONENT_CODE    = "gcme";
   private static final String CIPHER_SUITE_NAME = "AES";
   private static final String CIPHER_NAME       = "AES/GCM/NoPadding";
   
   private final SecureRandom      random = new SecureRandom();
-  private final Logger            log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger            log = LoggerFactory.getLogger(getClass());
 
   private int     keyBitSize  = KEY_BIT_SIZES.get(0);
   private int     ivBitSize   = DEFAULT_IV_BIT_SIZS;

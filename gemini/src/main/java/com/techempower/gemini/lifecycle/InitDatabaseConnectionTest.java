@@ -48,7 +48,7 @@ public class InitDatabaseConnectionTest
   private String testQuery  = "SELECT 1 AS Result;";
   private String testColumn = "Result";
   private String testValue  = "1";
-  private Logger log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private Logger log = LoggerFactory.getLogger(getClass());
   
   /**
    * Constructor.

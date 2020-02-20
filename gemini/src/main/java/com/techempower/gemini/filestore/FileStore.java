@@ -92,7 +92,7 @@ public class FileStore
   private String            configurationPrefix;
   private boolean           enabled = true;
   private int               filenameLengthMaximum = DEFAULT_FILENAME_LENGTH_MAX;
-  private Logger            log = LoggerFactory.getLogger("FSto");
+  private Logger            log = LoggerFactory.getLogger(getClass());
   
   //
   // Member methods.

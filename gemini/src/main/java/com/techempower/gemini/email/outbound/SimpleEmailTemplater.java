@@ -58,7 +58,7 @@ public class SimpleEmailTemplater
   
   private List<String> templatesToLoad;
   private boolean      requireSubject = true;
-  private Logger       log            = LoggerFactory.getLogger(EmailTemplater.COMPONENT_CODE);
+  private Logger       log            = LoggerFactory.getLogger(getClass());
 
   //
   // Member methods.

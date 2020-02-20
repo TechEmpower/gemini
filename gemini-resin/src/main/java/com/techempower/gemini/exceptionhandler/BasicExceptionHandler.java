@@ -82,18 +82,12 @@ public class BasicExceptionHandler
 {
 
   //
-  // Constants
-  //
-
-  public static final String COMPONENT_CODE = "bvEH";
-
-  //
   // Member variables.
   //
 
   private final GeminiApplication application;
   private final FeatureManager fm;
-  private final Logger         log = LoggerFactory.getLogger(COMPONENT_CODE);
+  private final Logger         log = LoggerFactory.getLogger(getClass());
   
   private boolean           displayExceptionsInLog = true;
   private boolean           revealStackTrace = true;

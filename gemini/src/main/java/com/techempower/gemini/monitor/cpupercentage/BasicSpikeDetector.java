@@ -60,7 +60,7 @@ public class   BasicSpikeDetector
   // Member variables.
   //
   
-  private final Logger            log = LoggerFactory.getLogger("Spke");
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final Set<String>       ignored;
   private final Set<String>       ignoredStackItems;
   private final List<List<Long>>  overThreshold;

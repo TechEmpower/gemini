@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public final class ImageMagickHelper 
   extends ImageHelper
 {
-  private final Logger log = LoggerFactory.getLogger("IMaH");
+  private final Logger log = LoggerFactory.getLogger(getClass());
   
   public ImageMagickHelper()
   {
