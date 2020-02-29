@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+  <Properties>
+    <!-- Specify this env variable as %c to enable full class package names in the console -->
+    <Property name="ConsoleLogPattern">%40.40logger{4.}</Property>
+  </Properties>
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${web:rootDir} [%-5level] %d{yyyy-MM-dd HH:mm:ss.SS} ${env:ConsoleLogPattern}%req- %msg%n"/>
+    </Console>
+    <RollingFile name="DailyRoll" fileName="./Logs/${date:yyyy-MM-dd}.log"
+                 filePattern="./Logs/${date:yyyy-MM-dd}_%i.log">
+      <PatternLayout>
+        <Pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SS} %logger%req- %msg%n</Pattern>
+      </PatternLayout>
+      <Policies>
+        <!-- This is part of the creation of a new log file each day -->
+        <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+      </Policies>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="${env:GlobalLogLevel:-warn}">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="DailyRoll"/>
+    </Root>
+    <!-- Different log levels may be specified through the environment variables -->
+    <Logger name="com.techempower" level="${env:GeminiLogLevel:-info}">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="DailyRoll"/>
+    </Logger>
+    <Logger name="${package}" level="${env:LogLevel:-trace}">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="DailyRoll"/>
+    </Logger>
+  </Loggers>
+</Configuration>

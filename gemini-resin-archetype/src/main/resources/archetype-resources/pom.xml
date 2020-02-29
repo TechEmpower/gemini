@@ -43,6 +43,11 @@
     </dependency>
     <dependency>
       <groupId>com.techempower</groupId>
+      <artifactId>gemini-log4j2</artifactId>
+      <version>${geminiVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.techempower</groupId>
       <artifactId>gemini-jdbc</artifactId>
       <version>${geminiVersion}</version>
     </dependency>
