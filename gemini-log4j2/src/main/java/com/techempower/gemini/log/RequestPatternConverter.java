@@ -6,6 +6,12 @@ import org.apache.logging.log4j.core.pattern.ConverterKeys;
 import org.apache.logging.log4j.core.pattern.LogEventPatternConverter;
 import org.apache.logging.log4j.core.pattern.PatternConverter;
 
+/**
+ * Provides a log4j2 pattern key for inserting request information into log
+ * output like the old logging system would do behind the scenes. To use this,
+ * include %req in the log4j2 pattern. An example use of this can be found in
+ * the Gemini archetype's log4j2.xml file.
+ */
 @Plugin(name = "RequestPatternConverter", category = PatternConverter.CATEGORY)
 @ConverterKeys({"req", "request"})
 public class RequestPatternConverter extends LogEventPatternConverter
@@ -40,7 +46,7 @@ public class RequestPatternConverter extends LogEventPatternConverter
     String contextInfo = GeminiComponentLog.getContextInformation();
     if (contextInfo != null)
     {
-      toAppendTo.append(contextInfo).append(" ");
+      toAppendTo.append(contextInfo);
     }
   }
 }

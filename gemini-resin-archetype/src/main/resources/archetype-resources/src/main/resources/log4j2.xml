@@ -2,16 +2,16 @@
 <Configuration status="WARN" monitorInterval="30">
   <Properties>
     <!-- Specify this env variable as %c to enable full class package names in the console -->
-    <Property name="ConsoleLogPattern">%40.40logger{4.}</Property>
+    <Property name="CONSOLE_LOG_PATTERN">%40.40logger{4.}</Property>
   </Properties>
   <Appenders>
     <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="${web:rootDir} [%-5level] %d{yyyy-MM-dd HH:mm:ss.SS} ${env:ConsoleLogPattern}%req- %msg%n"/>
+      <PatternLayout pattern="[%-5level] %d{yyyy-MM-dd HH:mm:ss.SS} ${env:CONSOLE_LOG_PATTERN} %req- %msg%n"/>
     </Console>
-    <RollingFile name="DailyRoll" fileName="./Logs/${date:yyyy-MM-dd}.log"
-                 filePattern="./Logs/${date:yyyy-MM-dd}_%i.log">
+    <RollingFile name="DailyRoll" fileName="${env:LOG_FILE_PATH:-./Logs/Application-Logs}/${date:yyyy-MM-dd}.log"
+                 filePattern="${env:LOG_FILE_PATH:-./Logs/Application-Logs}/${date:yyyy-MM-dd}_%i.log">
       <PatternLayout>
-        <Pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SS} %logger%req- %msg%n</Pattern>
+        <Pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SS} %logger %req- %msg%n</Pattern>
       </PatternLayout>
       <Policies>
         <!-- This is part of the creation of a new log file each day -->
@@ -20,16 +20,17 @@
     </RollingFile>
   </Appenders>
   <Loggers>
-    <Root level="${env:GlobalLogLevel:-warn}">
+    <Root level="${env:GLOBAL_LOG_LEVEL:-warn}">
       <AppenderRef ref="Console"/>
       <AppenderRef ref="DailyRoll"/>
     </Root>
     <!-- Different log levels may be specified through the environment variables -->
-    <Logger name="com.techempower" level="${env:GeminiLogLevel:-info}">
+    <!-- If not specified, defaults to the value after ":-", which is "info" in this case -->
+    <Logger name="com.techempower" level="${env:TECHEMPOWER_LOG_LEVEL:-info}">
       <AppenderRef ref="Console"/>
       <AppenderRef ref="DailyRoll"/>
     </Logger>
-    <Logger name="${package}" level="${env:LogLevel:-trace}">
+    <Logger name="${package}" level="${env:LOG_LEVEL:-trace}">
       <AppenderRef ref="Console"/>
       <AppenderRef ref="DailyRoll"/>
     </Logger>

@@ -52,12 +52,12 @@ public class GeminiComponentLog
     {
       return "";
     }
-    
+
     public String getStringValue()
     {
       return super.get();
     }
-    
+
     public void setStringValue(String s)
     {
       super.set(s);
@@ -69,7 +69,7 @@ public class GeminiComponentLog
    * with each log message.
    */
   private static final ThreadLocalContextInfo CONTEXT_INFO = new ThreadLocalContextInfo();
-  
+
   /**
    * Constructor.  Generally not invoked directly, but rather through
    * GeminiApplication.getLog().
@@ -100,31 +100,30 @@ public class GeminiComponentLog
     final StringBuilder buffer = new StringBuilder();
 
     final Session session = context.getSession(false);
-    buffer.append(StringHelper.truncateAtEnd((session == null ? "none" : session.getId()), 4));
-    buffer.append(" ");
-    
+    buffer.append("s[");
+    buffer.append(StringHelper.truncateAtEnd((session == null
+        ? "none" : session.getId()), 4));
+    buffer.append("] ");
+
     if (context.getRequestNumber() > 0) // Means we are counting requests.
     {
-      buffer.append("- ");
+      buffer.append("r[");
       buffer.append(context.getRequestNumber());
-      buffer.append(" ");
+      buffer.append("] ");
     }
 
     final PyxisSecurity security = context.getApplication().getSecurity();
     PyxisUser user = null;
-      
+
     if (security != null)
     {
       user = security.getUser(context);
     }
     if (user != null)
     {
+      buffer.append("u[");
       buffer.append(user.getId());
-      buffer.append(" ");
-    }
-    else
-    {
-      buffer.append("- ");
+      buffer.append("] ");
     }
 
     CONTEXT_INFO.setStringValue(buffer.toString());
