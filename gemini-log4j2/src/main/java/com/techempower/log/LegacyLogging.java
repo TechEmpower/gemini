@@ -12,4 +12,17 @@ public interface LegacyLogging
   {
     return new ComponentLog(getClass());
   }
+
+  default ComponentLog getLog()
+  {
+    return new ComponentLog(getClass());
+  }
+
+  default void l(String text) {
+    getLog().log(text);
+  }
+
+  default void l(String text, Throwable throwable) {
+    getLog().log(text, throwable);
+  }
 }
