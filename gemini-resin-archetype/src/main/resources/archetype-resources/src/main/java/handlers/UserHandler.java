@@ -10,7 +10,7 @@ public class UserHandler extends SecureMethodUriHandler<Context, User>
 
   public UserHandler(GeminiApplication app)
   {
-    super(app, "hUsr");
+    super(app);
   }
 
   @Path
