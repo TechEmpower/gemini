@@ -43,7 +43,7 @@ public class   JacksonJavaScriptWriter
   /**
    * Constructor.
    */
-  public JacksonJavaScriptReader() {
+  public JacksonJavaScriptWriter() {
     this(new ObjectMapper());
   }
   
