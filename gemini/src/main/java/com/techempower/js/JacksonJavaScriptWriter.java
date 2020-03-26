@@ -39,12 +39,19 @@ public class   JacksonJavaScriptWriter
     implements JavaScriptWriter {
 
   private final ObjectMapper mapper;
+
+  /**
+   * Constructor.
+   */
+  public JacksonJavaScriptReader() {
+    this(new ObjectMapper());
+  }
   
   /**
    * Constructor.
    */
-  public JacksonJavaScriptWriter() {
-    mapper = new ObjectMapper();
+  public JacksonJavaScriptWriter(ObjectMapper objectMapper) {
+    mapper = objectMapper;
   }
   
   @Override

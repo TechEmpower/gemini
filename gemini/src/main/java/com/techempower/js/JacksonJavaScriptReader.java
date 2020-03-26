@@ -17,7 +17,11 @@ public class JacksonJavaScriptReader implements JavaScriptReader
 
   public JacksonJavaScriptReader()
   {
-    this.mapper = new ObjectMapper();
+    this(new ObjectMapper());
+  }
+
+  public JacksonJavaScriptReader(ObjectMapper objectMapper) {
+    mapper = objectMapper;
   }
 
   @Override
