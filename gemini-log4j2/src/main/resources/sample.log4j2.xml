@@ -27,6 +27,6 @@
     <!-- Different log levels may be specified through the environment variables -->
     <!-- If not specified, defaults to the value after ":-", which is "info" in this case -->
     <Logger name="com.techempower" level="${env:TECHEMPOWER_LOG_LEVEL:-info}"/>
-    <Logger name="${package}" level="${env:LOG_LEVEL:-trace}"/>
+    <Logger name="com.yourpackage" level="${env:LOG_LEVEL:-trace}"/>
   </Loggers>
 </Configuration>
