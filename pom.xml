@@ -47,6 +47,7 @@
     <module>gemini-jndi</module>
     <module>gemini-log4j2</module>
     <module>gemini-logback</module>
+    <module>gemini-legacy-logging</module>
   </modules>
 
   <properties>

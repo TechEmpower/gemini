@@ -5,7 +5,7 @@ package com.techempower.log;
  * previously present on several classes, like handlers. Long term use is not
  * recommended as it recreates the logger for each method call.
  */
-@Deprecated
+@Deprecated(since = "3.1.0")
 public interface LegacyLogging
 {
   default ComponentLog log()

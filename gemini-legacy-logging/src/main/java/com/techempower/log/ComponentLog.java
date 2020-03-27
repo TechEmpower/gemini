@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * logging system. Long term use is not recommended as it recreates the
  * logger for each method call.
  */
-@Deprecated
+@Deprecated(since = "3.1.0")
 public final class ComponentLog
 {
   private final Logger log;

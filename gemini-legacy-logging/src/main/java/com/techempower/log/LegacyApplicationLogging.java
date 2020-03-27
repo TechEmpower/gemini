@@ -7,7 +7,7 @@ import com.techempower.gemini.GeminiApplication;
  * previously present on the TechEmpowerApplication class. Long term use is
  * not recommended as it recreates the logger for each method call.
  */
-@Deprecated
+@Deprecated(since = "3.1.0")
 public interface LegacyApplicationLogging
 {
   default ComponentLog getLog(String name)
