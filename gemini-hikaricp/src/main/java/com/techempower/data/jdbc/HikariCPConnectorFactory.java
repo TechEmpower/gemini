@@ -27,8 +27,12 @@
 
 package com.techempower.data.jdbc;
 
+import static com.techempower.gemini.Configurator.*;
+import static com.techempower.util.EnhancedProperties.*;
+
 import java.io.*;
 import java.sql.*;
+import java.util.*;
 import java.util.Map.*;
 import java.util.logging.*;
 
@@ -41,7 +45,7 @@ import com.techempower.util.*;
 import com.zaxxer.hikari.*;
 
 /**
- * An implementation of ConnectorFactory that is a think wrapper around the
+ * An implementation of ConnectorFactory that is a thin wrapper around the
  * HikariCP connection pool.
  * <p>
  * The following attributes are read from the properties file for configuring
@@ -65,6 +69,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
 
   public static final String COMPONENT_CODE = "HkCf";
   public static final String DEFAULT_PROPERTY_PREFIX = "db.HikariCP.";
+  public static final String ENV_VAR_MACRO_START = MACRO_START + PROP_ENVIRONMENT_PREFIX;
 
   //
   // Member variables.
@@ -130,7 +135,44 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
       // Close existing DataSource, if exists.
       end();
 
-      hikariConfig = new HikariConfig(hikariPropsFile);
+      // To support specifying environment variables inside the hikari.properties
+      // file, we need to find environment variable references in the property values,
+      // do the lookup, and pass along the environment variable values to HikariCP.
+      final File propFile = new File(hikariPropsFile);
+      final Properties hikariPropsReady = new Properties();
+      try (final InputStream is = propFile.isFile() ? new FileInputStream(propFile)
+          : this.getClass().getResourceAsStream(hikariPropsFile)) {
+        if (is != null) {
+          Properties hikariPropsRaw = new Properties();
+          hikariPropsRaw.load(is);
+          hikariPropsRaw.forEach((key, value) -> {
+            String envVarName = extractEnvironmentVariableName(value.toString());
+            if (envVarName != null) {
+              // Read the environment variable.
+              String envVarValue = System.getenv(envVarName);
+              if (envVarValue != null) {
+                // We have an environment variable, so use that.
+                hikariPropsReady.setProperty(key.toString(), envVarValue);
+              } else {
+                // We do not have an environment variable, so use the original value.
+                hikariPropsReady.setProperty(key.toString(), value.toString());
+              }
+            } else {
+              // Pass along the property unchanged if not referencing an environment
+              // variable.
+              hikariPropsReady.setProperty(key.toString(), value.toString());
+            }
+          });
+        } else {
+          debug("Cannot find property file: " + hikariPropsFile);
+        }
+      } catch (IOException io) {
+        debug("Failed to read property file", io);
+      }
+
+      // Pass to HikariCP our prepared Properties object with any relevant environment
+      // variables in place.
+      hikariConfig = new HikariConfig(hikariPropsReady);
       dataSource = new HikariDataSource(hikariConfig);
 
       try
@@ -164,6 +206,31 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     {
       log.log("Database connector factory disabled.");
     }
+  }
+
+  /**
+   * If there is an environment variable declared, return its name. Otherwise
+   * return null.
+   * 
+   * @param s A string like "${Environment.FOO}"
+   * @return If s is "${Environment.FOO}", returns "FOO"
+   */
+  private String extractEnvironmentVariableName(String s)
+  {
+    int endLocation;
+    String value = StringHelper.trim(s);
+
+    // Find the macro beginning marker, ${{Environment.
+    int markerLocation = s.indexOf(ENV_VAR_MACRO_START);
+    while (markerLocation >= 0) {
+      // Find the macro ending marker, }
+      endLocation = value.indexOf(MACRO_END, markerLocation);
+      if (endLocation >= 0) {
+        // Get the name to lookup.
+        return value.substring(markerLocation + ENV_VAR_MACRO_START.length(), endLocation);
+      }
+    }
+    return null;
   }
 
   @Override
