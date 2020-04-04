@@ -291,8 +291,9 @@ public abstract class GeminiApplication
 
     // Read the deployment description (e.g., Production, Test, Development)
     // and store this into the Version object.
-    getVersion().setDeploymentDescription(props.get(
-      GeminiConstants.PROP_DEPLOYMENT_DESCRIPTION, "Unspecified Deployment"));
+    getVersion().setDeploymentDescription(
+        props.get(GeminiConstants.PROP_DEPLOYMENT_DESCRIPTION, "Unspecified Deployment"),
+        Configurator.getMachineName());
     
     configureCharacterSets(props);
 
