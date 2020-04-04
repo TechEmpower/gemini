@@ -132,12 +132,6 @@ public class CacheMessageManager
     this.subscriber = new AsyncSubscriber(application, newConnection,
         CacheMessageManager.CACHE_TOPIC_DESTINATION);
     subscriber.start(new CacheSignalListener(this.application));
-
-    application.getNotifier().addNotification(
-        "CacheMessageManager.java",
-        "JMS Connection established",
-        application.getVersion().getNameAndDeployment() + " is connected @"
-            + newConnection.getClientID());
     log.log("JMS Connection established @" + newConnection.getClientID());
   }
 
@@ -171,8 +165,7 @@ public class CacheMessageManager
     }
     catch (JMSException e)
     {
-      application.getNotifier().addNotification(
-          "CacheMessageManager.java:send", e);
+      log.log("CacheMessageManager::send caught ", e);
     }
   }
 
@@ -414,36 +407,22 @@ public class CacheMessageManager
           if (senderUuid == null)
           {
             log.log("Could not find the Unique Client ID sent from a cache update. Ignoring message.");
-            application.getNotifier().addNotification(
-                "CacheMessageManager",
-                "No ClientUUID",
-                "Could not find the Unique Client ID sent from a cache update. Ignoring message.");
             return;
           }
           else if (senderUuid.equals(instanceID))
           {
-            // log.log("CACHEUPDATE: [ " + senderUuid + "] Refusing to repeat action: " + cacheMessage);
             return;
           }
-          // else {
-          // log.log("CACHEUPDATE: [" + senderUuid + "; " + InstanceID + "]: " + cacheMessage);
-          // }
-
         }
         catch (JMSException | ClassCastException e)
         {
-          log.log(e.getMessage() + "^");
-          application.getNotifier().addNotification(
-              "PeerMessageListener", e);
+          log.log("CacheSignalListener::onMessage caught ", e);
           return;
         }
       }
       else
       {
-        application.getNotifier().addNotification(
-            "CacheMessageManager",
-            "Invalid type sent",
-            "Someone sent a jms.Message of non-type ObjectMessage, so it cannot be converted to a CacheMessage.");
+        log.log("CacheSignalListener::onMessage: Someone sent a jms.Message of non-type ObjectMessage, so it cannot be converted to a CacheMessage.");
         return;
       }
 
@@ -490,18 +469,10 @@ public class CacheMessageManager
               // sent over the message queue. But *this* instance does not have
               // it as a CacheGroup, only an EntityGroup, which means we have
               // nothing to update here.
-              log.log("Received 'cache object expired' for an EntityGroup, so not cached. Ignoring:" + cacheMessage,
-                  LogLevel.DEBUG);
             }
             else            {
               log.log("Receiving 'cache object expired' but group id is invalid:"
                   + cacheMessage + ", group: " + group);
-              application.getNotifier().addNotification(
-                  "CacheMessageManager",
-                  "Invalid group for object expired",
-                  "Invalid object expired group id: "
-                      + cacheMessage.getGroupId() + ", group: " + group
-                      + ", cacheMessage:" + cacheMessage);
             }
 
             break;
@@ -515,6 +486,13 @@ public class CacheMessageManager
               ((CacheGroup<Identifiable>)group).removeFromCache(cacheMessage.getObjectId());
               log.log("Received 'cache object remove' for: " + cacheMessage);
             }
+            else if (group instanceof EntityGroup)
+            {
+              // No problem! Some instance has this as a CacheGroup, thus it is
+              // sent over the message queue. But *this* instance does not have
+              // it as a CacheGroup, only an EntityGroup, which means we have
+              // nothing to update here.
+            }
             else
             {
               log.log("Received 'cache object remove' but group id is invalid: "
@@ -522,12 +500,6 @@ public class CacheMessageManager
                   + ", group: "
                   + group
                   + ", cacheMessage: " + cacheMessage);
-              application.getNotifier().addNotification(
-                  "CacheMessageManager",
-                  "Invalid group for object remove",
-                  "Invalid object remove group id: "
-                      + cacheMessage.getGroupId() + ", group: " + group
-                      + ", cacheMessage: " + cacheMessage);
             }
             break;
           }
