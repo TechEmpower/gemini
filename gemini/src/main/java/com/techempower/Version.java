@@ -187,23 +187,23 @@ public class Version
   }
 
   /**
-   * @param deploymentDescription The deploymentDescription to set.
+   * @param description The deploymentDescription to set.
    */
-  public void setDeploymentDescription(String deploymentDescription)
+  public void setDeploymentDescription(String description, String machineName)
   {
-    this.deploymentDescription = deploymentDescription;
+    this.deploymentDescription = description + "/" + machineName;
     
     // Parse common words to describe environments (production, test, 
     // development) and set the flags accordingly.
     int env = ENV_DEVELOPMENT;
-    if (  (StringHelper.containsIgnoreCase(deploymentDescription, "Test"))
-       || (StringHelper.containsIgnoreCase(deploymentDescription, "QA"))
-       || (StringHelper.containsIgnoreCase(deploymentDescription, "Staging"))
+    if (  (StringHelper.containsIgnoreCase(description, "Test"))
+       || (StringHelper.containsIgnoreCase(description, "QA"))
+       || (StringHelper.containsIgnoreCase(description, "Staging"))
        )
     {
       env = ENV_TEST;
     }
-    if (StringHelper.containsIgnoreCase(deploymentDescription, "Production"))
+    if (StringHelper.containsIgnoreCase(description, "Production"))
     {
       env = ENV_PRODUCTION;
     }

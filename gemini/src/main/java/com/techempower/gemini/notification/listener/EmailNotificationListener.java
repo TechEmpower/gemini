@@ -209,9 +209,15 @@ public class EmailNotificationListener
         subject.append("<auto>");
         subject.append("<")
                .append(StringHelper.truncate(
-                   application.getVersion().getProductName(),
+                   application.getVersion().getAbbreviatedProductName(),
                    10).toLowerCase())
                .append(">");
+        if (StringHelper.isNonEmpty(application.getVersion().getDeploymentDescription()))
+        {
+          subject.append("<")
+                 .append(application.getVersion().getDeploymentDescription().toLowerCase())
+                 .append(">");
+        }
         if (matched == 1)
         {
           subject.append("<")
