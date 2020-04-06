@@ -52,7 +52,7 @@ public class   InitStartupNotification
           version.getAbbreviatedProductName() 
             + " [" + version.getDeploymentDescription() + "]"
             + " application started at " + startupTime + ".",
-          Notification.Severity.HIGH);
+          Notification.Severity.MEDIUM);
       application.getNotifier().addNotification(n);
     }
   }
