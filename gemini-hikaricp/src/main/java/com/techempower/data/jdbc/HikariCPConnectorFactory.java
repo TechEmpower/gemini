@@ -140,6 +140,10 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
       // do the lookup, and pass along the environment variable values to HikariCP.
       final File propFile = new File(hikariPropsFile);
       final Properties hikariPropsReady = new Properties();
+
+      // Specify System.out as the default logWriter.
+      hikariPropsReady.put("dataSource.logWriter", new PrintWriter(System.out));
+
       try (final InputStream is = propFile.isFile() ? new FileInputStream(propFile)
           : this.getClass().getResourceAsStream(hikariPropsFile)) {
         if (is != null) {
@@ -151,8 +155,10 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
               // Read the environment variable.
               String envVarValue = System.getenv(envVarName);
               if (envVarValue != null) {
-                // We have an environment variable, so use that.
-                hikariPropsReady.setProperty(key.toString(), envVarValue);
+                // We have an environment variable, so use that to replace the relevant portion
+                // of the string.
+                hikariPropsReady.setProperty(key.toString(), StringHelper.replaceSubstrings(value.toString(),
+                    ENV_VAR_MACRO_START + envVarName + MACRO_END, envVarValue));
               } else {
                 // We do not have an environment variable, so use the original value.
                 hikariPropsReady.setProperty(key.toString(), value.toString());
@@ -174,16 +180,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
       // variables in place.
       hikariConfig = new HikariConfig(hikariPropsReady);
       dataSource = new HikariDataSource(hikariConfig);
-
-      try
-      {
-        // TODO: Hook this into the Gemini ComponentLog
-        dataSource.setLogWriter(new PrintWriter(System.out));
-      }
-      catch (SQLException e)
-      {
-        debug("Unable to set log writer", e);
-      }
+      debug("Connected: " + dataSource.getJdbcUrl());
 
       debug("HikariDataSource: " + dataSource);
       for (Entry<Object, Object> e : dataSource.getDataSourceProperties().entrySet())
