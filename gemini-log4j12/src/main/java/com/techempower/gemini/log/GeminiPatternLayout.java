@@ -5,6 +5,15 @@ import org.apache.log4j.spi.LoggingEvent;
 
 public class GeminiPatternLayout extends EnhancedPatternLayout
 {
+  public GeminiPatternLayout()
+  {
+  }
+
+  public GeminiPatternLayout(String pattern)
+  {
+    setConversionPattern(pattern);
+  }
+
   @Override
   public String format(LoggingEvent event)
   {
