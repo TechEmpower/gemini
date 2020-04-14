@@ -63,7 +63,7 @@ import com.techempower.gemini.lifecycle.InitRegister;
 import com.techempower.gemini.lifecycle.InitStartupNotification;
 import com.techempower.gemini.lifecycle.InitializationTask;
 import com.techempower.gemini.lifecycle.ShutdownTask;
-import com.techempower.gemini.log.GeminiComponentLog;
+import com.techempower.gemini.log.ContextLogInfo;
 import com.techempower.gemini.monitor.GeminiMonitor;
 import com.techempower.gemini.mustache.MustacheManager;
 import com.techempower.gemini.notification.Notifier;
@@ -1108,7 +1108,7 @@ public abstract class GeminiApplication
     try
     {
       // Set the Context information to be displayed with every log message.
-      GeminiComponentLog.setContextInformation(context);
+      ContextLogInfo.setContextInformation(context);
 
       getDispatcher().dispatch(context);
     }
@@ -1118,7 +1118,7 @@ public abstract class GeminiApplication
       getDispatcher().dispatchComplete(context);
 
       // Clear the Context info now that this Thread is done handling the request.
-      GeminiComponentLog.clearContextInformation();
+      ContextLogInfo.clearContextInformation();
 
       // The current Context's usage is now complete, dissociate it with
       // the current thread.

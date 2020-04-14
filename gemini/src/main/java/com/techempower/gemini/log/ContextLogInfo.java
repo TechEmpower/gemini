@@ -33,17 +33,17 @@ import com.techempower.gemini.session.*;
 import com.techempower.helper.*;
 
 /**
- * GeminiComponentLog provides a string with the the active request's session
+ * ContextLogInfo provides a string with the the active request's session
  * id, among other things. If the application implements PyxisApplication, and
  * its user class implements PyxisUser, and stores its user in session using
  * PyxisConstants.SESSION_USER, it will also add the userid to the debug
  * string.
  */
-public class GeminiComponentLog
+public class ContextLogInfo
 {
 
   /**
-   * This is a ThreadLocal class used only by the GeminiComponentLog.
+   * This is a ThreadLocal class used only by the ContextLogInfo.
    */
   private static class ThreadLocalContextInfo extends ThreadLocal<String>
   {
@@ -71,11 +71,11 @@ public class GeminiComponentLog
   private static final ThreadLocalContextInfo CONTEXT_INFO = new ThreadLocalContextInfo();
 
   /**
-   * Constructor.  Generally not invoked directly, but rather through
-   * GeminiApplication.getLog().
+   * You may not instantiate this class.
    */
-  private GeminiComponentLog()
+  private ContextLogInfo()
   {
+    // Does nothing.
   }
 
   /**
@@ -138,4 +138,4 @@ public class GeminiComponentLog
     CONTEXT_INFO.setStringValue("");
   }
 
-} // End GeminiComponentLog
+} // End ContextLogInfo

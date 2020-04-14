@@ -43,7 +43,7 @@ public class RequestPatternConverter extends LogEventPatternConverter
   @Override
   public void format(LogEvent event, StringBuilder toAppendTo)
   {
-    String contextInfo = GeminiComponentLog.getContextInformation();
+    String contextInfo = ContextLogInfo.getContextInformation();
     if (contextInfo != null)
     {
       toAppendTo.append(contextInfo);

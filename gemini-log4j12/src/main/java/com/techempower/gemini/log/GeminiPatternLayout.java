@@ -11,7 +11,7 @@ public class GeminiPatternLayout extends EnhancedPatternLayout
     Object message = event.getMessage();
     if (message instanceof String)
     {
-      String contextInfo = GeminiComponentLog.getContextInformation();
+      String contextInfo = ContextLogInfo.getContextInformation();
       if (contextInfo != null && !contextInfo.isEmpty())
       {
         message = contextInfo + "- " + message;

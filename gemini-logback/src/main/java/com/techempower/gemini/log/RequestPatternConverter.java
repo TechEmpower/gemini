@@ -17,7 +17,7 @@ public class RequestPatternConverter extends ClassicConverter
   @Override
   public String convert(ILoggingEvent event)
   {
-    String contextInfo = GeminiComponentLog.getContextInformation();
+    String contextInfo = ContextLogInfo.getContextInformation();
     return contextInfo != null ? contextInfo : "";
   }
 }
