@@ -20,11 +20,80 @@ public final class ComponentLog
 
   public final void log(String text)
   {
-    log.info(text);
+    log.info(text, LogLevel.NORMAL);
+  }
+
+  public final void log(String text, int logLevel)
+  {
+    log(text, LogLevel.NORMAL, null);
   }
 
   public final void log(String text, Throwable e)
   {
-    log.info(text, e);
+    log(text, LogLevel.NORMAL, e);
+  }
+
+  public final void log(String text, int logLevel, Throwable e)
+  {
+    if (text != null)
+    {
+      // Avoids any unexpected formatting from SLF4J.
+      text = text.replaceAll("\\{}", "\\\\{}");
+    }
+    if (logLevel < LogLevel.DEBUG)
+    {
+      if (e != null)
+      {
+        log.trace(text, e);
+      }
+      else
+      {
+        log.trace(text);
+      }
+    }
+    else if (logLevel < LogLevel.NORMAL)
+    {
+      if (e != null)
+      {
+        log.debug(text, e);
+      }
+      else
+      {
+        log.debug(text);
+      }
+    }
+    else if (logLevel < LogLevel.ALERT)
+    {
+      if (e != null)
+      {
+        log.info(text, e);
+      }
+      else
+      {
+        log.info(text);
+      }
+    }
+    else if (logLevel < LogLevel.CRITICAL)
+    {
+      if (e != null)
+      {
+        log.warn(text, e);
+      }
+      else
+      {
+        log.warn(text);
+      }
+    }
+    else
+    {
+      if (e != null)
+      {
+        log.error(text, e);
+      }
+      else
+      {
+        log.error(text);
+      }
+    }
   }
 }

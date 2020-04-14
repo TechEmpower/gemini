@@ -18,11 +18,63 @@ public interface LegacyLogging
     return new ComponentLog(getClass());
   }
 
-  default void l(String text) {
+  default void l(String text)
+  {
     getLog().log(text);
   }
 
-  default void l(String text, Throwable throwable) {
+  default void l(String text, int logLevel)
+  {
+    getLog().log(text, logLevel);
+  }
+
+  default void l(String text, Throwable throwable)
+  {
     getLog().log(text, throwable);
+  }
+
+  default void l(String text, int logLevel, Throwable throwable)
+  {
+    getLog().log(text, logLevel, throwable);
+  }
+
+  default void log(String text)
+  {
+    getLog().log(text);
+  }
+
+  default void log(String text, int logLevel)
+  {
+    getLog().log(text, logLevel);
+  }
+
+  default void log(String text, Throwable throwable)
+  {
+    getLog().log(text);
+  }
+
+  default void log(String text, int logLevel, Throwable throwable)
+  {
+    getLog().log(text, logLevel, throwable);
+  }
+
+  default void debug(String text)
+  {
+    getLog().log(text);
+  }
+
+  default void debug(String text, int logLevel)
+  {
+    getLog().log(text, logLevel);
+  }
+
+  default void debug(String text, Throwable throwable)
+  {
+    getLog().log(text);
+  }
+
+  default void debug(String text, int logLevel, Throwable throwable)
+  {
+    getLog().log(text, logLevel, throwable);
   }
 }
