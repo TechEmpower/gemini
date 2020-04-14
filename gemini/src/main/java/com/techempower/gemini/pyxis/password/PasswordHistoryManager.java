@@ -50,7 +50,7 @@ import com.techempower.util.*;
  *   </ul>
  */
 public class PasswordHistoryManager
-  implements SecurityListener<Context>,
+  implements SecurityListener<BasicContext>,
              PasswordRequirement,
              Configurable
 {
@@ -167,19 +167,19 @@ public class PasswordHistoryManager
   }
 
   @Override
-  public void loginSuccessful(Context context, PyxisUser user)
+  public void loginSuccessful(BasicContext context, PyxisUser user)
   {
     // We don't care about this here.
   }
 
   @Override
-  public void logoutSuccessful(Context context, PyxisUser user)
+  public void logoutSuccessful(BasicContext context, PyxisUser user)
   {
     // We don't care about this here.
   }
 
   @Override
-  public void loginFailed(Context context)
+  public void loginFailed(BasicContext context)
   {
     // We don't care about this here.
   }

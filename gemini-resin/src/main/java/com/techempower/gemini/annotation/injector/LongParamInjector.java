@@ -34,7 +34,7 @@ import com.techempower.gemini.*;
  * Implementation of ParameterInjector that knows how to pull long values 
  * from the request.
  */
-public class LongParamInjector<D extends BasicDispatcher, C extends Context> 
+public class LongParamInjector<D extends BasicDispatcher, C extends BasicContext>
   implements ParameterInjector<D, C> 
 {
   @Override

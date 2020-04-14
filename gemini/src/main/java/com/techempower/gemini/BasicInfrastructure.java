@@ -412,7 +412,7 @@ public class BasicInfrastructure
    * the trailing /.
    */
   @Override
-  public String getStandardDomain(Context context)
+  public String getStandardDomain(BasicContext context)
   {
     return "http://" + context.headers().host();
   }
@@ -454,7 +454,7 @@ public class BasicInfrastructure
   {
     if (this.secureHtmlFileDirectory != null)
     {
-      return this.getHtmlDirectory(Context.get());
+      return this.getHtmlDirectory(BasicContext.get());
     }
 
     return this.htmlFileDirectory;
@@ -465,7 +465,7 @@ public class BasicInfrastructure
    * to determine if the secure directory should be returned.
    */
   @Override
-  public String getHtmlDirectory(Context context)
+  public String getHtmlDirectory(BasicContext context)
   {
     if (this.secureHtmlFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -484,7 +484,7 @@ public class BasicInfrastructure
   {
     if (this.secureCssFileDirectory != null)
     {
-      return this.getCssDirectory(Context.get());
+      return this.getCssDirectory(BasicContext.get());
     }
 
     return this.cssFileDirectory;
@@ -495,7 +495,7 @@ public class BasicInfrastructure
    * to determine if the secure directory should be returned.
    */
   @Override
-  public String getCssDirectory(Context context)
+  public String getCssDirectory(BasicContext context)
   {
     if (this.secureCssFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -514,7 +514,7 @@ public class BasicInfrastructure
   {
     if (this.secureJsFileDirectory != null)
     {
-      return this.getJavaScriptDirectory(Context.get());
+      return this.getJavaScriptDirectory(BasicContext.get());
     }
 
     return this.jsFileDirectory;
@@ -525,7 +525,7 @@ public class BasicInfrastructure
    * to determine if the secure directory should be returned.
    */
   @Override
-  public String getJavaScriptDirectory(Context context)
+  public String getJavaScriptDirectory(BasicContext context)
   {
     if (this.secureJsFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -546,7 +546,7 @@ public class BasicInfrastructure
   {
     if (this.secureImageFileDirectory != null)
     {
-      return this.getImageDirectory(Context.get());
+      return this.getImageDirectory(BasicContext.get());
     }
 
     return this.imageFileDirectory;
@@ -559,7 +559,7 @@ public class BasicInfrastructure
    * be returned.
    */
   @Override
-  public String getImageDirectory(Context context)
+  public String getImageDirectory(BasicContext context)
   {
     if (this.secureImageFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -631,7 +631,7 @@ public class BasicInfrastructure
    * @param context a user's request Context reference.
    */
   @Override
-  public String getImageUrl(String imageFilename, Context context)
+  public String getImageUrl(String imageFilename, BasicContext context)
   {
     Locale locale = this.application.getLocaleManager().getLocaleRaw(context);
     if (locale != null)
@@ -747,7 +747,7 @@ public class BasicInfrastructure
    * NOTE: This does NOT use getStandardDomain().
    */
   @Override
-  public String getStandardCmdUrl(String command, Context context)
+  public String getStandardCmdUrl(String command, BasicContext context)
   {
     return getStandardDomain(context) + getCmdUrl(command);
   }

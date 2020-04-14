@@ -65,9 +65,9 @@ public final class ExceptionHandlerHelper
    * @param skipped how many other exceptions were skipped in the current
    *        reporting interval in an effort to reduce an exception storm.
    */
-  public static String renderExceptionAsReport(Context context, 
-      GeminiApplication application, Throwable exception, String description, 
-      int skipped)
+  public static String renderExceptionAsReport(BasicContext context,
+                                               GeminiApplication application, Throwable exception, String description,
+                                               int skipped)
   {
     final StringBuilder message = new StringBuilder(4000);
 

@@ -40,7 +40,7 @@ import com.techempower.gemini.*;
  * - boolean/Boolean
  * - long/Long
  */
-public class ParamInjector<D extends BasicDispatcher, C extends Context> 
+public class ParamInjector<D extends BasicDispatcher, C extends BasicContext>
   implements ParameterInjector<D, C> 
 {
   @Override

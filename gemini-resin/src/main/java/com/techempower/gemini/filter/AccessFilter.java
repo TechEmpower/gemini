@@ -126,9 +126,9 @@ public class AccessFilter
   {
     if (security() != null)
     {
-      final HttpRequest request = new HttpRequest(servletRequest, servletResponse,
+      final ResinHttpRequest request = new ResinHttpRequest(servletRequest, servletResponse,
           getServletContext(), app());
-      final Context context = app().getContext(request);
+      final BasicContext context = app().getContext(request);
       
       boolean authorized = security().authCheck(context, 
           getAuthorizer(), getRejector());
@@ -154,7 +154,7 @@ public class AccessFilter
   }
   private final Authorizer defaultAuthorizer = new Authorizer() {
     @Override
-    public boolean isAuthorized(PyxisUser user, Context context) 
+    public boolean isAuthorized(PyxisUser user, BasicContext context)
     {
       return (  (user != null)
              && (  (StringHelper.isEmpty(userGroupName))

@@ -83,14 +83,14 @@ public class NotificationExceptionHandler
   }
   
   @Override
-  public void handleException(Context context, Throwable exc)
+  public void handleException(BasicContext context, Throwable exc)
   {
     handleException(context, exc, null);
   }
 
   @Override
-  public void handleException(Context context, Throwable exc,
-      String description)
+  public void handleException(BasicContext context, Throwable exc,
+                              String description)
   {
     final long currentTime = System.currentTimeMillis();
     if (currentTime < this.nextDelivery)

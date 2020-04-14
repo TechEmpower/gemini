@@ -47,7 +47,7 @@ public class Input
   // Variables.
   //
 
-  private final Context       context;
+  private final BasicContext context;
   private final Query         query;
   private int                 statusCode = 400;
   private List<String>        errorMessages;
@@ -61,7 +61,7 @@ public class Input
   /**
    * Constructor.
    */
-  protected Input(Context context)
+  protected Input(BasicContext context)
   {
     this.context = context;
     this.query = context.query();
@@ -78,7 +78,7 @@ public class Input
   /**
    * Gets the Context.
    */
-  public Context context()
+  public BasicContext context()
   {
     return context;
   }

@@ -30,7 +30,6 @@ import java.lang.reflect.*;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
 import com.techempower.gemini.*;
-import com.techempower.gemini.Request.*;
 import com.techempower.gemini.path.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.annotation.*;
@@ -45,7 +44,7 @@ import com.techempower.js.*;
  * request rejection behavior.  The default Rejector will redirect any 
  * unauthorized requests to the login view.
  */
-public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
+public class SecureMethodSegmentHandler<C extends BasicContext, U extends PyxisUser>
      extends MethodSegmentHandler<C>
 {
   
@@ -146,7 +145,7 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
    * should be bypassed.
    */
   @Override
-  protected PathSegmentMethod analyzeAnnotatedMethod(Method method, HttpMethod httpMethod)
+  protected PathSegmentMethod analyzeAnnotatedMethod(Method method, HttpRequest.HttpMethod httpMethod)
   {
     final PathBypassAuth bypassAnnotation = method.getAnnotation(PathBypassAuth.class);
     final boolean authorizationRequired = (bypassAnnotation == null);
@@ -248,7 +247,7 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
   {
     final boolean authorizationRequired;
     
-    protected SecurePathSegmentMethod(Method method, HttpMethod httpMethod,
+    protected SecurePathSegmentMethod(Method method, HttpRequest.HttpMethod httpMethod,
         MethodAccess methodAccess, boolean authorizationRequired)
     {
       super(method, httpMethod, methodAccess);

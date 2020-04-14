@@ -119,7 +119,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   private int            failedAttemptLimit    = 0;       // unlimited attempts.
   private int            failedResetSeconds    = DEFAULT_FAILED_RESET_SECONDS;
   private long           nextAutoReset         = 0L;
-  private List<SecurityListener<Context>> 
+  private List<SecurityListener<BasicContext>>
                          listeners             = null;
   // unused unless failed attempt limiting is enabled.
   private Map<String,LoginAttempt> 
@@ -299,7 +299,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
   
   @Override
-  public String getPostLoginUrl(Context context)
+  public String getPostLoginUrl(BasicContext context)
   {
     final PyxisUser user = getUser(context);
 
@@ -360,8 +360,8 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
 
   @Override  
-  public boolean authCheck(Context context, Authorizer authorizer, 
-      Rejector rejector)
+  public boolean authCheck(BasicContext context, Authorizer authorizer,
+                           Rejector rejector)
   {
     PyxisUser user = null;
     
@@ -397,7 +397,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
   
   @Override
-  public boolean authCheck(Context context)
+  public boolean authCheck(BasicContext context)
   {
     return authCheck(context, null, null);
   }
@@ -408,7 +408,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   private final Rejector forceLoginRejector = new Rejector()
   {
     @Override
-    public void reject(Context context, PyxisUser user)
+    public void reject(BasicContext context, PyxisUser user)
     {
       // Cookie login wasn't available, let's redirect the user to login.
       final String queryString = context.getQueryString();
@@ -454,7 +454,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
 
   @Override
-  public boolean isLoginAttemptPermitted(Context context)
+  public boolean isLoginAttemptPermitted(BasicContext context)
   {
     if (isFailedAttemptLimiting())
     {
@@ -478,7 +478,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
 
   @Override
-  public void captureFailedLoginAttempt(Context context)
+  public void captureFailedLoginAttempt(BasicContext context)
   {
     if (isFailedAttemptLimiting())
     {
@@ -500,7 +500,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
   
   @Override
-  public void captureSuccessfulLoginAttempt(Context context)
+  public void captureSuccessfulLoginAttempt(BasicContext context)
   {
     if (isFailedAttemptLimiting())
     {
@@ -829,8 +829,8 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
   
   @Override
-  public boolean login(Context context, String username, String password, 
-      boolean save)
+  public boolean login(BasicContext context, String username, String password,
+                       boolean save)
   {
     PyxisUser user = getUser(username, password);
     
@@ -848,7 +848,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
 
   @Override
-  public boolean login(Context context, PyxisUser user, boolean save)
+  public boolean login(BasicContext context, PyxisUser user, boolean save)
   {
     // Only proceed if the user is non-null and they are permitted to login.
     if (  (user != null)
@@ -862,7 +862,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
       captureSuccessfulLoginAttempt(context);
       
       // Notify listeners.
-      for (SecurityListener<Context> notify : listeners)
+      for (SecurityListener<BasicContext> notify : listeners)
       {
         notify.loginSuccessful(context, user);
       }
@@ -879,7 +879,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
       captureFailedLoginAttempt(context);
 
       // Notify listeners.
-      for (SecurityListener<Context> notify : listeners)
+      for (SecurityListener<BasicContext> notify : listeners)
       {
         notify.loginFailed(context);
       }
@@ -889,7 +889,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
 
   @Override
-  public void logout(Context context)
+  public void logout(BasicContext context)
   {
     final PyxisUser user = getUser(context);
     
@@ -909,12 +909,12 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   /**
    * Notify the listeners about a logout.
    */
-  protected void notifyListenersLogout(PyxisUser user, Context context)
+  protected void notifyListenersLogout(PyxisUser user, BasicContext context)
   {
     if (user != null)
     {
       // Notify listeners.
-      for (SecurityListener<Context> notify : listeners)
+      for (SecurityListener<BasicContext> notify : listeners)
       {
         notify.logoutSuccessful(context, user);
       }
@@ -922,13 +922,13 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
 
   @Override
-  public PyxisUser getUser(Context context)
+  public PyxisUser getUser(BasicContext context)
   {    
     return arbiter.getUser(context);
   }
 
   @Override
-  public boolean isLoggedIn(Context context)
+  public boolean isLoggedIn(BasicContext context)
   {
     return arbiter.isLoggedIn(context);
   }
@@ -973,7 +973,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
       proposal.user.setUserPassword(proposal.hashedPassword);
 
       // Notify listeners.
-      for (SecurityListener<Context> notify : listeners)
+      for (SecurityListener<BasicContext> notify : listeners)
       {
         notify.passwordChanged(proposal);
       }
@@ -999,19 +999,19 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   }
   
   @Override
-  public void beginMasquerade(Context context, PyxisUser impersonatedUser) 
+  public void beginMasquerade(BasicContext context, PyxisUser impersonatedUser)
   {
     arbiter.beginMasquerade(context, impersonatedUser);
   }
 
   @Override
-  public PyxisUser getMasqueradingUser(Context context) 
+  public PyxisUser getMasqueradingUser(BasicContext context)
   {
     return arbiter.getMasqueradingUser(context);
   }
 
   @Override
-  public boolean endMasquerade(Context context) 
+  public boolean endMasquerade(BasicContext context)
   {
     return arbiter.endMasquerade(context);
   }
@@ -1103,13 +1103,13 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
 
   @Override
   @SuppressWarnings("unchecked")
-  public <C extends Context> void addListener(SecurityListener<C> listener)
+  public <C extends BasicContext> void addListener(SecurityListener<C> listener)
   {
-    listeners.add((SecurityListener<Context>)listener);
+    listeners.add((SecurityListener<BasicContext>)listener);
   }
 
   @Override
-  public <C extends Context> void removeListener(SecurityListener<C> listener)
+  public <C extends BasicContext> void removeListener(SecurityListener<C> listener)
   {
     listeners.remove(listener);
   }

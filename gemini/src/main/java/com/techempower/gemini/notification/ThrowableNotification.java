@@ -86,7 +86,7 @@ public class ThrowableNotification
    */
   public ThrowableNotification(String source, GeminiApplication app, 
       Throwable throwable, String description, Severity severity, 
-      Context context) {
+      BasicContext context) {
     super(source,
         throwable.getClass().getName(),
         ExceptionHandlerHelper.renderExceptionAsReport(

@@ -28,7 +28,7 @@ package com.techempower.gemini.path;
 
 import com.techempower.gemini.*;
 
-public class FourZeroFourHandler<C extends Context> 
+public class FourZeroFourHandler<C extends BasicContext>
   implements PathHandler<C>
 {
   @Override

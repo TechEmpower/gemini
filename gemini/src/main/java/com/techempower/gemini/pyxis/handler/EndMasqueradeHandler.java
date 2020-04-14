@@ -32,7 +32,7 @@ import com.techempower.gemini.path.*;
 /**
  * Ends any currently-active user masquerade and redirects to the home page.
  */
-public class EndMasqueradeHandler<C extends Context>
+public class EndMasqueradeHandler<C extends BasicContext>
      extends BasicPathHandler<C> 
 {
   
@@ -45,7 +45,7 @@ public class EndMasqueradeHandler<C extends Context>
   }
   
   @Override
-  public boolean handle(PathSegments segments, Context context) 
+  public boolean handle(PathSegments segments, BasicContext context)
   {
     if (app().getSecurity().endMasquerade(context))
     {

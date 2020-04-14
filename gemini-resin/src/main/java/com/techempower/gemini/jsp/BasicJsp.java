@@ -59,7 +59,7 @@ public abstract class BasicJsp
    * 
    * @param context the context being initialized.
    */
-  public void contextInit(Context context)
+  public void contextInit(BasicContext context)
   {
     // Do nothing.
   }
@@ -77,7 +77,7 @@ public abstract class BasicJsp
 
     // See if the context is available.  If not, this JSP was invoked
     // directly.
-    Context context = (Context)request.getAttribute("Context");
+    BasicContext context = (BasicContext)request.getAttribute("Context");
 
     // Get a reference to the application if one has not already been
     // gathered.
@@ -100,7 +100,7 @@ public abstract class BasicJsp
         contextExisted = false;
 
         // Put a new context into the attributes.
-        context = getApplication().getContext(new HttpRequest(request, response,
+        context = getApplication().getContext(new ResinHttpRequest(request, response,
           getServletConfig().getServletContext(), getApplication()));
         request.setAttribute("Context", context);
       }
@@ -126,7 +126,7 @@ public abstract class BasicJsp
         // Unbind the Context from the current thread if we had to create it.
         if (contextExisted == false)
         {
-          Context.complete();
+          BasicContext.complete();
         }
       }
     }

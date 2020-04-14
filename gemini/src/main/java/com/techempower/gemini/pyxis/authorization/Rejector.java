@@ -46,6 +46,6 @@ public interface Rejector
    * @param user If a user is authenticated, this will be provided; otherwise
    *   this will be null.
    */
-  void reject(Context context, PyxisUser user);
+  void reject(BasicContext context, PyxisUser user);
   
 }

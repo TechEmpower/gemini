@@ -91,13 +91,13 @@ public abstract class Simulation
     return new SimConfig(this.docroot);
   }
 
-  public Context postRequest(SimClient client, String url, Map<String, String> parameters)
+  public BasicContext postRequest(SimClient client, String url, Map<String, String> parameters)
   {
     if (this.application.isRunning())
     {
       SimRequest request = new PostSimRequest(this, url, parameters, client, this.application);
         
-      final Context context = this.application.getContext(request);
+      final BasicContext context = this.application.getContext(request);
       
       handleRequest(context);
       
@@ -120,13 +120,13 @@ public abstract class Simulation
     }
   }
   
-  public Context getRequest(SimClient client, String url, Map<String, String> parameters)
+  public BasicContext getRequest(SimClient client, String url, Map<String, String> parameters)
   {
     if (this.application.isRunning())
     {
       SimRequest request = new GetSimRequest(this, url, parameters, client, this.application);
         
-      final Context context = this.application.getContext(request);
+      final BasicContext context = this.application.getContext(request);
       
       handleRequest(context);
       
@@ -155,7 +155,7 @@ public abstract class Simulation
    *   <p>
    * Overload this method if you do not want to use the dispatcher.
    */
-  public void handleRequest(Context context)
+  public void handleRequest(BasicContext context)
   {
     // Identify the current thread if we are counting requests.
     String threadName = null;
@@ -184,7 +184,7 @@ public abstract class Simulation
       
       // The current Context's usage is now complete, dissociate it with
       // the current thread.
-      Context.complete();
+      BasicContext.complete();
       
       // Remove the request number from the thread's name.
       if ( (this.application.isRequestCounting())
@@ -204,7 +204,7 @@ public abstract class Simulation
   {
     // setup
     SimRequest request = new PostSimRequest(this, "", null, client, this.application); 
-    final Context context = this.application.getContext(request);
+    final BasicContext context = this.application.getContext(request);
     
     BasicUser user = null;
     

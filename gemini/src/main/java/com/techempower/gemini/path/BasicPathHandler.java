@@ -43,6 +43,9 @@ import com.techempower.helper.*;
 import com.techempower.js.*;
 import com.techempower.log.*;
 
+import static com.techempower.gemini.HttpRequest.*;
+import static com.techempower.gemini.HttpRequest.HttpMethod.*;
+
 /**
  * A basic implementation of PathHandler that provides a small suite of 
  * utility and convenience functions.  BasicPathHandler makes the request 
@@ -51,7 +54,7 @@ import com.techempower.log.*;
  *   <p>
  * Responses may be rendered as JSON or as HTML using Mustache templates.
  */
-public abstract class BasicPathHandler<C extends Context>
+public abstract class BasicPathHandler<C extends BasicContext>
     implements PathHandler<C>,
                UriAware
 {
@@ -112,11 +115,11 @@ public abstract class BasicPathHandler<C extends Context>
     // Any request with an Origin header will be handled by the app directly,
     // however there are some headers we need to set up to add support for
     // cross-origin requests.
-    if(context.headers().get(Request.HEADER_ORIGIN) != null)
+    if(context.headers().get(HEADER_ORIGIN) != null)
     {
       addCorsHeaders(segments, context);
       
-      if(context.getRequestMethod() == HttpMethod.OPTIONS)
+      if(((HttpRequest)context.getRequest()).getRequestMethod() == OPTIONS)
       {
         addPreflightCorsHeaders(segments, context);
         // Returning true indicates we did fully handle this request and
@@ -144,31 +147,31 @@ public abstract class BasicPathHandler<C extends Context>
   {
     // Applications may configure whitelisted origins to which cross-origin
     // requests are allowed.
-    if(NetworkHelper.isWebUrl(context.headers().get(Request.HEADER_ORIGIN)) &&
+    if(NetworkHelper.isWebUrl(context.headers().get(HEADER_ORIGIN)) &&
        app().getSecurity().getSettings().getAccessControlAllowedOrigins()
-          .contains(context.headers().get(Request.HEADER_ORIGIN).toLowerCase()))
+          .contains(context.headers().get(HEADER_ORIGIN).toLowerCase()))
     {
       // If the server specifies an origin host rather than wildcard, then it
       // must also include Origin in the Vary response header.
-      context.headers().put(Request.HEADER_VARY, Request.HEADER_ORIGIN);
-      context.headers().put(Request.HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
-          context.headers().get(Request.HEADER_ORIGIN));
+      context.headers().put(HEADER_VARY, HEADER_ORIGIN);
+      context.headers().put(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+          context.headers().get(HEADER_ORIGIN));
       // Applications may configure the ability to allow credentials on CORS
       // requests, but only for domain-specified requests. Wildcards cannot
       // allow credentials.
       if(app().getSecurity().getSettings().accessControlAllowCredentials())
       {
         context.headers().put(
-            Request.HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+            HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
       }
     }
     // Applications may also configure wildcard origins to be whitelisted for
     // cross-origin requests, effectively making the application an open API.
     else if(app().getSecurity().getSettings().getAccessControlAllowedOrigins()
-          .contains(Request.HEADER_WILDCARD))
+          .contains(HEADER_WILDCARD))
     {
-      context.headers().put(Request.HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
-          Request.HEADER_WILDCARD);
+      context.headers().put(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
+          HEADER_WILDCARD);
     }
     // Applications may configure whitelisted headers which browsers may
     // access on cross origin requests.
@@ -186,7 +189,7 @@ public abstract class BasicPathHandler<C extends Context>
         exposed.append(header);
         first = false;
       }
-      context.headers().put(Request.HEADER_ACCESS_CONTROL_EXPOSED_HEADERS, 
+      context.headers().put(HEADER_ACCESS_CONTROL_EXPOSED_HEADERS,
           exposed.toString());
     }
   }
@@ -202,11 +205,11 @@ public abstract class BasicPathHandler<C extends Context>
     // Applications may configure whitelisted headers which may be sent to
     // the application on cross origin requests.
     if (StringHelper.isNonEmpty(context.headers().get(
-        Request.HEADER_ACCESS_CONTROL_REQUEST_HEADERS)))
+        HEADER_ACCESS_CONTROL_REQUEST_HEADERS)))
     {
       final String[] headers = StringHelper.splitAndTrim(
           context.headers().get(
-              Request.HEADER_ACCESS_CONTROL_REQUEST_HEADERS), ",");
+              HEADER_ACCESS_CONTROL_REQUEST_HEADERS), ",");
       boolean first = true;
       final StringBuilder allowed = new StringBuilder();
       for(final String header : headers)
@@ -223,19 +226,19 @@ public abstract class BasicPathHandler<C extends Context>
         }
       }
       
-      context.headers().put(Request.HEADER_ACCESS_CONTROL_ALLOW_HEADERS, 
+      context.headers().put(HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
           allowed.toString());
     }
     
     final String methods = getAccessControlAllowMethods(segments, context);
     if(StringHelper.isNonEmpty(methods))
     {
-      context.headers().put(Request.HEADER_ACCESS_CONTROL_ALLOW_METHOD, methods);
+      context.headers().put(HEADER_ACCESS_CONTROL_ALLOW_METHOD, methods);
     }
 
-    if(context.getRequest().getRequestMethod() == HttpMethod.OPTIONS)
+    if(((HttpRequest)context.getRequest()).getRequestMethod() == HttpMethod.OPTIONS)
     {
-      context.headers().put(Request.HEADER_ACCESS_CONTROL_MAX_AGE, 
+      context.headers().put(HEADER_ACCESS_CONTROL_MAX_AGE,
           app().getSecurity().getSettings().getAccessControlMaxAge() + "");
     }
   }
@@ -726,7 +729,7 @@ public abstract class BasicPathHandler<C extends Context>
             ? template
             : baseTemplatePath + template)
         + MustacheManager.DEFAULT_MUSTACHE_EXTENSION;
-    final Context context = context();
+    final BasicContext context = context();
 
     application.getDispatcher().renderStarting(context, template);
     try
@@ -759,14 +762,14 @@ public abstract class BasicPathHandler<C extends Context>
    */
   protected static abstract class BasicPathHandlerMethod
   {
-    private static final Set<HttpMethod> SUPPORTED_BODY_METHODS = EnumSet.of(
-            HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH);
+    private static final Set<HttpRequest.HttpMethod> SUPPORTED_BODY_METHODS = EnumSet.of(
+            POST, PUT, PATCH);
 
     public final Method method;
-    public final HttpMethod httpMethod;
+    public final HttpRequest.HttpMethod httpMethod;
     public final RequestBodyParameter bodyParameter;
 
-    BasicPathHandlerMethod(Method method, HttpMethod httpMethod)
+    BasicPathHandlerMethod(Method method, HttpRequest.HttpMethod httpMethod)
     {
       this.method = method;
       this.httpMethod = httpMethod;
@@ -855,10 +858,10 @@ public abstract class BasicPathHandler<C extends Context>
      * Adapt the request body in the specified context using the adapter and type
      * on this instance.
      *
-     * @see RequestBodyAdapter#read(Context, Type)
+     * @see RequestBodyAdapter#read(BasicContext, Type)
      */
     @SuppressWarnings({ "unchecked" })
-    <C extends Context> Object readBody(C context) throws RequestBodyException
+    <C extends BasicContext> Object readBody(C context) throws RequestBodyException
     {
       return ((RequestBodyAdapter<C>) adapter).read(context, type);
     }

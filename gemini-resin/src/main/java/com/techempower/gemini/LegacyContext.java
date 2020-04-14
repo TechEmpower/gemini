@@ -47,7 +47,7 @@ import com.techempower.log.*;
  * should be changed to Context.
  */
 public abstract class LegacyContext
-     extends Context
+     extends BasicContext
 {
   public  static final String PARAM_DO_NOT_USE_CACHED_RESPONSE = "no-cached";
   public  static final String PARAM_FORCE_CACHING              = "force-caching";
@@ -212,7 +212,7 @@ public abstract class LegacyContext
         this.setContentType(contentType);
       }
 
-      ((HttpRequest)getRequest()).render(pageName, fullyQualified);
+      ((ResinHttpRequest)getRequest()).render(pageName, fullyQualified);
     }
     catch (Exception exc)
     {
@@ -274,7 +274,7 @@ public abstract class LegacyContext
    */
   public void setRewritten(boolean rewritten)
   {
-    ((HttpRequest)getRequest()).setRewritten(rewritten);
+    ((ResinHttpRequest)getRequest()).setRewritten(rewritten);
   }
 
   /**
@@ -344,7 +344,7 @@ public abstract class LegacyContext
   public boolean includeFile(File file, String fileName, boolean asAttachment,
       String contentType)
   {
-    return ((HttpRequest)getRequest()).includeFile(file, fileName, asAttachment, contentType);
+    return ((ResinHttpRequest)getRequest()).includeFile(file, fileName, asAttachment, contentType);
   }
 
   /**
@@ -646,7 +646,7 @@ public abstract class LegacyContext
    */
   public boolean cacheThenRender(String page, String[] expectedParams)
   {
-    final String responseText = ((HttpRequest)getRequest()).renderToString(page);
+    final String responseText = ((ResinHttpRequest)getRequest()).renderToString(page);
     String key;
     if (expectedParams != null)
     {
@@ -941,7 +941,7 @@ public abstract class LegacyContext
    */
   public String getContextPath()
   {
-    return ((HttpRequest)this.request).getContextPath();
+    return ((ResinHttpRequest)this.request).getContextPath();
   }
 
   @Override

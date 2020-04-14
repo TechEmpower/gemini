@@ -50,7 +50,7 @@ import com.techempower.gemini.context.*;
  * HttpServletRequest) and less rigidly coupled to a specific request
  * implementation.
  */
-public class ResinContext extends Context {
+public class ResinContext extends BasicContext {
   
   /**
    * Standard constructor.
@@ -68,7 +68,7 @@ public class ResinContext extends Context {
    */
   public String getContextPath()
   {
-    return ((HttpRequest)this.request).getContextPath();
+    return ((ResinHttpRequest)this.request).getContextPath();
   }
   
   /**

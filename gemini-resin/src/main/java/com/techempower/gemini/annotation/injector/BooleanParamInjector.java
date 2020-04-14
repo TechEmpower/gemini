@@ -34,7 +34,7 @@ import com.techempower.gemini.*;
  * Implementation of ParameterInjector that knows how to pull boolean values 
  * from the request.
  */
-public class BooleanParamInjector<D extends BasicDispatcher, C extends Context> 
+public class BooleanParamInjector<D extends BasicDispatcher, C extends BasicContext>
   implements ParameterInjector<D, C> 
 {
   @Override

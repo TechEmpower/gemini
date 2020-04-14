@@ -227,7 +227,7 @@ public final class AnnotationHandler
   private String[]                                commands;
   
   // Ordered list of intercepts that will be run before method execution
-  private List<HandlerIntercept<BasicDispatcher,Context>>
+  private List<HandlerIntercept<BasicDispatcher, BasicContext>>
                                                     intercepts           = new ArrayList<>();
   
   // List of annotations associated with intercepts. The annotation at position i in this list
@@ -238,7 +238,7 @@ public final class AnnotationHandler
   private List<Parameter>                         parameters           = new ArrayList<>();
   
   // The response of the request, if no response is specified, @JSP is used as the default
-  private HandlerResponse<BasicDispatcher,Context>     responseIntercept;
+  private HandlerResponse<BasicDispatcher, BasicContext>     responseIntercept;
   private Annotation                              responseAnnotation;
   
   public AnnotationHandler(GeminiApplication application, BasicDispatcher dispatcher, 
@@ -323,7 +323,7 @@ public final class AnnotationHandler
     
     // check intercepts first to determine if the request should be intercepted
     int counter = 0;
-    for (HandlerIntercept<BasicDispatcher, Context> intercept : this.intercepts)
+    for (HandlerIntercept<BasicDispatcher, BasicContext> intercept : this.intercepts)
     {
       if (intercept.intercept(this.method, dispatcher, context, command,
           this.interceptAnnotations.get(counter)))
@@ -387,7 +387,7 @@ public final class AnnotationHandler
   /**
    * Prepares the argument array to be included with the method invocation.
    */
-  private Object[] prepareArgs(BasicDispatcher dispatcher, Context context)
+  private Object[] prepareArgs(BasicDispatcher dispatcher, BasicContext context)
   {
     // the args array to be returned
     Object[] args = new Object[this.parameters.size()];
@@ -406,7 +406,7 @@ public final class AnnotationHandler
    * Responsible for creating an object of Type HandlerIntercept and adding it to the 
    * intercept cache.
    */
-  private void addIntercept(BasicDispatcher dispatcher, Class<? extends HandlerIntercept<BasicDispatcher,Context>> clazz)
+  private void addIntercept(BasicDispatcher dispatcher, Class<? extends HandlerIntercept<BasicDispatcher, BasicContext>> clazz)
   {
     addIntercept(dispatcher, clazz, null);
   }
@@ -416,11 +416,11 @@ public final class AnnotationHandler
    * intercept cache. Will also add it to the map of intercept to annotation.
    */
   @SuppressWarnings("unchecked")
-  private void addIntercept(BasicDispatcher dispatcher, Class<? extends HandlerIntercept<BasicDispatcher,Context>> clazz, Annotation annotation)
+  private void addIntercept(BasicDispatcher dispatcher, Class<? extends HandlerIntercept<BasicDispatcher, BasicContext>> clazz, Annotation annotation)
   {
     // check to see if the dispatcher already has a cached version of this intercept
     // if so we don't need to instantiate a new one
-    HandlerIntercept<BasicDispatcher,Context> intercept = (HandlerIntercept<BasicDispatcher,Context>)dispatcher.getIntercept(clazz);
+    HandlerIntercept<BasicDispatcher, BasicContext> intercept = (HandlerIntercept<BasicDispatcher, BasicContext>)dispatcher.getIntercept(clazz);
     if (intercept == null)
     {
       // We allow intercepts to declare a constructor with the single argument of type
@@ -432,7 +432,7 @@ public final class AnnotationHandler
         {
           try 
           {
-            intercept = (HandlerIntercept<BasicDispatcher,Context>)constructor.newInstance(this.application);
+            intercept = (HandlerIntercept<BasicDispatcher, BasicContext>)constructor.newInstance(this.application);
             break;
           } 
           catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) 
@@ -500,8 +500,8 @@ public final class AnnotationHandler
       // to our cache with null annotations.
       if (annotation.annotationType().equals(Require.class))
       {
-        for (Class<? extends HandlerIntercept<BasicDispatcher,Context>> intercept : 
-          (Class<? extends HandlerIntercept<BasicDispatcher,Context>>[])((Require)annotation).value())
+        for (Class<? extends HandlerIntercept<BasicDispatcher, BasicContext>> intercept :
+          (Class<? extends HandlerIntercept<BasicDispatcher, BasicContext>>[])((Require)annotation).value())
         {
           
           addIntercept(dispatcher, intercept);
@@ -512,7 +512,7 @@ public final class AnnotationHandler
       Intercept interceptAnnotation = annotation.annotationType().getAnnotation(Intercept.class);
       if(interceptAnnotation != null)
       {
-        addIntercept(dispatcher, (Class<HandlerIntercept<BasicDispatcher,Context>>)interceptAnnotation.value(), annotation);
+        addIntercept(dispatcher, (Class<HandlerIntercept<BasicDispatcher, BasicContext>>)interceptAnnotation.value(), annotation);
       }
     }
   }
@@ -539,9 +539,9 @@ public final class AnnotationHandler
       {
         this.parameters.add(new Parameter(BasicDispatcher.class, null, null));
       }
-      else if (Context.class.isAssignableFrom(c))//c.isAssignableFrom(Context.class))
+      else if (BasicContext.class.isAssignableFrom(c))//c.isAssignableFrom(Context.class))
       {
-        this.parameters.add(new Parameter(Context.class, null, null));
+        this.parameters.add(new Parameter(BasicContext.class, null, null));
       }
       else
       {
@@ -552,12 +552,12 @@ public final class AnnotationHandler
           if (annotation != null && annotation.annotationType().isAnnotationPresent(Injector.class))
           {
             Injector injector = annotation.annotationType().getAnnotation(Injector.class);
-            Class<? extends ParameterInjector<BasicDispatcher,Context>> clazz = 
-              (Class<? extends ParameterInjector<BasicDispatcher,Context>>)injector.value();
+            Class<? extends ParameterInjector<BasicDispatcher, BasicContext>> clazz =
+              (Class<? extends ParameterInjector<BasicDispatcher, BasicContext>>)injector.value();
             
             // check the dispatcher cache first
-            ParameterInjector<BasicDispatcher,Context> paramInjector = 
-              (ParameterInjector<BasicDispatcher,Context>)dispatcher.getInjector(clazz);
+            ParameterInjector<BasicDispatcher, BasicContext> paramInjector =
+              (ParameterInjector<BasicDispatcher, BasicContext>)dispatcher.getInjector(clazz);
             if (paramInjector == null)
             {
               // We allow injectors to declare a constructor with the single argument of type
@@ -569,7 +569,7 @@ public final class AnnotationHandler
                 {
                   try 
                   {
-                    paramInjector = (ParameterInjector<BasicDispatcher,Context>)constructor.newInstance(this.application);
+                    paramInjector = (ParameterInjector<BasicDispatcher, BasicContext>)constructor.newInstance(this.application);
                     break;
                   } 
                   catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) 
@@ -648,10 +648,10 @@ public final class AnnotationHandler
       Response theResponseAnnotation = annotation.annotationType().getAnnotation(Response.class);
       if (theResponseAnnotation != null)
       {
-        Class<? extends HandlerResponse<BasicDispatcher,Context>> clazz = 
-          (Class<? extends HandlerResponse<BasicDispatcher,Context>>)theResponseAnnotation.value();
-        HandlerResponse<BasicDispatcher,Context> response = 
-          (HandlerResponse<BasicDispatcher,Context>)dispatcher.getResponse(clazz);
+        Class<? extends HandlerResponse<BasicDispatcher, BasicContext>> clazz =
+          (Class<? extends HandlerResponse<BasicDispatcher, BasicContext>>)theResponseAnnotation.value();
+        HandlerResponse<BasicDispatcher, BasicContext> response =
+          (HandlerResponse<BasicDispatcher, BasicContext>)dispatcher.getResponse(clazz);
         
         // this response object isn't in the dispatcher cache yet, create it
         if (response == null)
@@ -665,7 +665,7 @@ public final class AnnotationHandler
             {
               try 
               {
-                response = (HandlerResponse<BasicDispatcher,Context>)constructor.newInstance(this.application);
+                response = (HandlerResponse<BasicDispatcher, BasicContext>)constructor.newInstance(this.application);
                 break;
               } 
               catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) 
@@ -764,9 +764,9 @@ public final class AnnotationHandler
   {
     private final Class<?>                              parameterType;
     private final Annotation                            injectorAnnotation;
-    private final ParameterInjector<BasicDispatcher,Context> injector;
+    private final ParameterInjector<BasicDispatcher, BasicContext> injector;
     
-    public Parameter(Class<?> parameterType, ParameterInjector<BasicDispatcher,Context> injector, Annotation injectorAnnotation)
+    public Parameter(Class<?> parameterType, ParameterInjector<BasicDispatcher, BasicContext> injector, Annotation injectorAnnotation)
     {
       this.parameterType         = parameterType;
       this.injectorAnnotation    = injectorAnnotation;
@@ -776,7 +776,7 @@ public final class AnnotationHandler
     /**
      * Return a valid object for this parameter using the associated injector and annotation
      */
-    public Object getObject(BasicDispatcher dispatcher, Context context)
+    public Object getObject(BasicDispatcher dispatcher, BasicContext context)
     {
       // Dispatcher and Context are special cases that can be returned without
       // requiring a separate annotation
@@ -784,7 +784,7 @@ public final class AnnotationHandler
       {
         return dispatcher;
       }
-      else if (Context.class.isAssignableFrom(this.parameterType))
+      else if (BasicContext.class.isAssignableFrom(this.parameterType))
       {
         return context;
       }

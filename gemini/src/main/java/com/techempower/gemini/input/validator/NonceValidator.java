@@ -82,7 +82,7 @@ public class NonceValidator
    * @param candidate The user-provided candidate nonce to check against the
    *        session's valid nonce.
    */
-  public static boolean checkNonce(Context context, long candidate)
+  public static boolean checkNonce(BasicContext context, long candidate)
   {
     return (getNonce(context) == candidate);
   }
@@ -93,7 +93,7 @@ public class NonceValidator
    * then returned.  That is, for the scope of a given Context's session, 
    * this method will always return the same nonce value.
    */
-  public static long getNonce(Context context)
+  public static long getNonce(BasicContext context)
   {
     final SessionNamedValues session = context.session();
     if (session.has(SO_NONCE))

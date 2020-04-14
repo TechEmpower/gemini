@@ -136,7 +136,7 @@ public abstract class MustacheManager
    * Gets a TemplateReferences object containing a reference to the
    * MustacheApplicationReferences and the provided request-scope object.
    */
-  public TemplateReferences getTemplateReferences(Context context, Object requestScope)
+  public TemplateReferences getTemplateReferences(BasicContext context, Object requestScope)
   {
     return new TemplateReferences(context, applicationReferences, requestScope);
   }
@@ -227,7 +227,7 @@ public abstract class MustacheManager
    * 
    * @return true if successful
    */
-  public boolean render(String filename, Context context, Object scope)
+  public boolean render(String filename, BasicContext context, Object scope)
   {
     try
     {

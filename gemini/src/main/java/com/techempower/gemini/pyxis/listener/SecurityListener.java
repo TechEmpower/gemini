@@ -36,7 +36,7 @@ import com.techempower.gemini.pyxis.password.*;
  * failures.  Applications can implement this interface and use BasicSecurity.
  * addListener to receive notification of these events.
  */
-public interface SecurityListener<C extends Context>
+public interface SecurityListener<C extends BasicContext>
 {
   
   /**

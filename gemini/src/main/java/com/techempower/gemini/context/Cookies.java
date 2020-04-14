@@ -36,12 +36,12 @@ import com.techempower.helper.*;
 public class Cookies
 {
 
-  private final Context context;
+  private final BasicContext context;
   
   /**
    * Constructor.
    */
-  public Cookies(Context context)
+  public Cookies(BasicContext context)
   {
     this.context = context;
   }

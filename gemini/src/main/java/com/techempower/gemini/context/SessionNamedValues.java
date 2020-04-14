@@ -41,12 +41,12 @@ public class SessionNamedValues
   implements MutableNamedValues
 {
   
-  private final Context context;
+  private final BasicContext context;
   
   /**
    * Constructor.
    */
-  public SessionNamedValues(Context context)
+  public SessionNamedValues(BasicContext context)
   {
     this.context = context;
   }

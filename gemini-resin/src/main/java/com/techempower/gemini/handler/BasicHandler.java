@@ -41,7 +41,7 @@ import com.techempower.gemini.*;
  * is not advised.
  *
  * @see Handler
- * @see Context
+ * @see BasicContext
  */
 public class BasicHandler
   implements Handler<BasicDispatcher,LegacyContext>

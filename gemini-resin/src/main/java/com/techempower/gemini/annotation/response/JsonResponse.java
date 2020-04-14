@@ -42,7 +42,7 @@ import com.techempower.gemini.*;
  * &#064;JSON annotation as documentation to others that your handler method should
  * be sending JSON.
  */
-public class JsonResponse<D extends BasicDispatcher, C extends Context> 
+public class JsonResponse<D extends BasicDispatcher, C extends BasicContext>
   implements HandlerResponse<D, C> 
 {
  

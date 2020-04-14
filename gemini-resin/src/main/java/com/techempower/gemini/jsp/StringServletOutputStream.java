@@ -63,7 +63,7 @@ public class StringServletOutputStream
    * preventing any output from being seen.  This can be used to get the
    * output of a JSP without rendering it to the client.
    */
-  public static String invokeToString(String toInvoke, HttpRequest context)
+  public static String invokeToString(String toInvoke, ResinHttpRequest context)
   {
     try
     {

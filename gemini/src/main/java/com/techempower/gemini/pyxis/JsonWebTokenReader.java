@@ -34,6 +34,8 @@ import com.techempower.gemini.*;
 
 import io.jsonwebtoken.*;
 
+import static com.techempower.gemini.HttpRequest.HEADER_AUTHORIZATION;
+
 /**
  * Basic implementation of TokenReader which checks headers and post body
  * data for a bearer token.
@@ -71,14 +73,13 @@ public class JsonWebTokenReader
   //
   
   @Override
-  public JsonWebToken read(Context context)
+  public JsonWebToken read(BasicContext context)
   {
-    String serialized = context.headers().get(Request.HEADER_AUTHORIZATION);
+    String serialized = context.headers().get(HEADER_AUTHORIZATION);
     
     if (serialized != null && serialized.contains(AUTHORIZATION_BEARER))
     {
-      serialized = serialized.substring(AUTHORIZATION_BEARER.length(), 
-          serialized.length());
+      serialized = serialized.substring(AUTHORIZATION_BEARER.length());
 
       try
       {

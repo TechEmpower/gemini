@@ -48,7 +48,7 @@ public class AuthorizerByAnyGroup
   }
   
   @Override
-  public boolean isAuthorized(PyxisUser user, Context context) 
+  public boolean isAuthorized(PyxisUser user, BasicContext context)
   {
     for (int id : groupIds)
     {

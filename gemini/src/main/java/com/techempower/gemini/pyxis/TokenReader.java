@@ -37,5 +37,5 @@ public interface TokenReader
   /**
    * Attempts to get a token from the given context.
    */
-  AuthToken read(Context context);
+  AuthToken read(BasicContext context);
 }

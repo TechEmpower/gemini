@@ -146,7 +146,7 @@ public class HttpSessionManager
    * application starts) and the current time.
    * @param create Force the creation of a new session.
    */
-  private HttpSession getSession(HttpRequest request, boolean create)
+  private HttpSession getSession(ResinHttpRequest request, boolean create)
   {
     HttpSession session = HttpSession.createSession(request.getRawRequest().getSession(create));
 

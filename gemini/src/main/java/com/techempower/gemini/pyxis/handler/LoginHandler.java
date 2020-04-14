@@ -68,7 +68,7 @@ import com.techempower.util.*;
  *     attempt to login with invalid credentials.</li>
  *   </ul>
  */
-public class LoginHandler<C extends Context>
+public class LoginHandler<C extends BasicContext>
   extends    MethodSegmentHandler<C>
   implements Configurable
 {
@@ -141,7 +141,7 @@ public class LoginHandler<C extends Context>
    */
   @PathDefault
   @Get
-  public boolean getLogin(Context context)
+  public boolean getLogin(BasicContext context)
   {
     // If the user is already logged in respond accordingly.
     if (this.security.isLoggedIn(context))
@@ -160,7 +160,7 @@ public class LoginHandler<C extends Context>
    */
   @PathDefault
   @Post
-  public boolean login(Context context)
+  public boolean login(BasicContext context)
   {
     // If the user is already logged in respond accordingly.
     if (security.isLoggedIn(context))
@@ -211,7 +211,7 @@ public class LoginHandler<C extends Context>
    * provided by default, but custom rules can be provided by overloading this
    * method.
    */
-  protected ValidatorSet getLoginValidatorSet(Context context)
+  protected ValidatorSet getLoginValidatorSet(BasicContext context)
   {
     return standardLoginForm;
   }
@@ -250,7 +250,7 @@ public class LoginHandler<C extends Context>
    * 
    * @param context the request context of the user who has just logged-in.
    */
-  protected boolean handlePostLogin(Context context)
+  protected boolean handlePostLogin(BasicContext context)
   {
     final String redirectUrl = security.getPostLoginUrl(context);
     l("Redirecting: " + redirectUrl);
@@ -270,7 +270,7 @@ public class LoginHandler<C extends Context>
   /**
    * Handle a post-login JSON response.
    */
-  protected boolean postLoginJson(Context context, String redirectUrl)
+  protected boolean postLoginJson(BasicContext context, String redirectUrl)
   {
     delivery()
         .put("status", "ok")
@@ -282,7 +282,7 @@ public class LoginHandler<C extends Context>
   /**
    * Handle a post-login traditional response.
    */
-  protected boolean postLoginTraditional(Context context, String redirectUrl)
+  protected boolean postLoginTraditional(BasicContext context, String redirectUrl)
   {
     return context.redirect(redirectUrl);
   }

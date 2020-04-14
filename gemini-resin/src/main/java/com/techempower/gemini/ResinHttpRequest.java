@@ -47,8 +47,8 @@ import com.techempower.util.*;
  * 
  * The default rendering for this request is JSP.
  */
-public class HttpRequest
-  implements Request
+public class ResinHttpRequest
+  implements HttpRequest
 {
   //
   // Constants.
@@ -80,7 +80,7 @@ public class HttpRequest
   /**
    * Standard constructor
    */
-  public HttpRequest(HttpServletRequest request, HttpServletResponse response,
+  public ResinHttpRequest(HttpServletRequest request, HttpServletResponse response,
       ServletContext servletContext, GeminiApplication application)
   {
     this.application     = application;

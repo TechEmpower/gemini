@@ -82,17 +82,17 @@ public class BasicDispatcher
   protected final ComponentLog       log;
   protected final GeminiApplication  application;
 
-  protected final CopyOnWriteArrayList<Handler<? extends BasicDispatcher,? extends Context>>
+  protected final CopyOnWriteArrayList<Handler<? extends BasicDispatcher,? extends BasicContext>>
     dispatchHandlers  = new CopyOnWriteArrayList<>();
   protected final CopyOnWriteArrayList<ExceptionHandler>
     exceptionHandlers = new CopyOnWriteArrayList<>();
-  protected final ConcurrentHashMap<String,Handler<? extends BasicDispatcher, ? extends Context>>
+  protected final ConcurrentHashMap<String,Handler<? extends BasicDispatcher, ? extends BasicContext>>
     roledHandlers     = new ConcurrentHashMap<>();
   private final CopyOnWriteArrayList<Prehandler>
     prehandlers       = new CopyOnWriteArrayList<>();
   private CopyOnWriteArrayList<DispatchListener>
     listeners;
-  protected Handler<BasicDispatcher, ? extends Context>
+  protected Handler<BasicDispatcher, ? extends BasicContext>
     defaultHandler;
 
   // A simple cache of commands that are registered using the annotations
@@ -100,17 +100,17 @@ public class BasicDispatcher
     registeredCommands = new ConcurrentHashMap<>();
 
   // Annotation object caches for intercepts, injectors and responses
-  private final CopyOnWriteArrayList<HandlerIntercept<? extends BasicDispatcher,? extends Context>>
+  private final CopyOnWriteArrayList<HandlerIntercept<? extends BasicDispatcher,? extends BasicContext>>
     intercepts        = new CopyOnWriteArrayList<>();
-  private final ConcurrentHashMap<String, HandlerIntercept<? extends BasicDispatcher,? extends Context>>
+  private final ConcurrentHashMap<String, HandlerIntercept<? extends BasicDispatcher,? extends BasicContext>>
     roledIntercepts   = new ConcurrentHashMap<>();
-  private final CopyOnWriteArrayList<ParameterInjector<? extends BasicDispatcher,? extends Context>>
+  private final CopyOnWriteArrayList<ParameterInjector<? extends BasicDispatcher,? extends BasicContext>>
     injectors                  = new CopyOnWriteArrayList<>();
-  private final ConcurrentHashMap<String, ParameterInjector<? extends BasicDispatcher,? extends Context>>
+  private final ConcurrentHashMap<String, ParameterInjector<? extends BasicDispatcher,? extends BasicContext>>
     roledInjectors    = new ConcurrentHashMap<>();
-  private final CopyOnWriteArrayList<HandlerResponse<? extends BasicDispatcher,? extends Context>>
+  private final CopyOnWriteArrayList<HandlerResponse<? extends BasicDispatcher,? extends BasicContext>>
     responses         = new CopyOnWriteArrayList<>();
-  private final ConcurrentHashMap<String, HandlerResponse<? extends BasicDispatcher,? extends Context>>
+  private final ConcurrentHashMap<String, HandlerResponse<? extends BasicDispatcher,? extends BasicContext>>
     roledResponses    = new ConcurrentHashMap<>();
 
   //
@@ -173,34 +173,34 @@ public class BasicDispatcher
     this.listeners.add(listener);
   }
 
-  public void addIntercept(HandlerIntercept<? extends BasicDispatcher,? extends Context> intercept)
+  public void addIntercept(HandlerIntercept<? extends BasicDispatcher,? extends BasicContext> intercept)
   {
     this.intercepts.add(intercept);
   }
 
-  public void addIntercept(String role, HandlerIntercept<? extends BasicDispatcher,? extends Context> intercept)
+  public void addIntercept(String role, HandlerIntercept<? extends BasicDispatcher,? extends BasicContext> intercept)
   {
     this.roledIntercepts.put(role, intercept);
     addIntercept(intercept);
   }
 
-  public void addInjector(ParameterInjector<? extends BasicDispatcher,? extends Context> injector)
+  public void addInjector(ParameterInjector<? extends BasicDispatcher,? extends BasicContext> injector)
   {
     this.injectors.add(injector);
   }
 
-  public void addInjector(String role, ParameterInjector<? extends BasicDispatcher,? extends Context> injector)
+  public void addInjector(String role, ParameterInjector<? extends BasicDispatcher,? extends BasicContext> injector)
   {
     this.roledInjectors.put(role, injector);
     addInjector(injector);
   }
 
-  public void addResponse(HandlerResponse<? extends BasicDispatcher,? extends Context> response)
+  public void addResponse(HandlerResponse<? extends BasicDispatcher,? extends BasicContext> response)
   {
     this.responses.add(response);
   }
 
-  public void addResponse(String role, HandlerResponse<? extends BasicDispatcher,? extends Context> response)
+  public void addResponse(String role, HandlerResponse<? extends BasicDispatcher,? extends BasicContext> response)
   {
     this.roledResponses.put(role, response);
     addResponse(response);
@@ -223,7 +223,7 @@ public class BasicDispatcher
   /**
    * The method that runs all the prehandlers prior to checking handlers.
    */
-  protected boolean prehandle(Context context)
+  protected boolean prehandle(BasicContext context)
   {
     // Tiny optimization to get references to the Prehandlers more quickly.
     final List<Prehandler> prehandlerList = this.prehandlers;
@@ -242,9 +242,9 @@ public class BasicDispatcher
    * LoginHandler.
    */
   @SuppressWarnings("unchecked")
-  public void setDefaultHandler(Handler<? extends BasicDispatcher,? extends Context> handler)
+  public void setDefaultHandler(Handler<? extends BasicDispatcher,? extends BasicContext> handler)
   {
-    this.defaultHandler = (Handler<BasicDispatcher,? extends Context>)handler;
+    this.defaultHandler = (Handler<BasicDispatcher,? extends BasicContext>)handler;
   }
 
   /**
@@ -254,7 +254,7 @@ public class BasicDispatcher
   {
     String[] descriptions = new String[this.dispatchHandlers.size()];
 
-    Handler<? extends BasicDispatcher,? extends Context> handler;
+    Handler<? extends BasicDispatcher,? extends BasicContext> handler;
     for (int i = 0; i < descriptions.length; i++)
     {
       handler = this.dispatchHandlers.get(i);
@@ -305,7 +305,7 @@ public class BasicDispatcher
    * Applications can also overload this method to not output anything at
    * all.
    */
-  protected void displayDispatch(Context context, String command)
+  protected void displayDispatch(BasicContext context, String command)
   {
     this.log.log(context.getClientId() + "; dispatching: " + command);
   }
@@ -360,7 +360,7 @@ public class BasicDispatcher
   /**
    * Gets the default handler.
    */
-  public Handler<? extends BasicDispatcher,? extends Context> getDefaultHandler()
+  public Handler<? extends BasicDispatcher,? extends BasicContext> getDefaultHandler()
   {
     return this.defaultHandler;
   }
@@ -368,7 +368,7 @@ public class BasicDispatcher
   /**
    * Returns a reference to the Dispatcher's Vector of Handlers
    */
-  public List<Handler<? extends BasicDispatcher,? extends Context>> getDispatchHandlers()
+  public List<Handler<? extends BasicDispatcher,? extends BasicContext>> getDispatchHandlers()
   {
     return this.dispatchHandlers;
   }
@@ -381,7 +381,7 @@ public class BasicDispatcher
    *
    * @return Handler The Handler matching the role name, or null if no match.
    */
-  public Handler<? extends BasicDispatcher,? extends Context> getRoledHandler(String role)
+  public Handler<? extends BasicDispatcher,? extends BasicContext> getRoledHandler(String role)
   {
     return this.roledHandlers.get(role);
   }
@@ -392,9 +392,9 @@ public class BasicDispatcher
    *
    * @see BasicDispatcher#addHandler(String, Handler)
    */
-  public Handler<? extends BasicDispatcher,? extends Context> getDispatchHandler(String description)
+  public Handler<? extends BasicDispatcher,? extends BasicContext> getDispatchHandler(String description)
   {
-    Handler<? extends BasicDispatcher,? extends Context> handler;
+    Handler<? extends BasicDispatcher,? extends BasicContext> handler;
     for (int i = 0; i < this.dispatchHandlers.size(); i++)
     {
       handler = this.dispatchHandlers.get(i);
@@ -406,9 +406,9 @@ public class BasicDispatcher
     return null;
   }
 
-  public HandlerIntercept<? extends BasicDispatcher,? extends Context> getIntercept(Class<?> clazz)
+  public HandlerIntercept<? extends BasicDispatcher,? extends BasicContext> getIntercept(Class<?> clazz)
   {
-    for (HandlerIntercept<? extends BasicDispatcher,? extends Context> intercept : this.intercepts)
+    for (HandlerIntercept<? extends BasicDispatcher,? extends BasicContext> intercept : this.intercepts)
     {
       if(intercept.getClass() == clazz)
       {
@@ -419,14 +419,14 @@ public class BasicDispatcher
     return null;
   }
 
-  public HandlerIntercept<? extends BasicDispatcher,? extends Context> getRoledIntercept(String role)
+  public HandlerIntercept<? extends BasicDispatcher,? extends BasicContext> getRoledIntercept(String role)
   {
     return this.roledIntercepts.get(role);
   }
 
-  public ParameterInjector<? extends BasicDispatcher,? extends Context> getInjector(Class<?> clazz)
+  public ParameterInjector<? extends BasicDispatcher,? extends BasicContext> getInjector(Class<?> clazz)
   {
-    for (ParameterInjector<? extends BasicDispatcher,? extends Context> injector : this.injectors)
+    for (ParameterInjector<? extends BasicDispatcher,? extends BasicContext> injector : this.injectors)
     {
       if(injector.getClass() == clazz)
       {
@@ -437,14 +437,14 @@ public class BasicDispatcher
     return null;
   }
 
-  public ParameterInjector<? extends BasicDispatcher,? extends Context> getRoledInjector(String role)
+  public ParameterInjector<? extends BasicDispatcher,? extends BasicContext> getRoledInjector(String role)
   {
     return this.roledInjectors.get(role);
   }
 
-  public HandlerResponse<? extends BasicDispatcher,? extends Context> getResponse(Class<?> clazz)
+  public HandlerResponse<? extends BasicDispatcher,? extends BasicContext> getResponse(Class<?> clazz)
   {
-    for (HandlerResponse<? extends BasicDispatcher,? extends Context> response : this.responses)
+    for (HandlerResponse<? extends BasicDispatcher,? extends BasicContext> response : this.responses)
     {
       if(response.getClass() == clazz)
       {
@@ -455,7 +455,7 @@ public class BasicDispatcher
     return null;
   }
 
-  public HandlerResponse<? extends BasicDispatcher,? extends Context> getRoledResponse(String role)
+  public HandlerResponse<? extends BasicDispatcher,? extends BasicContext> getRoledResponse(String role)
   {
     return this.roledResponses.get(role);
   }
@@ -558,8 +558,8 @@ public class BasicDispatcher
    * @param description A String describing the current situation; can be
    *   null.
    */
-  protected void dispatchExceptionToHandlers(Context context, Throwable exception,
-    String description)
+  protected void dispatchExceptionToHandlers(BasicContext context, Throwable exception,
+                                             String description)
   {
     try
     {
@@ -597,7 +597,7 @@ public class BasicDispatcher
    * work with the provided Context is complete.
    */
   @Override
-  public void dispatchComplete(Context context)
+  public void dispatchComplete(BasicContext context)
   {
     notifyListenersDispatchComplete(context);
   }
@@ -605,7 +605,7 @@ public class BasicDispatcher
   /**
    * Notify the listeners that a dispatch is starting.
    */
-  protected void notifyListenersDispatchStarting(Context context, String command)
+  protected void notifyListenersDispatchStarting(BasicContext context, String command)
   {
     final List<DispatchListener> theListeners = this.listeners;
     if (theListeners != null)
@@ -620,7 +620,7 @@ public class BasicDispatcher
   /**
    * Notify the listeners that a re-dispatch is occurring.
    */
-  protected void notifyListenersRedispatch(Context context, String previousCommand, String newCommand)
+  protected void notifyListenersRedispatch(BasicContext context, String previousCommand, String newCommand)
   {
     final List<DispatchListener> theListeners = this.listeners;
     if (theListeners != null)
@@ -636,7 +636,7 @@ public class BasicDispatcher
   /**
    * Notify the listeners that a dispatch is complete.
    */
-  protected void notifyListenersDispatchComplete(Context context)
+  protected void notifyListenersDispatchComplete(BasicContext context)
   {
     final List<DispatchListener> theListeners = this.listeners;
     if (theListeners != null)
@@ -652,7 +652,7 @@ public class BasicDispatcher
    * Notify the listeners that a rendering has started.
    */
   @Override
-  public void renderStarting(Context context, String jspName)
+  public void renderStarting(BasicContext context, String jspName)
   {
     final List<DispatchListener> theListeners = this.listeners;
     if (this.listeners != null)
@@ -668,7 +668,7 @@ public class BasicDispatcher
    * Notify the listeners that a JSP has been completed.
    */
   @Override
-  public void renderComplete(Context context)
+  public void renderComplete(BasicContext context)
   {
     final List<DispatchListener> theListeners = this.listeners;
     if (this.listeners != null)
@@ -691,7 +691,7 @@ public class BasicDispatcher
    * @param role Arbitrary role name, such as "login".
    * @param handler the Handler to add to the handlers vector.
    */
-  public void addHandler(String role, Handler<? extends Dispatcher,? extends Context> handler)
+  public void addHandler(String role, Handler<? extends Dispatcher,? extends BasicContext> handler)
   {
     addHandler(handler);
     this.roledHandlers.put(role, handler);
@@ -704,7 +704,7 @@ public class BasicDispatcher
    *
    * @param handler A Handler to add to the Dispatch Handlers list.
    */
-  public void addHandler(Handler<? extends Dispatcher,? extends Context> handler)
+  public void addHandler(Handler<? extends Dispatcher,? extends BasicContext> handler)
   {
     this.dispatchHandlers.add(handler);
     addHandler((Object)handler);
@@ -803,7 +803,7 @@ public class BasicDispatcher
   /**
    * Inserts a Handler into the dispatchHandlers vector at the specified index.
    */
-  public void addHandler(Handler<? extends Dispatcher,? extends Context> handler, int index)
+  public void addHandler(Handler<? extends Dispatcher,? extends BasicContext> handler, int index)
   {
     this.dispatchHandlers.add(index, handler);
     addHandler((Object)handler);
@@ -904,7 +904,7 @@ public class BasicDispatcher
    * Gathers the dispatch command from the Request and sets it within the
    * Context.
    */
-  protected String gatherCommand(Context context)
+  protected String gatherCommand(BasicContext context)
   {
     String toReturn = context.query().get(getCommandParameterName(), getDefaultCommand());
     ((LegacyContext)context).setCommand(toReturn);
@@ -926,7 +926,7 @@ public class BasicDispatcher
    */
   @Override
   @SuppressWarnings("unchecked")
-  public boolean dispatch(Context rawContext)
+  public boolean dispatch(BasicContext rawContext)
   {
     LegacyContext context = (LegacyContext)rawContext;
     // Only proceed if the context is provided.
@@ -944,7 +944,7 @@ public class BasicDispatcher
 
       try
       {
-        Handler<? super BasicDispatcher,? super Context> handler;
+        Handler<? super BasicDispatcher,? super BasicContext> handler;
 
         // Check if a command is provided.
         if (command != null)
@@ -962,10 +962,10 @@ public class BasicDispatcher
           // returned false, we go through the list of traditional handlers.
           // We copy the dispatchHandlers reference list for a tiny
           // optimization.
-          final List<Handler<? extends BasicDispatcher,? extends Context>> handlers = this.dispatchHandlers;
+          final List<Handler<? extends BasicDispatcher,? extends BasicContext>> handlers = this.dispatchHandlers;
           for (int i = 0; i < handlers.size(); i++)
           {
-            handler = (Handler<? super BasicDispatcher,? super Context>)handlers.get(i);
+            handler = (Handler<? super BasicDispatcher,? super BasicContext>)handlers.get(i);
 
             boolean accept = handler.acceptRequest(this, context, command);
 
@@ -1023,7 +1023,7 @@ public class BasicDispatcher
           command = getDefaultCommand();
         }
 
-        Handler<? super BasicDispatcher,? super Context> castDefaultHandler = (Handler<? super BasicDispatcher,? super Context>)this.defaultHandler;
+        Handler<? super BasicDispatcher,? super BasicContext> castDefaultHandler = (Handler<? super BasicDispatcher,? super BasicContext>)this.defaultHandler;
         if (castDefaultHandler.handleRequest(this, rawContext, command))
         {
           return true;
@@ -1092,7 +1092,7 @@ public class BasicDispatcher
    * @param rawContext a reference to the Context
    * @param command the new command to use for redispatching
    */
-  public boolean redispatch(Context rawContext, String command)
+  public boolean redispatch(BasicContext rawContext, String command)
   {
     LegacyContext context = (LegacyContext)rawContext;
 
@@ -1147,8 +1147,8 @@ public class BasicDispatcher
    * @param description The description may be null.
    */
   @Override
-  public void dispatchException(Context context, Throwable exception,
-      String description)
+  public void dispatchException(BasicContext context, Throwable exception,
+                                String description)
   {
     if (  (exception != null)
        && (this.exceptionHandlers.size() > 0)
@@ -1173,8 +1173,8 @@ public class BasicDispatcher
    *   response is required (the exception may still be logged).
    * @param description The description may be null.
    */
-  protected void dispatchExceptionDefault(Context rawContext, Throwable exception,
-      String description)
+  protected void dispatchExceptionDefault(BasicContext rawContext, Throwable exception,
+                                          String description)
   {
     String localDescription = description;
     // Set a default description value.

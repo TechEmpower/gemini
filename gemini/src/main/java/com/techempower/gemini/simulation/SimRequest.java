@@ -262,12 +262,6 @@ public abstract class SimRequest
   }
 
   @Override
-  public HttpMethod getRequestMethod()
-  {
-    return null;
-  }
-
-  @Override
   public InputStream getInputStream()
   {
     return null;

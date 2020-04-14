@@ -59,7 +59,7 @@ public class DispatchLogger
   }
   
   @Override
-  public void dispatchStarting(Dispatcher dispatcher, Context context,
+  public void dispatchStarting(Dispatcher dispatcher, BasicContext context,
       String command) {
     if(this.logIpAddress)
     {
@@ -72,13 +72,13 @@ public class DispatchLogger
   }
 
   @Override
-  public void redispatchOccurring(Dispatcher dispatcher, Context context,
+  public void redispatchOccurring(Dispatcher dispatcher, BasicContext context,
       String previousCommand, String newCommand) {
     // Does nothing.
   }
 
   @Override
-  public void dispatchComplete(Dispatcher dispatcher, Context context) {
+  public void dispatchComplete(Dispatcher dispatcher, BasicContext context) {
     // Does nothing.
   }
 
@@ -88,7 +88,7 @@ public class DispatchLogger
   }
 
   @Override
-  public void renderComplete(Dispatcher dispatcher, Context context) {
+  public void renderComplete(Dispatcher dispatcher, BasicContext context) {
     // Does nothing.
   }
 

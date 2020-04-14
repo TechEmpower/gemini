@@ -42,7 +42,7 @@ import com.techempower.util.*;
  * agents, but a typical production environment will be more permissive. 
  */
 public class RobotsHandler
-     extends BasicPathHandler<Context>
+     extends BasicPathHandler<BasicContext>
   implements Configurable
 {
   
@@ -60,7 +60,7 @@ public class RobotsHandler
   }
 
   @Override
-  public boolean handle(PathSegments segments, Context context) 
+  public boolean handle(PathSegments segments, BasicContext context)
   {
     return text(body);
   }

@@ -62,7 +62,7 @@ import com.techempower.log.*;
  *   return new PathDispatcher&lt;&gt;(this, configuration);
  * </pre>
  */
-public class   PathDispatcher<A extends GeminiApplication, C extends Context>
+public class   PathDispatcher<A extends GeminiApplication, C extends BasicContext>
     implements Dispatcher
 {
 
@@ -172,7 +172,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   }
   
   @Override
-  public boolean dispatch(Context plainContext)
+  public boolean dispatch(BasicContext plainContext)
   {
     boolean success = false;
     
@@ -218,7 +218,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
       {
         // The HTTP method for the request is not listed in the HTTPMethod enum,
         // so we are unable to handle the request and simply return a 501.
-        if (plainContext.getRequestMethod() == null)
+        if (((HttpRequest)plainContext.getRequest()).getRequestMethod() == null)
         {
           handler =  notImplementedHandler;
         }
@@ -294,14 +294,14 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   }
 
   @Override
-  public void dispatchComplete(Context context)
+  public void dispatchComplete(BasicContext context)
   {
     notifyListenersDispatchComplete(context);
   }
 
   @Override
-  public void dispatchException(Context context, Throwable exception,
-      String description)
+  public void dispatchException(BasicContext context, Throwable exception,
+                                String description)
   {
     if (exception == null)
     {
@@ -338,7 +338,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   /**
    * Notify the listeners that a dispatch is starting.
    */
-  protected void notifyListenersDispatchStarting(Context context, String command)
+  protected void notifyListenersDispatchStarting(BasicContext context, String command)
   {
     final DispatchListener[] theListeners = listeners;
     for (DispatchListener listener : theListeners)
@@ -350,7 +350,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   /**
    * Notify the listeners that a dispatch is complete.
    */
-  protected void notifyListenersDispatchComplete(Context context)
+  protected void notifyListenersDispatchComplete(BasicContext context)
   {
     final DispatchListener[] theListeners = listeners;
     for (DispatchListener listener : theListeners)
@@ -363,7 +363,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
    * Notify the listeners that a rendering has started.
    */
   @Override
-  public void renderStarting(Context context, String jspName)
+  public void renderStarting(BasicContext context, String jspName)
   {
     final DispatchListener[] theListeners = listeners;
     for (DispatchListener listener : theListeners)
@@ -376,7 +376,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
    * Notify the listeners that a JSP has been completed.
    */
   @Override
-  public void renderComplete(Context context)
+  public void renderComplete(BasicContext context)
   {
     final DispatchListener[] theListeners = listeners;
     for (DispatchListener listener : theListeners)
@@ -388,7 +388,7 @@ public class   PathDispatcher<A extends GeminiApplication, C extends Context>
   /** 
    * A class used for the initial configuration of a PathDispatcher.
    */
-  public static class Configuration<C extends Context>
+  public static class Configuration<C extends BasicContext>
   {
     private       PathHandler<C> defaultHandler;
     private       PathHandler<C> rootHandler;

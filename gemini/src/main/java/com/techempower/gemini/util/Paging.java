@@ -153,7 +153,7 @@ public class Paging
      * @param page the page for which a URL will be returned
      * @return a URL to the specified page in the given context
      */
-    String getURL(Context context, int page);
+    String getURL(BasicContext context, int page);
   }
   
   /**
@@ -542,7 +542,7 @@ public class Paging
    * 
    * @param context The Context from which to read the parameters.
    */
-  public void readParameters(Context context)
+  public void readParameters(BasicContext context)
   {
     int pageNumber = context.query().getInt(getPageParameterName(), 1);
     int pageSize = context.query().getInt(getPageSizeName(), getItemsPerPage());
@@ -560,7 +560,7 @@ public class Paging
    * @param context the current context
    * @return the paging as a <tt>&lt;span&gt;</tt> element
    */
-  public String renderAsSpan(Context context)
+  public String renderAsSpan(BasicContext context)
   {
     return renderAsSpan(context, null);
   }
@@ -576,7 +576,7 @@ public class Paging
    *    rendered <tt>&lt;span&gt;</tt> element
    * @return the paging as a <tt>&lt;span&gt;</tt> element
    */
-  public String renderAsSpan(Context context, String cssClassName)
+  public String renderAsSpan(BasicContext context, String cssClassName)
   {
     return renderAsSpan(context, cssClassName, null);
   }
@@ -592,8 +592,8 @@ public class Paging
    * @param innerPrefixHTML a string to insert before the first page item
    * @return the paging as a <tt>&lt;span&gt;</tt> element
    */
-  public String renderAsSpan(Context context, String cssClassName, 
-      String innerPrefixHTML)
+  public String renderAsSpan(BasicContext context, String cssClassName,
+                             String innerPrefixHTML)
   {
     return renderAsSpan(context, cssClassName, innerPrefixHTML, 
         null, " ");
@@ -613,8 +613,8 @@ public class Paging
    * @param itemSeparatorHTML the separator to use between each page item
    * @return the paging as a <tt>&lt;span&gt;</tt> element
    */
-  public String renderAsSpan(Context context, String cssClassName, 
-      String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML)
+  public String renderAsSpan(BasicContext context, String cssClassName,
+                             String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML)
   {
     return renderAsSpan(context, cssClassName, innerPrefixHTML, 
         innerSuffixHTML, itemSeparatorHTML, DEFAULT_PREVIOUS_PAGE_HTML, 
@@ -643,9 +643,9 @@ public class Paging
    *    or last pages)
    * @return the paging as a <tt>&lt;span&gt;</tt> element
    */
-  public String renderAsSpan(Context context, String cssClassName, 
-      String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML,
-      String previousPageHTML, String nextPageHTML, String ellipsisHTML)
+  public String renderAsSpan(BasicContext context, String cssClassName,
+                             String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML,
+                             String previousPageHTML, String nextPageHTML, String ellipsisHTML)
   {
     return render(context, 
         StringHelper.isEmpty(cssClassName) ? "<span>" : "<span class=\"" + cssClassName + "\">", 
@@ -662,7 +662,7 @@ public class Paging
    * @param context the current context
    * @return the paging as a <tt>&lt;p&gt;</tt> element
    */
-  public String renderAsParagraph(Context context)
+  public String renderAsParagraph(BasicContext context)
   {
     return renderAsParagraph(context, null);
   }
@@ -678,7 +678,7 @@ public class Paging
    *    rendered <tt>&lt;p&gt;</tt> element
    * @return the paging as a <tt>&lt;p&gt;</tt> element
    */
-  public String renderAsParagraph(Context context, String cssClassName)
+  public String renderAsParagraph(BasicContext context, String cssClassName)
   {
     return renderAsParagraph(context, cssClassName, null);
   }
@@ -694,8 +694,8 @@ public class Paging
    * @param innerPrefixHTML a string to insert before the first page item
    * @return the paging as a <tt>&lt;p&gt;</tt> element
    */
-  public String renderAsParagraph(Context context, String cssClassName, 
-      String innerPrefixHTML)
+  public String renderAsParagraph(BasicContext context, String cssClassName,
+                                  String innerPrefixHTML)
   {
     return renderAsParagraph(context, cssClassName, innerPrefixHTML, 
         null, " ");
@@ -715,8 +715,8 @@ public class Paging
    * @param itemSeparatorHTML the separator to use between each page item
    * @return the paging as a <tt>&lt;p&gt;</tt> element
    */
-  public String renderAsParagraph(Context context, String cssClassName, 
-      String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML)
+  public String renderAsParagraph(BasicContext context, String cssClassName,
+                                  String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML)
   {
     return renderAsParagraph(context, cssClassName, innerPrefixHTML, 
         innerSuffixHTML, itemSeparatorHTML, DEFAULT_PREVIOUS_PAGE_HTML, 
@@ -745,9 +745,9 @@ public class Paging
    *    or last pages)
    * @return the paging as a <tt>&lt;p&gt;</tt> element
    */
-  public String renderAsParagraph(Context context, String cssClassName, 
-      String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML,
-      String previousPageHTML, String nextPageHTML, String ellipsisHTML)
+  public String renderAsParagraph(BasicContext context, String cssClassName,
+                                  String innerPrefixHTML, String innerSuffixHTML, String itemSeparatorHTML,
+                                  String previousPageHTML, String nextPageHTML, String ellipsisHTML)
   {
     return render(context, 
         StringHelper.isEmpty(cssClassName) ? "<p>" : "<p class=\"" + cssClassName + "\">", 
@@ -763,7 +763,7 @@ public class Paging
    * @param context the current context
    * @return the paging as a <tt>&lt;ul&gt;</tt> element
    */
-  public String renderAsList(Context context)
+  public String renderAsList(BasicContext context)
   {
     return renderAsList(context, null);
   }
@@ -778,7 +778,7 @@ public class Paging
    *    rendered <tt>&lt;ul&gt;</tt> element
    * @return the paging as a <tt>&lt;ul&gt;</tt> element
    */
-  public String renderAsList(Context context, String cssClassName)
+  public String renderAsList(BasicContext context, String cssClassName)
   {
     return renderAsList(context, cssClassName, null);
   }
@@ -794,8 +794,8 @@ public class Paging
    * @param innerPrefixHTML a string to insert before the first page item
    * @return the paging as a <tt>&lt;ul&gt;</tt> element
    */
-  public String renderAsList(Context context, String cssClassName,
-      String innerPrefixHTML)
+  public String renderAsList(BasicContext context, String cssClassName,
+                             String innerPrefixHTML)
   {
     return renderAsList(context, cssClassName, innerPrefixHTML, null);
   }
@@ -812,8 +812,8 @@ public class Paging
    * @param innerSuffixHTML a string to insert after the last page item
    * @return the paging as a <tt>&lt;ul&gt;</tt> element
    */
-  public String renderAsList(Context context, String cssClassName,
-      String innerPrefixHTML, String innerSuffixHTML)
+  public String renderAsList(BasicContext context, String cssClassName,
+                             String innerPrefixHTML, String innerSuffixHTML)
   {
     return renderAsList(context, cssClassName, null, null,
         DEFAULT_PREVIOUS_PAGE_HTML, DEFAULT_NEXT_PAGE_HTML, 
@@ -840,9 +840,9 @@ public class Paging
    *    or last pages)
    * @return the paging as a <tt>&lt;ul&gt;</tt> element
    */
-  public String renderAsList(Context context, String cssClassName,
-      String innerPrefixHTML, String innerSuffixHTML,
-      String previousPageHTML, String nextPageHTML, String ellipsisHTML)
+  public String renderAsList(BasicContext context, String cssClassName,
+                             String innerPrefixHTML, String innerSuffixHTML,
+                             String previousPageHTML, String nextPageHTML, String ellipsisHTML)
   {
     return render(context, 
         StringHelper.isEmpty(cssClassName) ? "<ul>" : "<ul class=\"" + cssClassName + "\">", 
@@ -857,7 +857,7 @@ public class Paging
    * @param context the current context
    * @return the paging as a <tt>&lt;table&gt;</tt> element
    */
-  public String renderAsTable(Context context)
+  public String renderAsTable(BasicContext context)
   {
     return renderAsTable(context, null);
   }
@@ -872,7 +872,7 @@ public class Paging
    *    rendered <tt>&lt;table&gt;</tt> element
    * @return the paging as a <tt>&lt;table&gt;</tt> element
    */
-  public String renderAsTable(Context context, String cssClassName)
+  public String renderAsTable(BasicContext context, String cssClassName)
   {
     return renderAsTable(context, cssClassName, null);
   }
@@ -888,8 +888,8 @@ public class Paging
    * @param innerPrefixHTML a string to insert before the first page item
    * @return the paging as a <tt>&lt;table&gt;</tt> element
    */
-  public String renderAsTable(Context context, String cssClassName, 
-      String innerPrefixHTML)
+  public String renderAsTable(BasicContext context, String cssClassName,
+                              String innerPrefixHTML)
   {
     return renderAsTable(context, cssClassName, innerPrefixHTML, null);
   }
@@ -906,8 +906,8 @@ public class Paging
    * @param innerSuffixHTML a string to insert after the last page item
    * @return the paging as a <tt>&lt;table&gt;</tt> element
    */
-  public String renderAsTable(Context context, String cssClassName, 
-      String innerPrefixHTML, String innerSuffixHTML)
+  public String renderAsTable(BasicContext context, String cssClassName,
+                              String innerPrefixHTML, String innerSuffixHTML)
   {
     return renderAsTable(context, cssClassName, innerPrefixHTML, 
         innerSuffixHTML, DEFAULT_PREVIOUS_PAGE_HTML, 
@@ -934,9 +934,9 @@ public class Paging
    *    or last pages)
    * @return the paging as a <tt>&lt;table&gt;</tt> element
    */
-  public String renderAsTable(Context context, String cssClassName, 
-      String innerPrefixHTML, String innerSuffixHTML,
-      String previousPageHTML, String nextPageHTML, String ellipsisHTML)
+  public String renderAsTable(BasicContext context, String cssClassName,
+                              String innerPrefixHTML, String innerSuffixHTML,
+                              String previousPageHTML, String nextPageHTML, String ellipsisHTML)
   {
     return render(context, 
         StringHelper.isEmpty(cssClassName) ? "<table cellspacing=\"0\"><tbody><tr>" : "<table cellspacing=\"0\" class=\"" + cssClassName + "\"><tbody><tr>", 
@@ -974,12 +974,12 @@ public class Paging
    *    or last pages)
    * @return an HTML string representing the paging control
    */
-  public String render(Context context,  
-      String outerPrefixHTML, String outerSuffixHTML, 
-      String itemPrefixHTML, String itemSuffixHTML,
-      String innerPrefixHTML, String innerSuffixHTML, 
-      String itemSeparatorHTML, String previousPageHTML,
-      String nextPageHTML, String ellipsisHTML)
+  public String render(BasicContext context,
+                       String outerPrefixHTML, String outerSuffixHTML,
+                       String itemPrefixHTML, String itemSuffixHTML,
+                       String innerPrefixHTML, String innerSuffixHTML,
+                       String itemSeparatorHTML, String previousPageHTML,
+                       String nextPageHTML, String ellipsisHTML)
   {
     return render(context, outerPrefixHTML, outerSuffixHTML, 
         itemPrefixHTML, itemSuffixHTML, innerPrefixHTML, 
@@ -1029,14 +1029,14 @@ public class Paging
    *    item (see <tt>Paging.DEFAULT_CURRENT_PAGE_FORMAT</tt> for an example)
    * @return an HTML string representing the paging control
    */
-  public String render(Context context,  
-      String outerPrefixHTML, String outerSuffixHTML, 
-      String itemPrefixHTML, String itemSuffixHTML,
-      String innerPrefixHTML, String innerSuffixHTML, 
-      String itemSeparatorHTML, String previousPageHTML,
-      String nextPageHTML, String ellipsisHTML,
-      int minPages, String defaultHTML, 
-      String pageFormat, String currentPageFormat)
+  public String render(BasicContext context,
+                       String outerPrefixHTML, String outerSuffixHTML,
+                       String itemPrefixHTML, String itemSuffixHTML,
+                       String innerPrefixHTML, String innerSuffixHTML,
+                       String itemSeparatorHTML, String previousPageHTML,
+                       String nextPageHTML, String ellipsisHTML,
+                       int minPages, String defaultHTML,
+                       String pageFormat, String currentPageFormat)
   {
     if (getPageCount() < minPages)
     {
@@ -1242,7 +1242,7 @@ public class Paging
    * @param page the page number for which to get the URL
    * @return the URL for the specified page number
    */
-  public String getURL(Context context, int page)
+  public String getURL(BasicContext context, int page)
   {
     if (getURLGenerator() == null)
     {
@@ -1276,7 +1276,7 @@ public class Paging
    * @param page the number of the page item to render
    * @return an HTML string representing the specified page item
    */
-  public String renderPage(Context context, int page)
+  public String renderPage(BasicContext context, int page)
   {
     return renderPage(context, page, Integer.toString(page));
   }
@@ -1291,7 +1291,7 @@ public class Paging
    *    the page item
    * @return an HTML string representing the specified page item
    */
-  public String renderPage(Context context, int page, String labelHTML)
+  public String renderPage(BasicContext context, int page, String labelHTML)
   {
     return renderPage(context, page, labelHTML, DEFAULT_PAGE_FORMAT);
   }
@@ -1307,7 +1307,7 @@ public class Paging
    * @param format the format string to use
    * @return an HTML string representing the specified page item
    */
-  public String renderPage(Context context, int page, String labelHTML, String format)
+  public String renderPage(BasicContext context, int page, String labelHTML, String format)
   {
     return StringHelper.replaceSubstrings(format, TOKENS, new String[] { 
         Integer.toString(page), labelHTML, NetworkHelper.render(getURL(context, page)) });

@@ -151,7 +151,7 @@ public abstract class InfrastructureServlet
   }
   
   /**
-   * Services all incloming requests to the application server. By default, 
+   * Services all incoming requests to the application server. By default,
    * this method calls doRequest below. This allows an application to process 
    * all request methods in essentially the same way. If this behavior is 
    * not desired, overload.
@@ -163,7 +163,7 @@ public abstract class InfrastructureServlet
   public void service(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException
   {
-    final Request httpRequest = new HttpRequest(request, response, 
+    final ResinHttpRequest httpRequest = new ResinHttpRequest(request, response,
         this.getServletContext(), this.application);
     application.doRequest(httpRequest);
   }

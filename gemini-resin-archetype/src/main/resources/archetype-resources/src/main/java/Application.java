@@ -82,16 +82,16 @@ public class Application
   @Override
   protected Dispatcher constructDispatcher()
   {
-    final PathDispatcher.Configuration<Context> config =
-        new PathDispatcher.Configuration<Context>();
+    final PathDispatcher.Configuration<BasicContext> config =
+        new PathDispatcher.Configuration<BasicContext>();
 
     // Handlers
     config
       .setDefault(new HomeHandler(this))
       .add("user", new UserHandler(this))
       .add("admin", new AdminHandler(this))
-      .add("login", new LoginHandler<Context>(this))
-      .add("logout", new LogoutHandler<Context>(this));
+      .add("login", new LoginHandler<BasicContext>(this))
+      .add("logout", new LogoutHandler<BasicContext>(this));
     
     // Add ExceptionHandlers
     config.add(new BasicExceptionHandler(this));

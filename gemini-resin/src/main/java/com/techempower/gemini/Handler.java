@@ -122,7 +122,7 @@ import com.techempower.gemini.handler.*;
  * 
  * Warning: This class will soon be deprecated.
  */
-public interface Handler<D extends BasicDispatcher, C extends Context>
+public interface Handler<D extends BasicDispatcher, C extends BasicContext>
 {
   //
   // Constants.

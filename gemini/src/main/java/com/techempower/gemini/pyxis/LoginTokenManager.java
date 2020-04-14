@@ -383,7 +383,7 @@ public class LoginTokenManager
    *
    * @param context the current context
    */
-  public void clearCookie(Context context, PyxisUser user)
+  public void clearCookie(BasicContext context, PyxisUser user)
   {
     Objects.requireNonNull(context);
     if (user != null)
@@ -412,7 +412,7 @@ public class LoginTokenManager
    * @param context the current context
    * @param username the current user's username
    */
-  public void createAndPersistToken(Context context, final String username)
+  public void createAndPersistToken(BasicContext context, final String username)
   {
     Objects.requireNonNull(context);
     Objects.requireNonNull(username);
@@ -553,7 +553,7 @@ public class LoginTokenManager
    * @throws SQLException if an error occurs when reading or updating the
    *                      database
    */
-  public TokenValidation validateAndUpdateToken(Context context)
+  public TokenValidation validateAndUpdateToken(BasicContext context)
       throws SQLException
   {
     Objects.requireNonNull(context);

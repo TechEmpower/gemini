@@ -40,7 +40,7 @@ public class Headers
   /**
    * Constructor.
    */
-  public Headers(Context context)
+  public Headers(BasicContext context)
   {
     this.request = context.getRequest();
   }

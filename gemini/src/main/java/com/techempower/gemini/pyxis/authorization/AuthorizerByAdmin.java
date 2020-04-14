@@ -37,7 +37,7 @@ public class AuthorizerByAdmin
 {
 
   @Override
-  public boolean isAuthorized(PyxisUser user, Context context) 
+  public boolean isAuthorized(PyxisUser user, BasicContext context)
   {
     return user.isAdministrator();
   }

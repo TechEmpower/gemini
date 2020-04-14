@@ -30,7 +30,6 @@ import java.lang.reflect.*;
 
 import com.esotericsoftware.reflectasm.*;
 import com.techempower.gemini.*;
-import com.techempower.gemini.Request.*;
 import com.techempower.gemini.path.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.gemini.pyxis.*;
@@ -45,7 +44,7 @@ import com.techempower.gemini.pyxis.authorization.*;
  * request rejection behavior.  The default Rejector will redirect any 
  * unauthorized requests to the login view.
  */
-public class SecureMethodUriHandler<C extends Context, U extends PyxisUser>
+public class SecureMethodUriHandler<C extends BasicContext, U extends PyxisUser>
      extends MethodUriHandler<C>
 {
   
@@ -109,7 +108,7 @@ public class SecureMethodUriHandler<C extends Context, U extends PyxisUser>
    */
   @Override
   protected PathUriMethod analyzeAnnotatedMethod(Path path, Method method, 
-      HttpMethod httpMethod)
+      HttpRequest.HttpMethod httpMethod)
   {
     final PathUriMethod superAnalysis = 
         super.analyzeAnnotatedMethod(path, method, httpMethod);
@@ -214,7 +213,7 @@ public class SecureMethodUriHandler<C extends Context, U extends PyxisUser>
   {
     final boolean authorizationRequired;
     
-    protected SecurePathUriMethod(Method method, String uri, HttpMethod httpMethod, 
+    protected SecurePathUriMethod(Method method, String uri, HttpRequest.HttpMethod httpMethod,
         MethodAccess methodAccess, boolean authorizationRequired)
     {
       super(method, uri, httpMethod, methodAccess);

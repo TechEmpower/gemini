@@ -52,7 +52,7 @@ public class ValidatorSet
   /**
    * Validate a user request.
    */
-  public Input process(final Context context)
+  public Input process(final BasicContext context)
   {
     final Input result = new Input(context);
     process(result);

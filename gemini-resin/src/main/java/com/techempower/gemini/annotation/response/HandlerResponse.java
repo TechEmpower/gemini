@@ -35,7 +35,7 @@ import com.techempower.gemini.*;
  * An interface describing how an annotation can send a response back to the user after 
  * a handle method has completed.
  */
-public interface HandlerResponse<D extends BasicDispatcher, C extends Context> 
+public interface HandlerResponse<D extends BasicDispatcher, C extends BasicContext>
 {
   /**
    * This method should send the appropriate response to the user.

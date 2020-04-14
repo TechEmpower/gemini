@@ -398,7 +398,7 @@ public class ScriptsAndSheets
    * ScriptsAndSheets.  Typically this is called by BasicJsp.renderFavicon()
    * so that the order of precedence for icons is request &gt; page &gt; app.
    */
-  public String renderFavicon(Context context)
+  public String renderFavicon(BasicContext context)
   {
     if (this.favIcon == null)
     {
@@ -437,7 +437,7 @@ public class ScriptsAndSheets
    * @param context the request context
    * @param suppressed an optional list of suppressed script names
    */
-  public String renderScripts(Context context, List<String> suppressed)
+  public String renderScripts(BasicContext context, List<String> suppressed)
   {
     if (this.scripts == null)
     {
@@ -464,7 +464,7 @@ public class ScriptsAndSheets
   /**
    * Gets a rendering of script tags.
    */
-  public String renderScripts(Context context)
+  public String renderScripts(BasicContext context)
   {
     return renderScripts(context, null);
   }
@@ -475,7 +475,7 @@ public class ScriptsAndSheets
    * @param context the request context
    * @param suppressed an optional list of suppressed sheet names
    */
-  public String renderSheets(Context context, List<String> suppressed)
+  public String renderSheets(BasicContext context, List<String> suppressed)
   {
     if (this.sheets == null)
     {
@@ -512,7 +512,7 @@ public class ScriptsAndSheets
   /**
    * Gets a rendering of style-sheet tags.
    */
-  public String renderSheets(Context context)
+  public String renderSheets(BasicContext context)
   {
     return renderSheets(context, null);
   }

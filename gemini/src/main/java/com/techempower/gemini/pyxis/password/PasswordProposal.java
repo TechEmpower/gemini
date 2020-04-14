@@ -48,7 +48,7 @@ public class PasswordProposal
   public       String hashedPassword;
   public final String username;
   public final PyxisUser user;
-  public final Context context;
+  public final BasicContext context;
   
   /**
    * This is an optional flag to indicate that the proposal should be accepted
@@ -62,7 +62,7 @@ public class PasswordProposal
   public       boolean bypassValidation = false;
   
   public PasswordProposal(String password, String username, PyxisUser user,
-      Context context)
+      BasicContext context)
   {
     Objects.requireNonNull(password, "Password may not be null.");
 

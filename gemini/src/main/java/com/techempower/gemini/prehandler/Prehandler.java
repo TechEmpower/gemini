@@ -45,6 +45,6 @@ public interface Prehandler
    * be dispatched to the remaining Prehandlers and then to a Handler as 
    * normal.
    */
-  boolean prehandle(Context context);
+  boolean prehandle(BasicContext context);
   
 }

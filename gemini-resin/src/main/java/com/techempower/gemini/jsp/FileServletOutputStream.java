@@ -70,11 +70,11 @@ public class FileServletOutputStream
    * @param context the Context object associated with the request. 
    */
   public static void writeJspToFileSimple(String toInvoke, final String filename,
-      Context context)
+      BasicContext context)
   {
     try
     {
-      HttpRequest resinRequest = (HttpRequest)context.getRequest(); // safe - this is resin
+      ResinHttpRequest resinRequest = (ResinHttpRequest)context.getRequest(); // safe - this is resin
       final HttpServletRequest request = resinRequest.getRawRequest();
       final HttpServletResponse response = resinRequest.getRawResponse();
       final RequestDispatcher rd = request.getRequestDispatcher(
@@ -100,11 +100,11 @@ public class FileServletOutputStream
    * @param context the Context object associated with the request. 
    */
   public static void writeJspToFile(String toInvoke, final String filename,
-      Context context)
+      BasicContext context)
   {
     try
     {
-      HttpRequest resinRequest = (HttpRequest)context.getRequest(); // safe - this is resin
+      ResinHttpRequest resinRequest = (ResinHttpRequest)context.getRequest(); // safe - this is resin
       final HttpServletRequest request = resinRequest.getRawRequest();
       final HttpServletResponse response = resinRequest.getRawResponse();
       final RequestDispatcher rd = request.getRequestDispatcher(toInvoke);

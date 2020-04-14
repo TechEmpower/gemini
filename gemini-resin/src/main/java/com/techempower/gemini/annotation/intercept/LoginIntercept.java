@@ -40,7 +40,7 @@ import com.techempower.gemini.pyxis.*;
  * handle this.
  */
 public class LoginIntercept
-  implements HandlerIntercept<BasicDispatcher, Context>
+  implements HandlerIntercept<BasicDispatcher, BasicContext>
 {
   private final GeminiApplication application;
   //private ComponentLog log;
@@ -55,7 +55,7 @@ public class LoginIntercept
    * Checks to see if the user is logged in.
    */
   @Override
-  public boolean intercept(Method m, BasicDispatcher dispatcher, Context context, String command, Annotation annotation)
+  public boolean intercept(Method m, BasicDispatcher dispatcher, BasicContext context, String command, Annotation annotation)
   {
     final PyxisSecurity security = application.getSecurity();
     return security != null && !security.isLoggedIn(context);
@@ -66,11 +66,11 @@ public class LoginIntercept
    */
   @Override
   @SuppressWarnings("unchecked")
-  public boolean handleIntercept(Method m, BasicDispatcher dispatcher, Context context, String command, Annotation annotation)
+  public boolean handleIntercept(Method m, BasicDispatcher dispatcher, BasicContext context, String command, Annotation annotation)
   {
     // dispatcher to the login command
-    Handler<BasicDispatcher, Context> handler = 
-      (Handler<BasicDispatcher, Context>)dispatcher.getRoledHandler(((RequireLogin)annotation).value());
+    Handler<BasicDispatcher, BasicContext> handler =
+      (Handler<BasicDispatcher, BasicContext>)dispatcher.getRoledHandler(((RequireLogin)annotation).value());
     if (handler != null)
     {
       return handler.handleRequest(dispatcher, context, command);

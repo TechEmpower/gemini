@@ -1,8 +1,8 @@
 package com.techempower.gemini.path;
 
-import com.techempower.gemini.Context;
+import com.techempower.gemini.BasicContext;
 
-public class NotImplementedHandler<C extends Context>
+public class NotImplementedHandler<C extends BasicContext>
   implements PathHandler<C>
 {
   @Override

@@ -110,7 +110,7 @@ public class GeminiComponentLog
    * Sets the Context information to be displayed in every log message issued
    * by the Thread handling this request.
    */
-  public static void setContextInformation(Context context)
+  public static void setContextInformation(BasicContext context)
   {
     final StringBuilder buffer = new StringBuilder();
 

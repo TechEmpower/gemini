@@ -31,11 +31,14 @@ import java.util.*;
 
 import com.esotericsoftware.reflectasm.*;
 import com.techempower.gemini.*;
-import com.techempower.gemini.Request.*;
+import com.techempower.gemini.HttpRequest.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
 import com.techempower.log.*;
+
+import static com.techempower.gemini.HttpRequest.HEADER_ACCESS_CONTROL_REQUEST_METHOD;
+import static com.techempower.gemini.HttpRequest.HttpMethod.*;
 
 /**
  * Building on the BasicPathHandler, the MethodPathHandler provides easy
@@ -47,7 +50,7 @@ import com.techempower.log.*;
  * <code>@Put</code>, <code>@Post</code>, or <code>@Delete</code> to indicate which http request method types
  * the route while handle.
  */
-public class MethodSegmentHandler<C extends Context>
+public class MethodSegmentHandler<C extends BasicContext>
      extends BasicPathHandler<C>  
 {
   private final Map<String, PathSegmentMethod> getRequestHandleMethods;
@@ -193,7 +196,6 @@ public class MethodSegmentHandler<C extends Context>
   
   /**
    * Discovers annotated methods at instantiation time.
-   * @return The default, if present, PathSegmentMethod
    */
   private void discoverAnnotatedMethods()
   {
@@ -225,17 +227,17 @@ public class MethodSegmentHandler<C extends Context>
         if (put != null)
         {
           this.addAnnotatedSegment(ps, method,
-              analyzeAnnotatedMethod(method, HttpMethod.PUT));
+              analyzeAnnotatedMethod(method, PUT));
         }
         if (post != null)
         {
           this.addAnnotatedSegment(ps, method,
-              analyzeAnnotatedMethod(method, HttpMethod.POST));
+              analyzeAnnotatedMethod(method, POST));
         }
         if (delete != null)
         {
           this.addAnnotatedSegment(ps, method,
-              analyzeAnnotatedMethod(method, HttpMethod.DELETE));
+              analyzeAnnotatedMethod(method, DELETE));
         }
         if (get == null && put == null && post == null && delete == null)
         {
@@ -266,17 +268,17 @@ public class MethodSegmentHandler<C extends Context>
         if (put != null)
         {
           this.addAnnotatedHandleMethod("", 
-              analyzeAnnotatedMethod(method, HttpMethod.PUT));
+              analyzeAnnotatedMethod(method, PUT));
         }
         if (post != null)
         {
           this.addAnnotatedHandleMethod("", 
-              analyzeAnnotatedMethod(method, HttpMethod.POST));
+              analyzeAnnotatedMethod(method, POST));
         }
         if (delete != null)
         {
           this.addAnnotatedHandleMethod("", 
-              analyzeAnnotatedMethod(method, HttpMethod.DELETE));
+              analyzeAnnotatedMethod(method, DELETE));
         }
         if (get == null && put == null && post == null && delete == null)
         {
@@ -305,15 +307,15 @@ public class MethodSegmentHandler<C extends Context>
         }
         if (put != null)
         {
-          this.defaultPutMethod = analyzeAnnotatedMethod(method, HttpMethod.PUT);
+          this.defaultPutMethod = analyzeAnnotatedMethod(method, PUT);
         }
         if (post != null)
         {
-          this.defaultPostMethod = analyzeAnnotatedMethod(method, HttpMethod.POST);
+          this.defaultPostMethod = analyzeAnnotatedMethod(method, POST);
         }
         if (delete != null)
         {
-          this.defaultDeleteMethod = analyzeAnnotatedMethod(method, HttpMethod.DELETE);
+          this.defaultDeleteMethod = analyzeAnnotatedMethod(method, DELETE);
         }
         if (get == null && put == null && post == null && delete == null)
         {
@@ -335,7 +337,7 @@ public class MethodSegmentHandler<C extends Context>
    * @return The PathSegmentMethod for the given handler method. 
    */
   protected PathSegmentMethod analyzeAnnotatedMethod(Method method, 
-      HttpMethod httpMethod)
+      HttpRequest.HttpMethod httpMethod)
   {
     // Only allow accessible (public) methods
     if (Modifier.isPublic(method.getModifiers()))
@@ -366,7 +368,7 @@ public class MethodSegmentHandler<C extends Context>
   protected PathSegmentMethod getAnnotatedMethod(PathSegments segments, 
       C context) 
   {
-    if (context.getRequestMethod() == null) {
+    if (((HttpRequest)context.getRequest()).getRequestMethod() == null) {
       return null;
     }
     // If there is no segment or parameters provided, try to route to
@@ -374,7 +376,7 @@ public class MethodSegmentHandler<C extends Context>
     if (StringHelper.isEmpty(segments.getUriBelowOffset()))
     {
       final PathSegmentMethod root;
-      switch (context.getRequest().getRequestMethod())
+      switch (((HttpRequest)context.getRequest()).getRequestMethod())
       {
         case PUT:
           root = this.putRequestHandleMethods.get("");
@@ -400,7 +402,7 @@ public class MethodSegmentHandler<C extends Context>
     // Lookup the method associated with the current path segment and use the
     // default method if there is no association.
     final PathSegmentMethod method;
-    switch (context.getRequest().getRequestMethod())
+    switch (((HttpRequest)context.getRequest()).getRequestMethod())
     {
       case PUT:
         method = this.putRequestHandleMethods.get(segments.get(0, ""));
@@ -427,7 +429,7 @@ public class MethodSegmentHandler<C extends Context>
     // we are routed to the correct handler by the dispatch segment, but that
     // there does not exist a @PathSegment for the given path segment portion
     // of the URI. Return default (maybe null).
-    switch (context.getRequest().getRequestMethod())
+    switch (((HttpRequest)context.getRequest()).getRequestMethod())
     {
       case PUT:
         return this.defaultPutMethod;
@@ -507,7 +509,7 @@ public class MethodSegmentHandler<C extends Context>
     final StringBuilder reqMethods = new StringBuilder();
     final List<PathSegmentMethod> methods = new ArrayList<>();
     
-    if(context.headers().get(Request.HEADER_ACCESS_CONTROL_REQUEST_METHOD) != null)
+    if(context.headers().get(HEADER_ACCESS_CONTROL_REQUEST_METHOD) != null)
     {
       PathSegmentMethod put = this.putRequestHandleMethods.get(segments.get(0, ""));
       if (put != null)
@@ -580,7 +582,7 @@ public class MethodSegmentHandler<C extends Context>
         // Check the parameter type to find out.
         // TODO should this be something like parameterTypes[0].isAssignableFrom(Context.class)?
         //      If so, make sure to adjust the below checks as well.
-        if (parameterTypes[0] == Context.class)
+        if (parameterTypes[0] == BasicContext.class)
         {
           this.contextParameter = true;
         }
@@ -598,7 +600,7 @@ public class MethodSegmentHandler<C extends Context>
       }
       else if (parameterTypes.length == 2)
       {
-        if (parameterTypes[0] != Context.class || this.bodyParameter == null)
+        if (parameterTypes[0] != BasicContext.class || this.bodyParameter == null)
         {
           throw new IllegalArgumentException("Handler method is configured "
                   + "incorrectly. The first parameter must be the context and "

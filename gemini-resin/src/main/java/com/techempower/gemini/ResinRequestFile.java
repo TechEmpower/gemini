@@ -212,7 +212,7 @@ public final class ResinRequestFile implements RequestFile {
     
     // Check the content type.  Note that requests do not necessarily have
     // a content type at all.
-    final HttpRequest hr = (HttpRequest)request;
+    final ResinHttpRequest hr = (ResinHttpRequest)request;
     return StringHelper.startsWithIgnoreCase(
         hr.getRawRequest().getContentType(), "multipart/form-data");
   }
@@ -284,7 +284,7 @@ public final class ResinRequestFile implements RequestFile {
     {
       return null;
     }
-    final HttpServletRequest servletRequest = ((HttpRequest) request).getRawRequest();
+    final HttpServletRequest servletRequest = ((ResinHttpRequest) request).getRawRequest();
     final Part part;
     try
     {
@@ -313,7 +313,7 @@ public final class ResinRequestFile implements RequestFile {
     {
       return Collections.emptyList();
     }
-    final HttpServletRequest servletRequest = ((HttpRequest) request).getRawRequest();
+    final HttpServletRequest servletRequest = ((ResinHttpRequest) request).getRawRequest();
     final Collection<Part> parts;
     try
     {

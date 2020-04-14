@@ -47,14 +47,14 @@ public interface Dispatcher
    * However, the method returns a boolean indicating success or failure for 
    * legacy reasons.  Implementations may always return true.   
    */
-  boolean dispatch(Context context);
+  boolean dispatch(BasicContext context);
   
   /**
    * Called by the application to notify the Dispatcher that the application
    * is done with this request.  Implementations may ignore this or use this
    * to close dependent resources or to take a performance metrics snapshot.
    */
-  void dispatchComplete(Context context);
+  void dispatchComplete(BasicContext context);
   
   /**
    * Called by the Context or any other agent responsible for rendering a
@@ -66,7 +66,7 @@ public interface Dispatcher
    * @param renderingName Is any name used to identify the rendering, which
    *        would traditionally be the name of a JSP file.
    */
-  void renderStarting(Context context, String renderingName);
+  void renderStarting(BasicContext context, String renderingName);
   
   /**
    * Called by the Context or any other agent responsible for rendering a
@@ -74,7 +74,7 @@ public interface Dispatcher
    * may elect to ignore this and simply return immediately.  But it may also
    * be used to capture performance metrics.
    */
-  void renderComplete(Context context);
+  void renderComplete(BasicContext context);
   
   /**
    * Dispatch an Exception encountered either as part of processing a request
@@ -92,7 +92,7 @@ public interface Dispatcher
    *   response is required (the exception may still be logged).
    * @param description The description may be null.
    */
-  void dispatchException(Context context, Throwable exception, 
-      String description);
+  void dispatchException(BasicContext context, Throwable exception,
+                         String description);
   
 }

@@ -144,14 +144,14 @@ public class EmailExceptionHandler
   }
 
   @Override
-  public void handleException(Context context, Throwable exc)
+  public void handleException(BasicContext context, Throwable exc)
   {
     handleException(context, exc, null);
   }
 
   @Override
-  public void handleException(Context context, Throwable exception, 
-    String description)
+  public void handleException(BasicContext context, Throwable exception,
+                              String description)
   {
     // Are we enabled?
     if (  (isEnabled())

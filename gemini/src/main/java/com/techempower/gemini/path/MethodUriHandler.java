@@ -31,18 +31,20 @@ import java.util.*;
 
 import com.esotericsoftware.reflectasm.*;
 import com.techempower.gemini.*;
-import com.techempower.gemini.Request.*;
 import com.techempower.gemini.path.MethodUriHandler.PathUriMethod.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
 import com.techempower.log.LogLevel;
 
+import static com.techempower.gemini.HttpRequest.HEADER_ACCESS_CONTROL_REQUEST_METHOD;
+import static com.techempower.gemini.HttpRequest.HttpMethod.*;
+
 /**
  * Building on the BasicPathHandler, the MethodUriHandler provides easy
  * routing of requests to handler methods using the @Path annotation.
  */
-public class MethodUriHandler<C extends Context>
+public class MethodUriHandler<C extends BasicContext>
      extends BasicPathHandler<C>  
 {
   private final PathUriTree    getRequestHandleMethods;
@@ -123,7 +125,6 @@ public class MethodUriHandler<C extends Context>
   
   /**
    * Discovers annotated methods at instantiation time.
-   * @return The default, if present, PathSegmentMethod
    */
   private void discoverAnnotatedMethods()
   {
@@ -154,25 +155,25 @@ public class MethodUriHandler<C extends Context>
         // the future to have differences between no annotations.
         if (get != null)
         {
-          psm = analyzeAnnotatedMethod(path, method, HttpMethod.GET);
+          psm = analyzeAnnotatedMethod(path, method, GET);
         }
         else if (put != null)
         {
-          psm = analyzeAnnotatedMethod(path, method, HttpMethod.PUT);
+          psm = analyzeAnnotatedMethod(path, method, PUT);
         }
         else if (post != null)
         {
-          psm = analyzeAnnotatedMethod(path, method, HttpMethod.POST);
+          psm = analyzeAnnotatedMethod(path, method, POST);
         }
         else if (delete != null)
         {
-          psm = analyzeAnnotatedMethod(path, method, HttpMethod.DELETE);
+          psm = analyzeAnnotatedMethod(path, method, DELETE);
         }
         else
         {
           // If no http request method type annotations are present along
           // side the @PathSegment, then it is an implied GET.
-          psm = analyzeAnnotatedMethod(path, method, HttpMethod.GET);
+          psm = analyzeAnnotatedMethod(path, method, GET);
         }
         
         this.addAnnotatedHandleMethod(psm);
@@ -190,7 +191,7 @@ public class MethodUriHandler<C extends Context>
    * @return The PathSegmentMethod for the given handler method. 
    */
   protected PathUriMethod analyzeAnnotatedMethod(Path path, Method method, 
-      HttpMethod httpMethod)
+      HttpRequest.HttpMethod httpMethod)
   {
     // Only allow accessible (public) methods
     if (Modifier.isPublic(method.getModifiers()))
@@ -226,7 +227,7 @@ public class MethodUriHandler<C extends Context>
       C context) 
   { 
     final PathUriTree tree;
-    switch (context.getRequest().getRequestMethod())
+    switch (((HttpRequest)context.getRequest()).getRequestMethod())
     {
       case PUT:
         tree = this.putRequestHandleMethods;
@@ -254,7 +255,7 @@ public class MethodUriHandler<C extends Context>
     final StringBuilder reqMethods = new StringBuilder();
     final List<PathUriMethod> methods = new ArrayList<>();
     
-    if(context.headers().get(Request.HEADER_ACCESS_CONTROL_REQUEST_METHOD) != null)
+    if(context.headers().get(HEADER_ACCESS_CONTROL_REQUEST_METHOD) != null)
     {
       final PathUriMethod put = this.putRequestHandleMethods.search(segments);
       if (put != null)
@@ -524,7 +525,7 @@ public class MethodUriHandler<C extends Context>
      * out of segments to check, return that if we have not found a true
      * match.
      */
-    private final PathUriMethod search(Node node, PathSegments segments, int offset)
+    private PathUriMethod search(Node node, PathSegments segments, int offset)
     {
       if (node != this.root && 
           offset >= segments.getCount())
@@ -617,7 +618,7 @@ public class MethodUriHandler<C extends Context>
           .append(", childrenCount: ")
           .append(this.children.size())
           .append("}");
-        
+
         return sb.toString();
       }
       
@@ -625,7 +626,7 @@ public class MethodUriHandler<C extends Context>
        * Returns the immediate child node for the given segment and creates
        * if it does not exist.
        */
-      private final Node getChildForSegment(Node node, UriSegment[] segments, int offset)
+      private Node getChildForSegment(Node node, UriSegment[] segments, int offset)
       {
         Node toRet = null;
         for(Node child : node.children)
@@ -649,7 +650,7 @@ public class MethodUriHandler<C extends Context>
        * Recursively adds the given PathUriMethod to this tree at the 
        * appropriate depth.
        */
-      private final void addChild(Node node, PathUriMethod uriMethod, int offset)
+      private void addChild(Node node, PathUriMethod uriMethod, int offset)
       {
         if (uriMethod.segments.length > offset)
         {
@@ -686,7 +687,7 @@ public class MethodUriHandler<C extends Context>
     public final UriSegment[] segments;
     public final int index;
     
-    public PathUriMethod(Method method, String uri, HttpMethod httpMethod,
+    public PathUriMethod(Method method, String uri, HttpRequest.HttpMethod httpMethod,
         MethodAccess methodAccess)
     {
       super(method, httpMethod);

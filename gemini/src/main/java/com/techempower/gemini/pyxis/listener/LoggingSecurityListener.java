@@ -36,7 +36,7 @@ import com.techempower.log.*;
  * Simply logs calls to the listener methods.  Does nothing else.
  */
 public class LoggingSecurityListener
-  implements SecurityListener<Context>
+  implements SecurityListener<BasicContext>
 {
   
   //
@@ -64,19 +64,19 @@ public class LoggingSecurityListener
   }
 
   @Override
-  public void loginFailed(Context context)
+  public void loginFailed(BasicContext context)
   {
     log.log("Login failed: " + context);
   }
 
   @Override
-  public void loginSuccessful(Context context, PyxisUser user)
+  public void loginSuccessful(BasicContext context, PyxisUser user)
   {
     log.log("Login successful: " + user);
   }
 
   @Override
-  public void logoutSuccessful(Context context, PyxisUser user)
+  public void logoutSuccessful(BasicContext context, PyxisUser user)
   {
     if (context == null)
     {

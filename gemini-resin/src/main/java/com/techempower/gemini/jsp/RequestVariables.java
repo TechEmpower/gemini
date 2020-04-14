@@ -95,7 +95,7 @@ public class RequestVariables
   /**
    * Constructor.
    */
-  public RequestVariables(Context context)
+  public RequestVariables(BasicContext context)
   {
     this.sas = new ScriptsAndSheets(context.getApplication());
   }

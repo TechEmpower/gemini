@@ -6,7 +6,7 @@ import com.techempower.gemini.pyxis.authorization.*;
 import com.techempower.gemini.pyxis.handler.*;
 import ${package}.entities.*;
 
-public class AdminHandler extends SecureMethodUriHandler<Context, User>
+public class AdminHandler extends SecureMethodUriHandler<BasicContext, User>
 {
 
   public AdminHandler(GeminiApplication app)

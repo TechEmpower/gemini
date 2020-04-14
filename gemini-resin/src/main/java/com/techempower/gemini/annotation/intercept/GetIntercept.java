@@ -44,7 +44,7 @@ import com.techempower.gemini.*;
  *   "errorDescription" : "GET is expected."
  * }</pre>
  */
-public class GetIntercept<D extends BasicDispatcher, C extends Context>
+public class GetIntercept<D extends BasicDispatcher, C extends BasicContext>
     implements HandlerIntercept<D, C>
 {
 
