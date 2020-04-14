@@ -60,28 +60,31 @@ public abstract class LogListener extends AppenderBase<ILoggingEvent>
 
   protected void handle(ILoggingEvent eventObject)
   {
+    Level level = eventObject.getLevel();
     String message = format(eventObject);
-    ThrowableProxy throwableProxy;
+    Throwable throwable;
     if (eventObject instanceof LoggingEvent)
     {
       LoggingEvent event = (LoggingEvent) eventObject;
-      throwableProxy = (ThrowableProxy) event.getThrowableProxy();
+      ThrowableProxy throwableProxy = (ThrowableProxy) event.getThrowableProxy();
+      if (throwableProxy != null)
+      {
+        throwable = throwableProxy.getThrowable();
+      }
+      else
+      {
+        throwable = null;
+      }
     }
     else
     {
-      throwableProxy = null;
+      throwable = null;
     }
-    if (throwableProxy != null)
-    {
-      handleException(message, throwableProxy.getThrowable());
-    }
-    else
-    {
-      handle(message);
-    }
+    handle(message, level, throwable);
   }
 
-  protected abstract void handle(String message);
+  protected abstract void handle(String message,
+                                 Level logLevel,
+                                 Throwable throwable);
 
-  protected abstract void handleException(String message, Throwable throwable);
 }
