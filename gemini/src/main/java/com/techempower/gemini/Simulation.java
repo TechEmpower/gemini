@@ -91,13 +91,13 @@ public abstract class Simulation
     return new SimConfig(this.docroot);
   }
 
-  public BasicContext postRequest(SimClient client, String url, Map<String, String> parameters)
+  public Context postRequest(SimClient client, String url, Map<String, String> parameters)
   {
     if (this.application.isRunning())
     {
       SimRequest request = new PostSimRequest(this, url, parameters, client, this.application);
         
-      final BasicContext context = this.application.getContext(request);
+      final Context context = this.application.getContext(request);
       
       handleRequest(context);
       
@@ -120,13 +120,13 @@ public abstract class Simulation
     }
   }
   
-  public BasicContext getRequest(SimClient client, String url, Map<String, String> parameters)
+  public Context getRequest(SimClient client, String url, Map<String, String> parameters)
   {
     if (this.application.isRunning())
     {
       SimRequest request = new GetSimRequest(this, url, parameters, client, this.application);
         
-      final BasicContext context = this.application.getContext(request);
+      final Context context = this.application.getContext(request);
       
       handleRequest(context);
       
@@ -155,7 +155,7 @@ public abstract class Simulation
    *   <p>
    * Overload this method if you do not want to use the dispatcher.
    */
-  public void handleRequest(BasicContext context)
+  public void handleRequest(Context context)
   {
     // Identify the current thread if we are counting requests.
     String threadName = null;
@@ -204,7 +204,7 @@ public abstract class Simulation
   {
     // setup
     SimRequest request = new PostSimRequest(this, "", null, client, this.application); 
-    final BasicContext context = this.application.getContext(request);
+    final Context context = this.application.getContext(request);
     
     BasicUser user = null;
     

@@ -213,25 +213,25 @@ public abstract class InfrastructureJsp
    * such as "this.sas" (page-scope) or "vars.sas" (request-scope) rather
    * than render references directly using this method.
    */
-  public static String renderCssPath(BasicContext context, String filename)
+  public static String renderCssPath(Context context, String filename)
   {
-    return render(context.getInfrastructure().getCssDirectory(context) + filename);
+    return render(((BasicContext)context).getInfrastructure().getCssDirectory(context) + filename);
   }
 
   /**
    * Renders the full URL path to the given HTML file.  
    */
-  public static String renderHtmlPath(BasicContext context, String filename)
+  public static String renderHtmlPath(Context context, String filename)
   {
-    return render(context.getInfrastructure().getHtmlDirectory(context) + filename);
+    return render(((BasicContext)context).getInfrastructure().getHtmlDirectory(context) + filename);
   }
 
   /**
    * Renders the full URL path to the given image file.  
    */
-  public static String renderImagePath(BasicContext context, String filename)
+  public static String renderImagePath(Context context, String filename)
   {
-    return render(context.getInfrastructure().getImageDirectory(context) + filename);
+    return render(((BasicContext)context).getInfrastructure().getImageDirectory(context) + filename);
   }
 
   /**
@@ -240,9 +240,9 @@ public abstract class InfrastructureJsp
    * object such as "this.sas" (page-scope) or "vars.sas" (request-scope)
    * rather than render references directly using this method.  
    */
-  public static String renderJavaScriptPath(BasicContext context, String filename)
+  public static String renderJavaScriptPath(Context context, String filename)
   {
-    return render(context.getInfrastructure().getJavaScriptDirectory(context) + filename);
+    return render(((BasicContext)context).getInfrastructure().getJavaScriptDirectory(context) + filename);
   }
 
   /**
@@ -264,14 +264,14 @@ public abstract class InfrastructureJsp
    * @param requestScopeSas if non-null, this is a list of scripts and sheets
    *        that was produced for the particulars of this request.
    */
-  public String renderScripts(BasicContext context, ScriptsAndSheets requestScopeSas)
+  public String renderScripts(Context context, ScriptsAndSheets requestScopeSas)
   {
     List<String> suppressed = this.sas.getSuppressed(null);
     suppressed = (requestScopeSas != null ? requestScopeSas.getSuppressed(suppressed) : suppressed);
     
     return
       // Application-scope scripts.
-      context.getApplication().getInfrastructure().getSas().renderScripts(context, suppressed)
+      ((BasicContext)context).getApplication().getInfrastructure().getSas().renderScripts(context, suppressed)
       // Page-scope scripts.
       + this.sas.renderScripts(context, suppressed)
       // Request-scope scripts.
@@ -286,7 +286,7 @@ public abstract class InfrastructureJsp
    * This is the common use-case since request-scope scripts and sheets
    * are quite rare.
    */
-  public String renderScripts(BasicContext context)
+  public String renderScripts(Context context)
   {
     return renderScripts(context, null);
   }
@@ -301,14 +301,14 @@ public abstract class InfrastructureJsp
    * @param requestScopeSas if non-null, this is a list of scripts and sheets
    *        that was produced for the particulars of this request.
    */
-  public String renderSheets(BasicContext context, ScriptsAndSheets requestScopeSas)
+  public String renderSheets(Context context, ScriptsAndSheets requestScopeSas)
   {
     List<String> suppressed = this.sas.getSuppressedSheets(null);
     suppressed = (requestScopeSas != null ? requestScopeSas.getSuppressedSheets(suppressed) : suppressed);
 
     return
       // Application-scope style-sheets.
-      context.getApplication().getInfrastructure().getSas().renderSheets(context, suppressed)
+      ((BasicContext)context).getApplication().getInfrastructure().getSas().renderSheets(context, suppressed)
       // Page-scope style-sheets.
       + this.sas.renderSheets(context, suppressed)
       // Request-scope style-sheets.
@@ -323,7 +323,7 @@ public abstract class InfrastructureJsp
    * This is the common use-case since request-scope scripts and sheets
    * are quite rare.
    */
-  public String renderSheets(BasicContext context)
+  public String renderSheets(Context context)
   {
     return renderSheets(context, null);
   }
@@ -338,7 +338,7 @@ public abstract class InfrastructureJsp
    * @param requestScopeSas if non-null, this is a list of scripts and sheets
    *        that was produced for the particulars of this request.
    */
-  public String renderFavicon(BasicContext context, ScriptsAndSheets requestScopeSas)
+  public String renderFavicon(Context context, ScriptsAndSheets requestScopeSas)
   {
     String fav = "";
     
@@ -361,7 +361,7 @@ public abstract class InfrastructureJsp
     
     // Finally try application-scope SAS.  Empty String will be returned
     // if the application-scope SAS does not define a favicon.
-    fav = context.getApplication().getInfrastructure().getSas().renderFavicon(context);
+    fav = ((BasicContext)context).getApplication().getInfrastructure().getSas().renderFavicon(context);
     return fav;
   }
   
@@ -374,7 +374,7 @@ public abstract class InfrastructureJsp
    * 
    * @param context the current request context.
    */
-  public String renderFavicon(BasicContext context)
+  public String renderFavicon(Context context)
   {
     return renderFavicon(context, null);
   }

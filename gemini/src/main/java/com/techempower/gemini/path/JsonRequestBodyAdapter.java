@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.techempower.gemini.BasicContext;
+import com.techempower.gemini.Context;
 import com.techempower.gemini.GeminiConstants;
 import com.techempower.gemini.Request;
 import com.techempower.js.JavaScriptError;
@@ -16,10 +17,10 @@ import com.techempower.js.JavaScriptError;
  *
  * @see com.techempower.gemini.path.annotation.ConsumesJson
  */
-public class JsonRequestBodyAdapter implements RequestBodyAdapter<BasicContext>
+public class JsonRequestBodyAdapter implements RequestBodyAdapter<Context>
 {
   @Override
-  public Object read(BasicContext context, Type type) throws RequestBodyException
+  public Object read(Context context, Type type) throws RequestBodyException
   {
     final Request request = context.getRequest();
 
@@ -33,7 +34,7 @@ public class JsonRequestBodyAdapter implements RequestBodyAdapter<BasicContext>
     try
     {
       // Attempt de-serialization.
-      return context.getApplication().getJavaScriptReader().read(request.getInputStream(), type);
+      return ((BasicContext)context).getApplication().getJavaScriptReader().read(request.getInputStream(), type);
     }
     catch (IOException e)
     {

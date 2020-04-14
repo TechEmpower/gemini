@@ -51,11 +51,11 @@ public interface ExceptionHandler
   /**
    * Process an Exception.
    */
-  void handleException(BasicContext context, Throwable exc);
+  void handleException(Context context, Throwable exc);
   
   /**
    * Process an Exception with a descriptive String.
    */
-  void handleException(BasicContext context, Throwable exc, String description);
+  void handleException(Context context, Throwable exc, String description);
 
 }

@@ -89,7 +89,7 @@ public class MonitorInterval
    * Evaluate a MonitorSample, factor the sample into averages and then store
    * a reference to any of the exceptional case references if needed.
    */
-  public void process(MonitorSample sample, BasicContext context)
+  public void process(MonitorSample sample, Context context)
   {
     // Increase the totals appropriately.
     this.totalSamples++;

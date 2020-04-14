@@ -1,6 +1,7 @@
 package com.techempower.gemini;
 
 import com.techempower.gemini.context.*;
+import com.techempower.gemini.internationalization.GeminiResources;
 import com.techempower.gemini.session.Session;
 
 import java.io.IOException;
@@ -27,6 +28,17 @@ public interface Context {
     long getDuration();
 
     /**
+     * Set the content type of the response.
+     */
+    void setContentType(String contentType);
+
+    /**
+     * Sets the request and response character sets to those provided by the
+     * application.
+     */
+    void setDefaultCharacterSets();
+
+    /**
      * Gets a user session's locale.  If no locale it set, the default locale
      * is returned.  This is merely a pass-through convenience method for
      * calling localeManager.getLocale.
@@ -36,6 +48,21 @@ public interface Context {
      * user's current request.
      */
     Locale getLocale();
+
+    /**
+     * Sets a user session's locale.  This is merely a pass-through convenience
+     * method for calling localeManager.getLocale.
+     */
+    void setLocale(Locale locale);
+
+    /**
+     * Sets a user session's locale.  This is merely a pass-through convenience
+     * method for calling localeManager.setLocale.
+     *
+     * @param languageID the Language ID for the Locale.
+     * @param countryID the Country ID for the Locale.
+     */
+    void setLocale(String languageID, String countryID);
 
     /**
      * Gets a reference to the output stream from the response.  This is a
@@ -59,6 +86,17 @@ public interface Context {
     Request getRequest();
 
     /**
+     * If request counting is enabled, return this request's number.
+     */
+    long getRequestNumber();
+
+    /**
+     * If tracking the request number is enabled, sets it. Intended to only be
+     * called by InfrastructureServlet.
+     */
+    void setRequestNumber(long requestNumber);
+
+    /**
      * Gets the current request's "signature;" that is, the URL including all
      * of the parameters.  This will construct a URL that will always use a
      * "GET" form even if the request itself was POSTed.
@@ -71,6 +109,27 @@ public interface Context {
      * URI of admin/users.
      */
     String getRequestUri();
+
+    /**
+     * Gets or initializes and then gets a reference to the appropriate
+     * GeminiResourceBundle for this user given the Locale--or lack thereof--
+     * stored in the user's session.  If your application is non-locale-
+     * aware, you can optionally always return a static reference to a
+     * DefaultGeminiResources object, to avoid the session lookup.
+     */
+    GeminiResources getResources();
+
+    /**
+     * Gets the full Secure URL to the Servlet.
+     */
+    String getSecureUrl();
+
+    /**
+     * Gets the name (also sometimes called the "URL") of the servlet.  Again,
+     * this Context version of the method will encode session information into
+     * the URL if the browser does not support cookies.
+     */
+    String getUrl();
 
     /**
      * Get a named-value interface to the Session.
@@ -198,4 +257,27 @@ public interface Context {
      * directly, use of getResponse is preferred.
      */
     void print(String text);
+
+    /**
+     * Redirect the browser to a new location using HTTP response code 302
+     * (moved temporarily).  This is common after processing a POST.  Use
+     * redirectPermanent if HTTP response 301 is desired.
+     *
+     * @param redirectDestinationUrl The destination for the browser.
+     */
+    boolean redirect(String redirectDestinationUrl);
+
+    /**
+     * Sends a permanent redirect (HTTP response code 301) by setting the
+     * Location header and then sending error code 301.
+     *
+     * @param redirectDestinationUrl The destination for the browser.
+     */
+    boolean redirectPermanent(String redirectDestinationUrl);
+
+    /**
+     * Sets the response status code.  See the full list of response codes
+     * provided by HttpServletResponse for more information.
+     */
+    void setStatus(int status);
 }

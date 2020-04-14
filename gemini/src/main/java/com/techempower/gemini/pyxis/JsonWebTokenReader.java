@@ -73,7 +73,7 @@ public class JsonWebTokenReader
   //
   
   @Override
-  public JsonWebToken read(BasicContext context)
+  public JsonWebToken read(Context context)
   {
     String serialized = context.headers().get(HEADER_AUTHORIZATION);
     

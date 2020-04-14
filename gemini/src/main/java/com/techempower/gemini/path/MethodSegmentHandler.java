@@ -50,7 +50,7 @@ import static com.techempower.gemini.HttpRequest.HttpMethod.*;
  * <code>@Put</code>, <code>@Post</code>, or <code>@Delete</code> to indicate which http request method types
  * the route while handle.
  */
-public class MethodSegmentHandler<C extends BasicContext>
+public class MethodSegmentHandler<C extends Context>
      extends BasicPathHandler<C>  
 {
   private final Map<String, PathSegmentMethod> getRequestHandleMethods;
@@ -582,7 +582,7 @@ public class MethodSegmentHandler<C extends BasicContext>
         // Check the parameter type to find out.
         // TODO should this be something like parameterTypes[0].isAssignableFrom(Context.class)?
         //      If so, make sure to adjust the below checks as well.
-        if (parameterTypes[0] == BasicContext.class)
+        if (parameterTypes[0] == Context.class)
         {
           this.contextParameter = true;
         }
@@ -600,7 +600,7 @@ public class MethodSegmentHandler<C extends BasicContext>
       }
       else if (parameterTypes.length == 2)
       {
-        if (parameterTypes[0] != BasicContext.class || this.bodyParameter == null)
+        if (parameterTypes[0] != Context.class || this.bodyParameter == null)
         {
           throw new IllegalArgumentException("Handler method is configured "
                   + "incorrectly. The first parameter must be the context and "

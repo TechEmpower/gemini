@@ -36,12 +36,12 @@ import com.techempower.helper.*;
 public class Cookies
 {
 
-  private final BasicContext context;
+  private final Context context;
   
   /**
    * Constructor.
    */
-  public Cookies(BasicContext context)
+  public Cookies(Context context)
   {
     this.context = context;
   }
@@ -98,7 +98,7 @@ public class Cookies
    */
   public Cookies remove(String name)
   {
-    remove(name, context.getInfrastructure().getUrl());
+    remove(name, ((BasicContext)context).getInfrastructure().getUrl());
     
     return this;
   }

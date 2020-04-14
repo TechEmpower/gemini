@@ -412,7 +412,7 @@ public class BasicInfrastructure
    * the trailing /.
    */
   @Override
-  public String getStandardDomain(BasicContext context)
+  public String getStandardDomain(Context context)
   {
     return "http://" + context.headers().host();
   }
@@ -465,7 +465,7 @@ public class BasicInfrastructure
    * to determine if the secure directory should be returned.
    */
   @Override
-  public String getHtmlDirectory(BasicContext context)
+  public String getHtmlDirectory(Context context)
   {
     if (this.secureHtmlFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -495,7 +495,7 @@ public class BasicInfrastructure
    * to determine if the secure directory should be returned.
    */
   @Override
-  public String getCssDirectory(BasicContext context)
+  public String getCssDirectory(Context context)
   {
     if (this.secureCssFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -525,7 +525,7 @@ public class BasicInfrastructure
    * to determine if the secure directory should be returned.
    */
   @Override
-  public String getJavaScriptDirectory(BasicContext context)
+  public String getJavaScriptDirectory(Context context)
   {
     if (this.secureJsFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -559,7 +559,7 @@ public class BasicInfrastructure
    * be returned.
    */
   @Override
-  public String getImageDirectory(BasicContext context)
+  public String getImageDirectory(Context context)
   {
     if (this.secureImageFileDirectory != null && context != null && context.getRequest().isSecure())
     {
@@ -631,7 +631,7 @@ public class BasicInfrastructure
    * @param context a user's request Context reference.
    */
   @Override
-  public String getImageUrl(String imageFilename, BasicContext context)
+  public String getImageUrl(String imageFilename, Context context)
   {
     Locale locale = this.application.getLocaleManager().getLocaleRaw(context);
     if (locale != null)
@@ -747,7 +747,7 @@ public class BasicInfrastructure
    * NOTE: This does NOT use getStandardDomain().
    */
   @Override
-  public String getStandardCmdUrl(String command, BasicContext context)
+  public String getStandardCmdUrl(String command, Context context)
   {
     return getStandardDomain(context) + getCmdUrl(command);
   }

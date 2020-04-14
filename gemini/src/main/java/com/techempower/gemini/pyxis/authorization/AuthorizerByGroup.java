@@ -58,7 +58,7 @@ public class AuthorizerByGroup
   }
 
   @Override
-  public boolean isAuthorized(PyxisUser user, BasicContext context)
+  public boolean isAuthorized(PyxisUser user, Context context)
   {
     return (  (  (allowAdministrators)
               && (user.isAdministrator())

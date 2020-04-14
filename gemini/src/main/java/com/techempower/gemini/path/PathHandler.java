@@ -33,7 +33,7 @@ import com.techempower.gemini.*;
  * at a root-level path segment, such as /tasks or /users.  Conceptually
  * similar to the original Handler interface from legacy versions of Gemini.
  */
-public interface PathHandler<C extends BasicContext>
+public interface PathHandler<C extends Context>
 {
 
   /**

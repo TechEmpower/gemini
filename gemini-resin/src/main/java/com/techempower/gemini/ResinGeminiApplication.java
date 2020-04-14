@@ -128,7 +128,7 @@ public abstract class ResinGeminiApplication
    * a special subclass of Context.
    */
   @Override
-  public BasicContext getContext(Request request)
+  public Context getContext(Request request)
   {
     return new ResinContext(request, this);
   }

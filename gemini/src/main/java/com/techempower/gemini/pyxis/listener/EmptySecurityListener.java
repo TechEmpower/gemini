@@ -36,21 +36,21 @@ import com.techempower.gemini.pyxis.password.*;
  * subclasses to implement only those desired.
  */
 public class EmptySecurityListener
-  implements SecurityListener<BasicContext>
+  implements SecurityListener<Context>
 {
   
   @Override
-  public void loginFailed(BasicContext context)
+  public void loginFailed(Context context)
   {
   }
 
   @Override
-  public void loginSuccessful(BasicContext context, PyxisUser user)
+  public void loginSuccessful(Context context, PyxisUser user)
   {
   }
 
   @Override
-  public void logoutSuccessful(BasicContext context, PyxisUser user)
+  public void logoutSuccessful(Context context, PyxisUser user)
   {
   }
 

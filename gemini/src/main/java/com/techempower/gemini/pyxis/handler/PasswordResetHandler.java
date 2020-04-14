@@ -85,7 +85,7 @@ import com.techempower.util.*;
  *       Mustache templates?  By default the relative path is "auth/".</li>
  * </ul>
  */
-public class PasswordResetHandler<C extends BasicContext>
+public class PasswordResetHandler<C extends Context>
      extends MethodSegmentHandler<C>
   implements Configurable
 {
@@ -192,7 +192,7 @@ public class PasswordResetHandler<C extends BasicContext>
    */
   @PathDefault
   @Get
-  public boolean getResetRequest(BasicContext context)
+  public boolean getResetRequest(Context context)
   {
     template(TEMPLATE_RESET_REQUEST);
     return render();
@@ -203,7 +203,7 @@ public class PasswordResetHandler<C extends BasicContext>
    */
   @PathDefault
   @Post
-  public boolean resetRequest(BasicContext context)
+  public boolean resetRequest(Context context)
   {
     template(TEMPLATE_RESET_REQUEST);
     // Check for submission.
@@ -268,7 +268,7 @@ public class PasswordResetHandler<C extends BasicContext>
    * </ul>
    * The default email template name is "E-PasswordResetAuthorization".
    */
-  protected void sendAuthorizationEmail(BasicContext context, BasicWebUser user, String ticket)
+  protected void sendAuthorizationEmail(Context context, BasicWebUser user, String ticket)
   {
     final EmailTemplater templater = app().getEmailTemplater();
     final Map<String,Object> macros = new HashMap<>(10);
@@ -369,7 +369,7 @@ public class PasswordResetHandler<C extends BasicContext>
   @PathSegment("auth")
   @Post
   @Get
-  public boolean authorize(BasicContext context)
+  public boolean authorize(Context context)
   {
     final String username = query().get("un", "");
     final String ticket = query().get("vt", "");

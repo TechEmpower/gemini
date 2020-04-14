@@ -36,7 +36,7 @@ import com.techempower.log.*;
  * Subclasses of SecureHandler may easily disallow requests from 
  * unauthenticated users.
  */
-public abstract class SecureHandler<D extends BasicDispatcher, C extends BasicContext>
+public abstract class SecureHandler<D extends BasicDispatcher, C extends Context>
     implements Handler<D, C>
 {  
   

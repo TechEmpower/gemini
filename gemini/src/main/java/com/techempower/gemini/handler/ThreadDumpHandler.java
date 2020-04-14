@@ -76,7 +76,7 @@ import com.techempower.util.*;
  * To invoke the ThreadDumpHandler, issue a command of this form to your
  * application in the form of an HTTP request: /threaddump
  */
-public class ThreadDumpHandler<C extends BasicContext>
+public class ThreadDumpHandler<C extends Context>
   extends    MethodSegmentHandler<C>
   implements Configurable,
              UriAware,
@@ -155,7 +155,7 @@ public class ThreadDumpHandler<C extends BasicContext>
   /**
    * Is the viewer requesting JMX data?
    */
-  protected boolean isJmx(BasicContext context)
+  protected boolean isJmx(Context context)
   {
     boolean jmx = this.useJmx;
     if (  (jmx)
@@ -178,7 +178,7 @@ public class ThreadDumpHandler<C extends BasicContext>
    * If the AuthorizedIP is set to "any", a request from any IP address will
    * be accepted.
    */
-  protected boolean isAuthorized(BasicContext context)
+  protected boolean isAuthorized(Context context)
   {
     return this.passphrase != null
         && query().get(this.passphrase) != null
@@ -288,7 +288,7 @@ public class ThreadDumpHandler<C extends BasicContext>
    * Executes a thread dump.
    */
   @PathDefault
-  public boolean threadDump(BasicContext context)
+  public boolean threadDump(Context context)
   {
     final boolean jmx = isJmx(context);
     final long startTime = System.currentTimeMillis();
@@ -404,7 +404,7 @@ public class ThreadDumpHandler<C extends BasicContext>
    * Executes a thread dump.
    */
   @PathSegment("plain")
-  public boolean threadDumpPlainText(BasicContext context)
+  public boolean threadDumpPlainText(Context context)
   {
     final boolean jmx = isJmx(context);
     final long startTime = System.currentTimeMillis();
@@ -481,7 +481,7 @@ public class ThreadDumpHandler<C extends BasicContext>
   /**
    * Writes out an HTML header for the thread dump.
    */
-  protected void writeHeader(BasicContext context)
+  protected void writeHeader(Context context)
   {
     context.print("<html>");
     context.print("<head>");
@@ -523,7 +523,7 @@ public class ThreadDumpHandler<C extends BasicContext>
   /**
    * Writes out an HTML header for the thread dump.
    */
-  protected void writeFooter(BasicContext context, long msTaken)
+  protected void writeFooter(Context context, long msTaken)
   {
     context.print("<p>Operation took " + msTaken + " ms.  <a href='" + getBaseUri() + "/plain'>Plaintext version</a></p>");
     context.print("</body>");

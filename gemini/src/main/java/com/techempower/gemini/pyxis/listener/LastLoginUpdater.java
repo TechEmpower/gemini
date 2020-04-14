@@ -37,7 +37,7 @@ import com.techempower.gemini.pyxis.password.*;
  * application's Security.
  */
 public class LastLoginUpdater
-  implements SecurityListener<BasicContext>
+  implements SecurityListener<Context>
 {
 
   private final PyxisSecurity security;
@@ -48,7 +48,7 @@ public class LastLoginUpdater
   }
   
   @Override
-  public void loginSuccessful(BasicContext context, PyxisUser user)
+  public void loginSuccessful(Context context, PyxisUser user)
   {
     if (security.getSettings().isLastLoginUpdate())
     {
@@ -58,13 +58,13 @@ public class LastLoginUpdater
   }
 
   @Override
-  public void logoutSuccessful(BasicContext context, PyxisUser user)
+  public void logoutSuccessful(Context context, PyxisUser user)
   {
     // We don't care about this here.
   }
 
   @Override
-  public void loginFailed(BasicContext context)
+  public void loginFailed(Context context)
   {
     // We don't care about this here.
   }

@@ -83,7 +83,7 @@ public final class GeminiHelper
    * Prepare to write a file or data in a response.
    */
   public static void prepareDump(GeminiApplication application,
-                                 BasicContext context, String filename)
+                                 Context context, String filename)
   {
     // Did the container find the file's content type?
     boolean setContentType = false;
@@ -116,7 +116,7 @@ public final class GeminiHelper
    * Dump an arbitrary file to the response.
    */
   public static boolean fileDump(GeminiApplication application,
-                                 BasicContext context, String filename, byte[] bytes, ComponentLog log)
+                                 Context context, String filename, byte[] bytes, ComponentLog log)
   {
     prepareDump(application, context, filename);
     try 
@@ -138,7 +138,7 @@ public final class GeminiHelper
    * @throws SQLException
    */
   public static boolean dataDump(GeminiApplication application,
-                                 BasicContext context, List<? extends TabularColumn> fieldAttribs, String query,
+                                 Context context, List<? extends TabularColumn> fieldAttribs, String query,
                                  String exportFilename, ComponentLog log) throws SQLException
   {
     try (
@@ -162,7 +162,7 @@ public final class GeminiHelper
    * @throws SQLException
    */
   public static boolean dataDump(GeminiApplication application,
-                                 BasicContext context, List<? extends TabularColumn> fieldAttribs,
+                                 Context context, List<? extends TabularColumn> fieldAttribs,
                                  ResultSet resultSet, String exportFilename, ComponentLog log) throws SQLException
   {
     prepareDump(application, context, exportFilename);
@@ -228,7 +228,7 @@ public final class GeminiHelper
    * @param context a Context containing the request.
    * @return a Map instance with keys to values.
    */
-  public static Map<String, String> getAllRequestParameters(BasicContext context)
+  public static Map<String, String> getAllRequestParameters(Context context)
   {
     return getAllRequestParameters(context.getQueryString());
   }
@@ -301,7 +301,7 @@ public final class GeminiHelper
    * @param context The request Context.
    * @param object The object to send.
    */
-  public static boolean sendJson(BasicContext context, Object object)
+  public static boolean sendJson(Context context, Object object)
   {
     return sendJson(context, null, object, null);
   }
@@ -322,7 +322,7 @@ public final class GeminiHelper
    * @param jsw A JavaScriptWriter instance configured to write the provided
    *        object. If null, a default writer will be used.
    */
-  public static boolean sendJson(BasicContext context, Object object,
+  public static boolean sendJson(Context context, Object object,
                                  JavaScriptWriter jsw)
   {
     return sendJson(context, null, object, jsw);
@@ -344,7 +344,7 @@ public final class GeminiHelper
    *        provided, the object is encoded as-is without a wrapping map.
    * @param object The object to send.
    */
-  public static boolean sendJson(BasicContext context,
+  public static boolean sendJson(Context context,
                                  String objectName, Object object)
   {
     return sendJson(context, objectName, object, null);
@@ -368,13 +368,13 @@ public final class GeminiHelper
    * @param jsw A JavaScriptWriter instance configured to write the provided
    *        object. If null, a default writer will be used.
    */
-  public static boolean sendJson(BasicContext context,
+  public static boolean sendJson(Context context,
                                  String objectName, Object object, JavaScriptWriter jsw)
   {
     // Use the provided JSW or the default if none is provided.
     final JavaScriptWriter writer = (jsw != null 
         ? jsw 
-        : context.getApplication().getJavaScriptWriter()
+        : ((BasicContext)context).getApplication().getJavaScriptWriter()
         );
     
     context.setContentType(GeminiConstants.CONTENT_TYPE_JSON);
@@ -397,7 +397,7 @@ public final class GeminiHelper
   /**
    * Send a plain-text response.
    */
-  public static boolean sendPlaintext(BasicContext context, String text)
+  public static boolean sendPlaintext(Context context, String text)
   {
     context.setContentType(GeminiConstants.CONTENT_TYPE_TEXT);
     context.print(text);
@@ -512,7 +512,7 @@ public final class GeminiHelper
    * Determines if the provided request is an "AJAX" request that expects a
    * JSON-formatted response.
    */
-  public static boolean isJsonRequest(BasicContext context)
+  public static boolean isJsonRequest(Context context)
   {
     // A request is expecting JSON if the browser sents the "accept" request
     // header as such or if the URL parameters include "format=json".
@@ -540,7 +540,7 @@ public final class GeminiHelper
    *   <li>ancillary - Any additional entries to add into the response map.
    * </ul>
    */
-  public static boolean sendJsonError(BasicContext context, String error,
+  public static boolean sendJsonError(Context context, String error,
                                       String errorType, String errorMessage, String errorDescription,
                                       Map<String, String> ancillary)
   {

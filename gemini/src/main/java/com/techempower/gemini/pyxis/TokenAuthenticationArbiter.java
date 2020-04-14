@@ -68,7 +68,7 @@ public abstract class TokenAuthenticationArbiter
   //
 
   @Override
-  public void beginMasquerade(BasicContext context, PyxisUser impersonatedUser)
+  public void beginMasquerade(Context context, PyxisUser impersonatedUser)
   {
     final AuthToken token = getTokenReader().read(context);
     
@@ -81,7 +81,7 @@ public abstract class TokenAuthenticationArbiter
   }
 
   @Override
-  public boolean endMasquerade(BasicContext context)
+  public boolean endMasquerade(Context context)
   {
     final AuthToken token = getTokenReader().read(context);
     
@@ -95,13 +95,13 @@ public abstract class TokenAuthenticationArbiter
   }
 
   @Override
-  public PyxisUser getMasqueradingUser(BasicContext context)
+  public PyxisUser getMasqueradingUser(Context context)
   {
     return getUser(context);
   }
 
   @Override
-  public PyxisUser getUser(BasicContext context)
+  public PyxisUser getUser(Context context)
   {
     final AuthToken token = getTokenReader().read(context);
       
@@ -114,13 +114,13 @@ public abstract class TokenAuthenticationArbiter
   }
 
   @Override
-  public boolean isLoggedIn(BasicContext context)
+  public boolean isLoggedIn(Context context)
   {
     return getUser(context) != null;
   }
 
   @Override
-  public void login(BasicContext context, PyxisUser user, boolean save)
+  public void login(Context context, PyxisUser user, boolean save)
   {
     final AuthToken token = getTokenCreator().create(context, user);
     
@@ -136,7 +136,7 @@ public abstract class TokenAuthenticationArbiter
   }
 
   @Override
-  public void logout(BasicContext context)
+  public void logout(Context context)
   {
     final AuthToken token = getTokenReader().read(context);
     

@@ -179,7 +179,7 @@ public class GeminiLocaleManager
    * @param languageID the Language ID for the Locale.
    * @param countryID the Country ID for the Locale.
    */
-  public void setLocale(BasicContext context, String languageID, String countryID)
+  public void setLocale(Context context, String languageID, String countryID)
   {
     context.session().putObject(this.productName + SESSION_LOCALE_SUFFIX, 
       new Locale(languageID, countryID));
@@ -188,7 +188,7 @@ public class GeminiLocaleManager
   /**
    * Sets a user session's locale.
    */
-  public void setLocale(BasicContext context, Locale locale)
+  public void setLocale(Context context, Locale locale)
   {
     context.session().putObject(this.productName + SESSION_LOCALE_SUFFIX, locale);
   }
@@ -197,7 +197,7 @@ public class GeminiLocaleManager
    * Gets a user session's locale.  If no locale it set, the default locale
    * is returned.
    */
-  public Locale getLocale(BasicContext context)
+  public Locale getLocale(Context context)
   {
     if (context != null)
     {
@@ -217,7 +217,7 @@ public class GeminiLocaleManager
    * Gets a user session's locale.  If no locale is set for the session, null
    * will be returned.
    */
-  public Locale getLocaleRaw(BasicContext context)
+  public Locale getLocaleRaw(Context context)
   {
     return context.session().getObject(this.productName + SESSION_LOCALE_SUFFIX);
   }
@@ -226,7 +226,7 @@ public class GeminiLocaleManager
    * Gets a GeminiResources given a Context.  If no appropriate resources are
    * available, the default resources are returned.
    */
-  public GeminiResources getResources(BasicContext context)
+  public GeminiResources getResources(Context context)
   {
     return getResources(getLocale(context));
   }

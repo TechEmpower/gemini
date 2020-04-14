@@ -398,7 +398,7 @@ public class ScriptsAndSheets
    * ScriptsAndSheets.  Typically this is called by BasicJsp.renderFavicon()
    * so that the order of precedence for icons is request &gt; page &gt; app.
    */
-  public String renderFavicon(BasicContext context)
+  public String renderFavicon(Context context)
   {
     if (this.favIcon == null)
     {
@@ -427,7 +427,7 @@ public class ScriptsAndSheets
     */
 
     return "<link rel=\"SHORTCUT ICON\" href=\""
-      + context.getInfrastructure().getImageUrl(this.favIcon, context)
+      + ((BasicContext)context).getInfrastructure().getImageUrl(this.favIcon, context)
       + "\" />";
   }
   
@@ -437,7 +437,7 @@ public class ScriptsAndSheets
    * @param context the request context
    * @param suppressed an optional list of suppressed script names
    */
-  public String renderScripts(BasicContext context, List<String> suppressed)
+  public String renderScripts(Context context, List<String> suppressed)
   {
     if (this.scripts == null)
     {
@@ -454,7 +454,7 @@ public class ScriptsAndSheets
       {
         sb.append("<script src=\"");
         sb.append(NetworkHelper.render(
-            context.getInfrastructure().getJavaScriptDirectory(context) + script));
+          ((BasicContext)context).getInfrastructure().getJavaScriptDirectory(context) + script));
         sb.append("\"></script>");
       }
     }
@@ -464,7 +464,7 @@ public class ScriptsAndSheets
   /**
    * Gets a rendering of script tags.
    */
-  public String renderScripts(BasicContext context)
+  public String renderScripts(Context context)
   {
     return renderScripts(context, null);
   }
@@ -475,7 +475,7 @@ public class ScriptsAndSheets
    * @param context the request context
    * @param suppressed an optional list of suppressed sheet names
    */
-  public String renderSheets(BasicContext context, List<String> suppressed)
+  public String renderSheets(Context context, List<String> suppressed)
   {
     if (this.sheets == null)
     {
@@ -502,7 +502,7 @@ public class ScriptsAndSheets
         }
         sb.append("href=\"");
         sb.append(NetworkHelper.render(
-            context.getInfrastructure().getCssDirectory(context) + sheet.name));
+            ((BasicContext)context).getInfrastructure().getCssDirectory(context) + sheet.name));
         sb.append("\" />");
       }
     }
@@ -512,7 +512,7 @@ public class ScriptsAndSheets
   /**
    * Gets a rendering of style-sheet tags.
    */
-  public String renderSheets(BasicContext context)
+  public String renderSheets(Context context)
   {
     return renderSheets(context, null);
   }

@@ -49,13 +49,13 @@ public interface PyxisSecurity
    * failed-attempt limiting is enabled.  If so, a count of failed attempts
    * made by the client's IP address will be tracked.
    */
-  void captureFailedLoginAttempt(BasicContext context);
+  void captureFailedLoginAttempt(Context context);
 
   /**
    * React to a successful login attempt.  The default functionality will
    * clear any failed-attempt counting if failed-attempt limiting is enabled. 
    */
-  void captureSuccessfulLoginAttempt(BasicContext context);
+  void captureSuccessfulLoginAttempt(Context context);
   
   /**
    * Get a reference to the password hashing algorithm.
@@ -99,7 +99,7 @@ public interface PyxisSecurity
    *   unauthorized user; by default the force-login Rejector will be used
    *   to redirect an unauthorized user to the login view.
    */
-  boolean authCheck(BasicContext context, Authorizer authorizer, Rejector rejector);
+  boolean authCheck(Context context, Authorizer authorizer, Rejector rejector);
   
   /**
    * A variation of the authorization check that does not use any special
@@ -110,7 +110,7 @@ public interface PyxisSecurity
    * 
    * @param context the request context.
    */
-  boolean authCheck(BasicContext context);
+  boolean authCheck(Context context);
   
   /**
    * Return the Cryptograph.
@@ -138,7 +138,7 @@ public interface PyxisSecurity
    * parameter is relative and the implementation should prefix the base URI
    * to ensure an absolute URL is created.
    */
-  String getPostLoginUrl(BasicContext context);
+  String getPostLoginUrl(Context context);
   
   /**
    * Get the URL to direct to after login, assuming no other URL is available.
@@ -173,7 +173,7 @@ public interface PyxisSecurity
   /**
    * Is a login attempt permitted for the current COntext?
    */
-  boolean isLoginAttemptPermitted(BasicContext context);
+  boolean isLoginAttemptPermitted(Context context);
   
   /**
    * Validate a proposed password for a User.  Returns a list of String error
@@ -221,12 +221,12 @@ public interface PyxisSecurity
   /**
    * Adds a SecurityListener to be notified of security events.
    */
-  <C extends BasicContext> void addListener(SecurityListener<C> listener);
+  <C extends Context> void addListener(SecurityListener<C> listener);
   
   /**
    * Removes a SecurityListener to be notified of security events.
    */
-  <C extends BasicContext> void removeListener(SecurityListener<C> listener);
+  <C extends Context> void removeListener(SecurityListener<C> listener);
 
   /**
    * Retrieves from the database (or a cache) a user that matches the
@@ -369,7 +369,7 @@ public interface PyxisSecurity
    * @param save if permitted, should a cookie be sent to save the credentials
    *        on the client?
    */
-  boolean login(BasicContext context, String username, String password, boolean save);
+  boolean login(Context context, String username, String password, boolean save);
   
   /**
    * Places a provided PyxisUser into session, effectively logging them
@@ -382,12 +382,12 @@ public interface PyxisSecurity
    * @param save if permitted, should a cookie be sent to save the credentials
    *        on the client?
    */
-  boolean login(BasicContext context, PyxisUser user, boolean save);
+  boolean login(Context context, PyxisUser user, boolean save);
   
   /**
    * Logout a user from the provided Context.
    */
-  void logout(BasicContext context);
+  void logout(Context context);
   
   /**
    * Logout a user provided just the user.  This method has been added to
@@ -416,12 +416,12 @@ public interface PyxisSecurity
    *
    * @param context the Context from which to retrieve a user.
    */
-  PyxisUser getUser(BasicContext context);
+  PyxisUser getUser(Context context);
 
   /**
    * Is a user logged in?
    */
-  boolean isLoggedIn(BasicContext context);
+  boolean isLoggedIn(Context context);
 
   /**
    * Sets a user's membership within a group according to the provided
@@ -500,20 +500,20 @@ public interface PyxisSecurity
    *   <p>
    * Logout will end the masquerade and logout the system administrator.
    */
-  void beginMasquerade(BasicContext context, PyxisUser impersonatedUser);
+  void beginMasquerade(Context context, PyxisUser impersonatedUser);
   
   /**
    * Gets the masquerading user, if a masquerade is active.  If there is
    * no active masquerade, returns null.
    */
-  PyxisUser getMasqueradingUser(BasicContext context);
+  PyxisUser getMasqueradingUser(Context context);
   
   /**
    * Ends masquerading, returning to a default state where calls to getUser
    * will return the administrator themselves.  Returns true if an existing
    * masquerade has been ended; returns false if nothing was done.
    */
-  boolean endMasquerade(BasicContext context);
+  boolean endMasquerade(Context context);
   
   /**
    * Sanitizes the given username based on the rules of this security.  The

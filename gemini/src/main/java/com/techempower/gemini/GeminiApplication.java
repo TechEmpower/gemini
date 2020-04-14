@@ -729,7 +729,7 @@ public abstract class GeminiApplication
    * to provide a custom subclass of Context.
    */
   @Override
-  public abstract BasicContext getContext(Request request);
+  public abstract Context getContext(Request request);
 
   /**
    * Gets the application's Infrastructure.
@@ -1052,7 +1052,7 @@ public abstract class GeminiApplication
    */
   public final void doRequest(Request httpRequest) throws IOException
   {
-    final BasicContext context = getContext(httpRequest);
+    final Context context = getContext(httpRequest);
 
     if (isRunning())
     {
@@ -1112,7 +1112,7 @@ public abstract class GeminiApplication
    *   <p>
    * Overload this method if you do not want to use the dispatcher.
    */
-  protected void handleRequest(BasicContext context)
+  protected void handleRequest(Context context)
   {
     // Identify the current thread if we are counting requests.
     String threadName = null;
@@ -1155,7 +1155,7 @@ public abstract class GeminiApplication
   /**
    * Renders a simple error message indicating that the site is not available.
    */
-  private void handleError(BasicContext context, String error) throws IOException
+  private void handleError(Context context, String error) throws IOException
   {
     context.setContentType("text/html");
     final Writer writer = context.getWriter();

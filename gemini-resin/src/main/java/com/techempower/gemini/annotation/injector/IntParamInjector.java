@@ -33,7 +33,7 @@ import com.techempower.gemini.*;
 /**
  * Implementation of ParameterInjector that knows how to pull int values from the request.
  */
-public class IntParamInjector<D extends BasicDispatcher, C extends BasicContext>
+public class IntParamInjector<D extends BasicDispatcher, C extends Context>
   implements ParameterInjector<D, C> 
 {
   @Override

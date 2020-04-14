@@ -40,7 +40,7 @@ public class RequestReferences
   /**
    * The current request context.
    */
-  public final BasicContext context;
+  public final Context context;
   
   /**
    * The request URI segments.
@@ -69,7 +69,7 @@ public class RequestReferences
     return (template != null ? template : defaultTemplate);
   }
   
-  private RequestReferences(BasicContext context, PathSegments segments)
+  private RequestReferences(Context context, PathSegments segments)
   {
     this.context = context;
     this.segments = segments;
@@ -86,7 +86,7 @@ public class RequestReferences
   /**
    * Sets the current thread's references.
    */
-  public static RequestReferences set(BasicContext context, PathSegments segments)
+  public static RequestReferences set(Context context, PathSegments segments)
   {
     final RequestReferences refs = new RequestReferences(context, segments); 
     MAP.set(refs);

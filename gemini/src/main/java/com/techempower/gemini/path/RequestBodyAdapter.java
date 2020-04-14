@@ -2,7 +2,7 @@ package com.techempower.gemini.path;
 
 import java.lang.reflect.Type;
 
-import com.techempower.gemini.BasicContext;
+import com.techempower.gemini.Context;
 
 /**
  * <p>An interface whose implementations are responsible for adapting
@@ -19,7 +19,7 @@ import com.techempower.gemini.BasicContext;
  * @param <C> Your application's Context type.
  * @see com.techempower.gemini.path.annotation.Body
  */
-public interface RequestBodyAdapter<C extends BasicContext>
+public interface RequestBodyAdapter<C extends Context>
 {
   /**
    * Transform a given request body and return the result.

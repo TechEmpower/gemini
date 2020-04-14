@@ -77,7 +77,7 @@ public class SessionAuthenticationArbiter
   //
   
   @Override
-  public void beginMasquerade(BasicContext context, PyxisUser impersonatedUser)
+  public void beginMasquerade(Context context, PyxisUser impersonatedUser)
   {
     final PyxisUser masqueradingUser = getUser(context);
     if (  (masqueradingUser != null)
@@ -92,7 +92,7 @@ public class SessionAuthenticationArbiter
   }
   
   @Override
-  public boolean endMasquerade(BasicContext context)
+  public boolean endMasquerade(Context context)
   {
     final PyxisUser masquerading = getMasqueradingUser(context);
     if (masquerading != null)
@@ -106,7 +106,7 @@ public class SessionAuthenticationArbiter
   }
   
   @Override
-  public PyxisUser getMasqueradingUser(BasicContext context)
+  public PyxisUser getMasqueradingUser(Context context)
   {
     if (getUserFromSession(context, PyxisConstants.SESSION_IMPERSONATED_USER)
         != null)
@@ -117,7 +117,7 @@ public class SessionAuthenticationArbiter
   }
   
   @Override
-  public PyxisUser getUser(BasicContext context)
+  public PyxisUser getUser(Context context)
   {
     final PyxisUser impersonated = getUserFromSession(context, 
         PyxisConstants.SESSION_IMPERSONATED_USER);
@@ -154,7 +154,7 @@ public class SessionAuthenticationArbiter
   }
   
   @Override
-  public boolean isLoggedIn(BasicContext context)
+  public boolean isLoggedIn(Context context)
   {
     final PyxisUser user = getUser(context);
     final boolean loggedIn = user != null;
@@ -193,7 +193,7 @@ public class SessionAuthenticationArbiter
   }
   
   @Override
-  public void login(BasicContext context, PyxisUser user, boolean save)
+  public void login(Context context, PyxisUser user, boolean save)
   {
     // Logout an existing user session if one is present.
     final PyxisUser existingUserSession = getUser(context);
@@ -222,7 +222,7 @@ public class SessionAuthenticationArbiter
   }
   
   @Override
-  public void logout(BasicContext context)
+  public void logout(Context context)
   {
     final PyxisUser user = getUser(context);
     
@@ -243,7 +243,7 @@ public class SessionAuthenticationArbiter
   /**
    * Processes a cookie-based login.
    */
-  protected boolean cookieLogin(BasicContext context)
+  protected boolean cookieLogin(Context context)
   {
     // Proceed only if the configuration allows non-SSL cookie login or we're
     // in SSL.
@@ -335,7 +335,7 @@ public class SessionAuthenticationArbiter
   // PRIVATE METHODS
   //
 
-  private void recordUserSessionId(BasicContext context, PyxisUser user)
+  private void recordUserSessionId(Context context, PyxisUser user)
   {
     userSessionIDs.put(user.getId(), context.getSession(true).getId());
   }
@@ -343,7 +343,7 @@ public class SessionAuthenticationArbiter
   /**
    * Store the user or user id (depending on configuration) into the session.
    */
-  private void storeUserInSession(BasicContext context, PyxisUser user)
+  private void storeUserInSession(Context context, PyxisUser user)
   {
     storeUserInSession(context, user, PyxisConstants.SESSION_USER);
   }
@@ -352,7 +352,7 @@ public class SessionAuthenticationArbiter
    * Removes the user or user id (depending on configuration) from the
    * session.
    */
-  private void removeUserFromSession(BasicContext context)
+  private void removeUserFromSession(Context context)
   {
     // Indicate that we are closing this user session and then remove a bunch
     // of items from the session.
@@ -364,7 +364,7 @@ public class SessionAuthenticationArbiter
         .remove(PyxisConstants.SESSION_EXPIRATION_WARNED);
   }
 
-  private boolean isCookieLoginPermitted(BasicContext context)
+  private boolean isCookieLoginPermitted(Context context)
   {
     return (  (application.getSecurity().getSettings().isCookieLoginEnabled())
            && (  (!application.getSecurity().getSettings().isCookieLoginSslOnly())
@@ -377,7 +377,7 @@ public class SessionAuthenticationArbiter
    * Store the user or user id (depending on configuration) into the session,
    * with a session key provided (typically PyxisConstants.SESSION_USER).
    */
-  private void storeUserInSession(BasicContext context, PyxisUser user, String key)
+  private void storeUserInSession(Context context, PyxisUser user, String key)
   {
     if (application.getSecurity().getSettings().storeUserAsId())
     {
@@ -392,7 +392,7 @@ public class SessionAuthenticationArbiter
   /**
    * Gets a user from the session given a provided session key name.
    */
-  private PyxisUser getUserFromSession(BasicContext context, String key)
+  private PyxisUser getUserFromSession(Context context, String key)
   {
     if (application.getSecurity().getSettings().storeUserAsId())
     {

@@ -70,7 +70,7 @@ public class FileServletOutputStream
    * @param context the Context object associated with the request. 
    */
   public static void writeJspToFileSimple(String toInvoke, final String filename,
-      BasicContext context)
+      Context context)
   {
     try
     {
@@ -78,7 +78,7 @@ public class FileServletOutputStream
       final HttpServletRequest request = resinRequest.getRawRequest();
       final HttpServletResponse response = resinRequest.getRawResponse();
       final RequestDispatcher rd = request.getRequestDispatcher(
-          context.getInfrastructure().getJspDirectory() + toInvoke);
+          ((BasicContext)context).getInfrastructure().getJspDirectory() + toInvoke);
       final HttpServletResponseWrapper responseWrapper = 
           new FileHttpServletResponseWrapper(response, filename);
 
@@ -100,7 +100,7 @@ public class FileServletOutputStream
    * @param context the Context object associated with the request. 
    */
   public static void writeJspToFile(String toInvoke, final String filename,
-      BasicContext context)
+      Context context)
   {
     try
     {

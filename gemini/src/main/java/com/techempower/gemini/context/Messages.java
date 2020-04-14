@@ -50,7 +50,7 @@ public class Messages
   /**
    * Constructor.
    */
-  public Messages(BasicContext context)
+  public Messages(Context context)
   {
     this.session = context.session();
   }

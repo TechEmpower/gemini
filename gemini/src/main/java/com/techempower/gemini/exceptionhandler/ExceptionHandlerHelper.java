@@ -65,7 +65,7 @@ public final class ExceptionHandlerHelper
    * @param skipped how many other exceptions were skipped in the current
    *        reporting interval in an effort to reduce an exception storm.
    */
-  public static String renderExceptionAsReport(BasicContext context,
+  public static String renderExceptionAsReport(Context context,
                                                GeminiApplication application, Throwable exception, String description,
                                                int skipped)
   {
@@ -94,7 +94,7 @@ public final class ExceptionHandlerHelper
       message.append("Session ID:  ")
              .append(session == null ? "no session" : session.getId())
              .append('\n');
-      final PyxisSecurity security = context.getApplication().getSecurity();
+      final PyxisSecurity security = ((BasicContext)context).getApplication().getSecurity();
       if (security != null)
       {
         final PyxisUser user = security.getUser(context);

@@ -44,7 +44,7 @@ import com.techempower.gemini.pyxis.authorization.*;
  * request rejection behavior.  The default Rejector will redirect any 
  * unauthorized requests to the login view.
  */
-public class SecureMethodUriHandler<C extends BasicContext, U extends PyxisUser>
+public class SecureMethodUriHandler<C extends Context, U extends PyxisUser>
      extends MethodUriHandler<C>
 {
   

@@ -42,7 +42,7 @@ public abstract class BasicContext implements Context
   public static final String        COMPONENT_CODE = "ctxt";
   public static final String        SO_CONSUMABLE_REQUEST = 
       "_consumable_prior_request";
-  protected static final ThreadLocal<BasicContext>
+  protected static final ThreadLocal<Context>
                                     CONTEXTS_BY_THREAD = new ThreadLocal<>();
   private static final String       SO_TOKEN_PROVIDER = "_token_provider";
   private static final BaseEncoding TOKEN_ENCODING = 
@@ -135,7 +135,7 @@ public abstract class BasicContext implements Context
    * All ThreadLocal variables used elsewhere within your application will
    * be subject to the same constraint.
    */
-  public static BasicContext get()
+  public static Context get()
   {
     return CONTEXTS_BY_THREAD.get();
   }

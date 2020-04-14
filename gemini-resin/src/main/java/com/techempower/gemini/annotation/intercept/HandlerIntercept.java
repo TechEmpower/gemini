@@ -39,7 +39,7 @@ import com.techempower.gemini.*;
  * from handleIntercept will not trigger the next intercept, the dispatcher will treat 
  * that return value as a failed handle and move on to the next handler.
  */
-public interface HandlerIntercept<D extends BasicDispatcher, C extends BasicContext>
+public interface HandlerIntercept<D extends BasicDispatcher, C extends Context>
 {
   
   /**

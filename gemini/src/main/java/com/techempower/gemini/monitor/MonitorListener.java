@@ -77,7 +77,7 @@ public class MonitorListener
   //
   
   @Override
-  public void dispatchStarting(Dispatcher dispatcher, BasicContext context, String command)
+  public void dispatchStarting(Dispatcher dispatcher, Context context, String command)
   {
     if (monitor.isEnabled())
     {
@@ -98,7 +98,7 @@ public class MonitorListener
 
   @Override
   public void redispatchOccurring(Dispatcher dispatcher,
-                                  BasicContext context, String previousCommand, String newCommand)
+                                  Context context, String previousCommand, String newCommand)
   {
     if (monitor.isEnabled())
     {
@@ -109,7 +109,7 @@ public class MonitorListener
   }
 
   @Override
-  public void dispatchComplete(Dispatcher dispatcher, BasicContext context)
+  public void dispatchComplete(Dispatcher dispatcher, Context context)
   {
     if (monitor.isEnabled())
     {
@@ -146,7 +146,7 @@ public class MonitorListener
   }
 
   @Override
-  public void renderComplete(Dispatcher dispatcher, BasicContext context)
+  public void renderComplete(Dispatcher dispatcher, Context context)
   {
     if (monitor.isEnabled())
     {
@@ -176,7 +176,7 @@ public class MonitorListener
   //
   
   @Override
-  public void requestStarting(BasicContext request)
+  public void requestStarting(Context request)
   {
     if (monitor.isEnabled())
     {
@@ -190,7 +190,7 @@ public class MonitorListener
   }
 
   @Override
-  public void requestCompleting(BasicContext context)
+  public void requestCompleting(Context context)
   {
     if (monitor.isEnabled())
     {

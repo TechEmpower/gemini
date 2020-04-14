@@ -36,20 +36,20 @@ public interface DispatchListener
   /**
    * A dispatch process is starting.
    */
-  void dispatchStarting(Dispatcher dispatcher, BasicContext context,
+  void dispatchStarting(Dispatcher dispatcher, Context context,
       String command);
   
   /**
    * A redispatch is occurring.  Note that this method should be deprecated
    * once the legacy cmd-oriented Dispatcher is retired.
    */
-  void redispatchOccurring(Dispatcher dispatcher, BasicContext context,
+  void redispatchOccurring(Dispatcher dispatcher, Context context,
       String previousCommand, String newCommand);
   
   /**
    * Dispatching is complete for the current request.
    */
-  void dispatchComplete(Dispatcher dispatcher, BasicContext context);
+  void dispatchComplete(Dispatcher dispatcher, Context context);
 
   /**
    * A server-side rendering (e.g., JSP or Mustache) is starting.
@@ -59,6 +59,6 @@ public interface DispatchListener
   /**
    * A server-side rendering (e.g., JSP or Mustache) is completed.
    */
-  void renderComplete(Dispatcher dispatcher, BasicContext context);
+  void renderComplete(Dispatcher dispatcher, Context context);
   
 }

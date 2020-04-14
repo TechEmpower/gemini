@@ -37,7 +37,7 @@ import com.techempower.util.*;
  * Allows users to logout (sign-out) from the web application, thereby ending
  * their authenticated session.
  */
-public class LogoutHandler<C extends BasicContext>
+public class LogoutHandler<C extends Context>
   extends    MethodSegmentHandler<C>
   implements Configurable
 {
@@ -128,7 +128,7 @@ public class LogoutHandler<C extends BasicContext>
    */
   @PathDefault
   @Get
-  public boolean getLogout(BasicContext context)
+  public boolean getLogout(Context context)
   {
     if (httpGetPermitted)
     {
@@ -142,12 +142,12 @@ public class LogoutHandler<C extends BasicContext>
    */
   @PathDefault
   @Post
-  public boolean postLogout(BasicContext context)
+  public boolean postLogout(Context context)
   {
     return logout(context);
   }
   
-  private boolean logout(BasicContext context)
+  private boolean logout(Context context)
   {
     // Check to see if anyone is logged in...
     if (getSecurity().isLoggedIn(context))

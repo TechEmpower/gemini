@@ -54,7 +54,7 @@ import com.techempower.util.*;
  * 
  * The above is SQL Server syntax.
  */
-public class   LoginAuditListener<C extends BasicContext>
+public class   LoginAuditListener<C extends Context>
     implements SecurityListener<C>
 {
   

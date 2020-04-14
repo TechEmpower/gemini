@@ -37,7 +37,7 @@ import com.techempower.gemini.*;
  * because annotations cannot subclass themselves, which would make it difficult to 
  * create a custom annotation by extending classes of type ParameterInjector.
  */
-public interface ParameterInjector<D extends BasicDispatcher, C extends BasicContext>
+public interface ParameterInjector<D extends BasicDispatcher, C extends Context>
 {
   /**
    * Extracts an argument from a web request, given an annotation that can

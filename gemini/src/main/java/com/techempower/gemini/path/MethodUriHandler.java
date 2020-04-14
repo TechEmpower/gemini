@@ -44,7 +44,7 @@ import static com.techempower.gemini.HttpRequest.HttpMethod.*;
  * Building on the BasicPathHandler, the MethodUriHandler provides easy
  * routing of requests to handler methods using the @Path annotation.
  */
-public class MethodUriHandler<C extends BasicContext>
+public class MethodUriHandler<C extends Context>
      extends BasicPathHandler<C>  
 {
   private final PathUriTree    getRequestHandleMethods;

@@ -42,7 +42,7 @@ public class ResinAttachments implements Attachments {
   /**
    * Constructor.
    */
-  public ResinAttachments(BasicContext context)
+  public ResinAttachments(Context context)
   {
     this.request = context.getRequest();
   }

@@ -110,7 +110,7 @@ public class GeminiComponentLog
    * Sets the Context information to be displayed in every log message issued
    * by the Thread handling this request.
    */
-  public static void setContextInformation(BasicContext context)
+  public static void setContextInformation(Context context)
   {
     final StringBuilder buffer = new StringBuilder();
 
@@ -125,7 +125,7 @@ public class GeminiComponentLog
       buffer.append(" ");
     }
 
-    final PyxisSecurity security = context.getApplication().getSecurity();
+    final PyxisSecurity security = ((BasicContext)context).getApplication().getSecurity();
     PyxisUser user = null;
       
     if (security != null)

@@ -6,19 +6,19 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
 
-import com.techempower.gemini.BasicContext;
+import com.techempower.gemini.Context;
 
 /**
  * Reads the request body into a String.
  *
  * @see com.techempower.gemini.path.annotation.ConsumesString
  */
-public class StringRequestBodyAdapter implements RequestBodyAdapter<BasicContext>
+public class StringRequestBodyAdapter implements RequestBodyAdapter<Context>
 {
   private static final int BUFFER_SIZE = 8 * 1024;
 
   @Override
-  public Object read(BasicContext context, Type type) throws RequestBodyException
+  public Object read(Context context, Type type) throws RequestBodyException
   {
     try (StringWriter out = new StringWriter())
     {

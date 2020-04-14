@@ -157,13 +157,13 @@ public class BasicExceptionHandler
   }
 
   @Override
-  public void handleException(BasicContext context, Throwable exc)
+  public void handleException(Context context, Throwable exc)
   {
     handleException(context, exc, null);
   }
 
   @Override
-  public void handleException(BasicContext context, Throwable exception, String description)
+  public void handleException(Context context, Throwable exception, String description)
   {
     // Is this Feature enabled?
     if (fm.on("exc-basic"))
@@ -195,7 +195,7 @@ public class BasicExceptionHandler
    * @param exception the exception that was thrown and is being logged.
    * @param description any descriptive text.
    */
-  protected void logException(BasicContext context, Throwable exception, String description)
+  protected void logException(Context context, Throwable exception, String description)
   {
     if (displayExceptionsInLog)
     {
@@ -219,7 +219,7 @@ public class BasicExceptionHandler
    * Render the configured error page, or the plain default if no error
    * page has been configured.
    */
-  protected void includeErrorPage(BasicContext context, Throwable exception, String description)
+  protected void includeErrorPage(Context context, Throwable exception, String description)
   {
     // If the request appears to be asking for a JSON response, and we're
     // configured to respond with JSON, let's do so.
@@ -287,7 +287,7 @@ public class BasicExceptionHandler
   /**
    * Render a plain default error page.
    */
-  protected void outputDefaultErrorPage(BasicContext context, Throwable exception,
+  protected void outputDefaultErrorPage(Context context, Throwable exception,
                                         String description)
   {
     if (isRevealStackTrace())

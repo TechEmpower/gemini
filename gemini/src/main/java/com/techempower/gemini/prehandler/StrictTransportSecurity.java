@@ -72,7 +72,7 @@ public class StrictTransportSecurity
   }
   
   @Override
-  public boolean prehandle(BasicContext context)
+  public boolean prehandle(Context context)
   {
     if (enabled)
     {

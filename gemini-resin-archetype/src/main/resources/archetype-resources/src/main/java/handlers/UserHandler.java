@@ -5,7 +5,7 @@ import com.techempower.gemini.path.annotation.*;
 import com.techempower.gemini.pyxis.handler.*;
 import ${package}.entities.*;
 
-public class UserHandler extends SecureMethodUriHandler<BasicContext, User>
+public class UserHandler extends SecureMethodUriHandler<Context, User>
 {
 
   public UserHandler(GeminiApplication app)

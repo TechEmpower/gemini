@@ -40,7 +40,7 @@ import com.techempower.util.*;
  * suspicious activity.
  */
 public class AbuseListener
-  implements SecurityListener<BasicContext>,
+  implements SecurityListener<Context>,
              Configurable
 {
   
@@ -104,7 +104,7 @@ public class AbuseListener
    * A login attempt failed.
    */
   @Override
-  public void loginFailed(BasicContext context)
+  public void loginFailed(Context context)
   {
     long current = System.currentTimeMillis();
     
@@ -195,13 +195,13 @@ public class AbuseListener
   }
 
   @Override
-  public void loginSuccessful(BasicContext context, PyxisUser user)
+  public void loginSuccessful(Context context, PyxisUser user)
   {
     // Does nothing here.
   }
 
   @Override
-  public void logoutSuccessful(BasicContext context, PyxisUser user)
+  public void logoutSuccessful(Context context, PyxisUser user)
   {
     // Does nothing here.
   }

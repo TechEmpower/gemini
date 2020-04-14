@@ -54,7 +54,7 @@ import static com.techempower.gemini.HttpRequest.HttpMethod.*;
  *   <p>
  * Responses may be rendered as JSON or as HTML using Mustache templates.
  */
-public abstract class BasicPathHandler<C extends BasicContext>
+public abstract class BasicPathHandler<C extends Context>
     implements PathHandler<C>,
                UriAware
 {
@@ -729,12 +729,12 @@ public abstract class BasicPathHandler<C extends BasicContext>
             ? template
             : baseTemplatePath + template)
         + MustacheManager.DEFAULT_MUSTACHE_EXTENSION;
-    final BasicContext context = context();
+    final Context context = context();
 
     application.getDispatcher().renderStarting(context, template);
     try
     {
-      if(!context.isContentTypeSet())
+      if(!((BasicContext)context).isContentTypeSet())
       {
         context.setContentType(responseContentType);
       }
@@ -858,10 +858,10 @@ public abstract class BasicPathHandler<C extends BasicContext>
      * Adapt the request body in the specified context using the adapter and type
      * on this instance.
      *
-     * @see RequestBodyAdapter#read(BasicContext, Type)
+     * @see RequestBodyAdapter#read(Context, Type)
      */
     @SuppressWarnings({ "unchecked" })
-    <C extends BasicContext> Object readBody(C context) throws RequestBodyException
+    <C extends Context> Object readBody(C context) throws RequestBodyException
     {
       return ((RequestBodyAdapter<C>) adapter).read(context, type);
     }

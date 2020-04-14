@@ -399,7 +399,7 @@ public class FileStore
    * @param user The user making the request.
    * @param context The request context. 
    */
-  public ManagementOutcome processManagement(PyxisUser user, BasicContext context)
+  public ManagementOutcome processManagement(PyxisUser user, Context context)
   {
     return processManagement(user, user, context);
   }
@@ -413,7 +413,7 @@ public class FileStore
    * @param context The request context. 
    */
   public ManagementOutcome processManagement(PyxisUser user, 
-      Identifiable forObject, BasicContext context)
+      Identifiable forObject, Context context)
   {
     return processManagement(user, forObject, context, MANAGEMENT_PERMISSIONS_ALL);
   }
@@ -427,7 +427,7 @@ public class FileStore
    * @param context The request context. 
    */
   public ManagementOutcome processManagement(PyxisUser user,
-                                             Identifiable forObject, BasicContext context, ProcessManagementOptions options)
+                                             Identifiable forObject, Context context, ProcessManagementOptions options)
   {
     final ManagementOutcome outcome = new ManagementOutcome();
     outcome.success = true;

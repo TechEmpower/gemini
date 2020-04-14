@@ -92,7 +92,7 @@ public class TemplateReferences
    * Constructor.
    */
   public TemplateReferences(
-      BasicContext context,
+      Context context,
       TemplateAppReferences applicationScope, 
       Object requestScope)
   {

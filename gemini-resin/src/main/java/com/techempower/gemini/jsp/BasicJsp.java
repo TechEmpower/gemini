@@ -59,7 +59,7 @@ public abstract class BasicJsp
    * 
    * @param context the context being initialized.
    */
-  public void contextInit(BasicContext context)
+  public void contextInit(Context context)
   {
     // Do nothing.
   }
@@ -77,7 +77,7 @@ public abstract class BasicJsp
 
     // See if the context is available.  If not, this JSP was invoked
     // directly.
-    BasicContext context = (BasicContext)request.getAttribute("Context");
+    Context context = (Context)request.getAttribute("Context");
 
     // Get a reference to the application if one has not already been
     // gathered.

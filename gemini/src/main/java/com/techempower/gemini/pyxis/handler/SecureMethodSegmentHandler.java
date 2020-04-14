@@ -44,7 +44,7 @@ import com.techempower.js.*;
  * request rejection behavior.  The default Rejector will redirect any 
  * unauthorized requests to the login view.
  */
-public class SecureMethodSegmentHandler<C extends BasicContext, U extends PyxisUser>
+public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
      extends MethodSegmentHandler<C>
 {
   

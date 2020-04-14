@@ -81,7 +81,7 @@ public class MonitoredCommand
   /**
    * Process a sample.
    */
-  public void process(MonitorSample sample, BasicContext context)
+  public void process(MonitorSample sample, Context context)
   {
     this.lastSample = sample;
     this.requests.incrementAndGet();

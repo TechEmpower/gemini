@@ -40,7 +40,7 @@ public interface RequestListener
    * Because this is called for every request, processing burden
    * should be kept to an absolute minimum.
    */
-  void requestStarting(BasicContext request);
+  void requestStarting(Context request);
 
   /**
    * Indicates that a request has been completely processed by the Dispatcher.
@@ -48,6 +48,6 @@ public interface RequestListener
    * is called.  This is effectively the very last processing that occurs for
    * the request.
    */
-  void requestCompleting(BasicContext context);
+  void requestCompleting(Context context);
 
 }

@@ -27,6 +27,7 @@
 package com.techempower.gemini.input.validator;
 
 import com.techempower.cache.*;
+import com.techempower.gemini.BasicContext;
 import com.techempower.gemini.input.*;
 import com.techempower.helper.*;
 import com.techempower.util.*;
@@ -67,7 +68,7 @@ public class UniquenessValidator
   @Override
   public void process(Input input) 
   {
-    final EntityStore store = input.context().getApplication().getStore();
+    final EntityStore store = ((BasicContext)input.context()).getApplication().getStore();
     final String value = getUserValue(input);
     
     // Assume empty Strings may fail validation elsewhere.

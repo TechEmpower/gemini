@@ -49,7 +49,7 @@ import com.techempower.gemini.manager.*;
  * a super-class to your application's manager classes.  No core components of
  * Gemini require that your application uses Managers at all.
  */
-public class BasicPathManager<A extends GeminiApplication, C extends BasicContext>
+public class BasicPathManager<A extends GeminiApplication, C extends Context>
   extends BasicManager<A>
 {
   

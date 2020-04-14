@@ -43,6 +43,6 @@ public interface Authorizer
    * 
    * @return true if the user is authorized; false otherwise.
    */
-  boolean isAuthorized(PyxisUser user, BasicContext context);
+  boolean isAuthorized(PyxisUser user, Context context);
 
 }

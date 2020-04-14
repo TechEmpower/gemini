@@ -43,7 +43,7 @@ import com.techempower.gemini.*;
  *   "errorDescription" : "POST is expected."
  * }</pre>
  */
-public class PostIntercept<D extends BasicDispatcher, C extends BasicContext>
+public class PostIntercept<D extends BasicDispatcher, C extends Context>
     implements HandlerIntercept<D, C>
 {
 

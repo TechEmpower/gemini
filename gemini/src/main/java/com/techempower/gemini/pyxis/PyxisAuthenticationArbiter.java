@@ -46,20 +46,20 @@ public interface PyxisAuthenticationArbiter
    *   <p>
    * Logout will end the masquerade and logout the system administrator.
    */
-  void beginMasquerade(BasicContext context, PyxisUser impersonatedUser);
+  void beginMasquerade(Context context, PyxisUser impersonatedUser);
 
   /**
    * Ends masquerading, returning to a default state where calls to getUser
    * will return the administrator themselves.  Returns true if an existing
    * masquerade has been ended; returns false if nothing was done.
    */
-  boolean endMasquerade(BasicContext context);
+  boolean endMasquerade(Context context);
 
   /**
    * Gets the masquerading user, if a masquerade is active.  If there is
    * no active masquerade, returns null.
    */
-  PyxisUser getMasqueradingUser(BasicContext context);
+  PyxisUser getMasqueradingUser(Context context);
 
   /**
    * Gets the logged-in user from the Context's session.  Returns null
@@ -67,12 +67,12 @@ public interface PyxisAuthenticationArbiter
    *
    * @param context the Context from which to retrieve a user.
    */
-  PyxisUser getUser(BasicContext context);
+  PyxisUser getUser(Context context);
 
   /**
    * Is a user logged in?
    */
-  boolean isLoggedIn(BasicContext context);
+  boolean isLoggedIn(Context context);
   
   /**
    * Logs the user into the application.
@@ -82,10 +82,10 @@ public interface PyxisAuthenticationArbiter
    * @param save if permitted, should a cookie be sent to save the credentials
    *        on the client?
    */
-  void login(BasicContext context, PyxisUser user, boolean save);
+  void login(Context context, PyxisUser user, boolean save);
 
   /**
    * Logout a user from the provided Context.
    */
-  void logout(BasicContext context);
+  void logout(Context context);
 }

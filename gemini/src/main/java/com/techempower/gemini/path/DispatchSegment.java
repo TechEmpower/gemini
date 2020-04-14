@@ -47,7 +47,7 @@ import com.techempower.gemini.*;
  * In other words, given the URI /foo/cat/test, from within TestHandler, a
  * call to args().get("bar") would return "cat".
  */
-public class   DispatchSegment<C extends BasicContext>
+public class   DispatchSegment<C extends Context>
     implements PathHandler<C>,
                UriAware
 {
@@ -265,7 +265,7 @@ public class   DispatchSegment<C extends BasicContext>
    * A simple structure of a PathHandler and an optional String array of 
    * following argument names.
    */
-  static class MappedHandler<C extends BasicContext>
+  static class MappedHandler<C extends Context>
   {
     final PathHandler<C> handler;
     final String[] followingArgumentNames;

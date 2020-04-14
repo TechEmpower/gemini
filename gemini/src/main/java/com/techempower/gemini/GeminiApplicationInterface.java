@@ -115,7 +115,7 @@ public interface GeminiApplicationInterface
    * Constructs an instance of a subclass of Context, provided the
    * parameters used to construct Context objects.
    */
-  BasicContext getContext(Request request);
+  Context getContext(Request request);
 
   /**
    * Gets the SessionManager instance for this application.

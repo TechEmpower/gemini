@@ -34,7 +34,7 @@ import com.techempower.gemini.path.*;
  * suitable for use as the PathDispatcher's default handler until such time
  * that all legacy handlers can be ported to PathHandlers.
  */
-public class   LegacyDispatcherHandler<C extends BasicContext>
+public class   LegacyDispatcherHandler<C extends Context>
     implements PathHandler<C>
 {
   

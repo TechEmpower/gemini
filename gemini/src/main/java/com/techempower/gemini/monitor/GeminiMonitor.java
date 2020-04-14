@@ -356,7 +356,7 @@ public abstract class GeminiMonitor
   /**
    * Processes a request sample at the completion of a request.
    */
-  public void process(MonitorSample sample, BasicContext context)
+  public void process(MonitorSample sample, Context context)
   {
     if (isEnabled())
     {

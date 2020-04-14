@@ -37,5 +37,5 @@ public interface TokenCreator
   /**
    * Create a token representing/belonging to the given user. 
    */
-  AuthToken create(BasicContext context, PyxisUser user);
+  AuthToken create(Context context, PyxisUser user);
 }

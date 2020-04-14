@@ -71,7 +71,7 @@ import com.techempower.util.*;
  *
  * @see PyxisSecurity
  */
-public class BasicSecureHandler<D extends BasicDispatcher, C extends BasicContext>
+public class BasicSecureHandler<D extends BasicDispatcher, C extends Context>
      extends SecureHandler<D,C>
   implements Configurable
 {  

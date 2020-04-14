@@ -72,7 +72,7 @@ public interface Infrastructure
    * This will normally be in the form "http://www.domain.com", without
    * the trailing /.
    */
-  String getStandardDomain(BasicContext context);
+  String getStandardDomain(Context context);
 
   /**
    * Gets the secure (SSL) domain prefix.  This will normally be in
@@ -98,7 +98,7 @@ public interface Infrastructure
   /**
    * Gets the HTML directory.
    */
-  <C extends BasicContext> String getHtmlDirectory(C context);
+  <C extends Context> String getHtmlDirectory(C context);
 
   /**
    * Gets the images directory.  When specified in the application's .conf
@@ -139,7 +139,7 @@ public interface Infrastructure
    * @param imageFilename the filename of the image, eg, 'photo.jpg'.
    * @param context a user's request Context reference.
    */
-  <C extends BasicContext> String getImageUrl(String imageFilename, C context);
+  <C extends Context> String getImageUrl(String imageFilename, C context);
   
   /**
    * Returns the HTML {@code <link>} tag that should be embedded in an HTML page
@@ -204,7 +204,7 @@ public interface Infrastructure
    *  <p>
    * NOTE: This does NOT use getStandardDomain().
    */
-  <C extends BasicContext> String getStandardCmdUrl(String command, C context);
+  <C extends Context> String getStandardCmdUrl(String command, C context);
 
   /**
    * Generates an absolute URL to the servlet with a command specified,
@@ -248,7 +248,7 @@ public interface Infrastructure
    * Gets the CSS directory. Will use the given context in order
    * to determine if the secure directory should be returned.
    */
-  String getCssDirectory(BasicContext context);
+  String getCssDirectory(Context context);
 
   /**
    * Gets the JavaScript directory. Will attempt to derive the context in order
@@ -260,7 +260,7 @@ public interface Infrastructure
    * Gets the JavaScript directory. Will use the given context in order
    * to determine if the secure directory should be returned.
    */
-  <C extends BasicContext> String getJavaScriptDirectory(C context);
+  <C extends Context> String getJavaScriptDirectory(C context);
 
   /**
    * Gets the images directory.  When specified in the application's .conf
@@ -268,6 +268,6 @@ public interface Infrastructure
    * given context in order to determine if the secure directory should
    * be returned.
    */
-  <C extends BasicContext> String getImageDirectory(C context);
+  <C extends Context> String getImageDirectory(C context);
   
 }   // End Infrastructure interface.

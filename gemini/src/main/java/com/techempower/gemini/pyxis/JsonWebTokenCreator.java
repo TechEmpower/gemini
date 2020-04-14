@@ -67,7 +67,7 @@ public class JsonWebTokenCreator
   //
 
   @Override
-  public JsonWebToken create(BasicContext context, PyxisUser user)
+  public JsonWebToken create(Context context, PyxisUser user)
   {
     // Create a new Login for the user
     final Login login = new Login();

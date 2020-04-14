@@ -33,7 +33,7 @@ import com.techempower.gemini.*;
 /**
  * Implementation of ParameterInjector that knows how to pull double values from the request.
  */
-public class DoubleParamInjector<D extends BasicDispatcher, C extends BasicContext>
+public class DoubleParamInjector<D extends BasicDispatcher, C extends Context>
   implements ParameterInjector<D, C> 
 {
   @Override

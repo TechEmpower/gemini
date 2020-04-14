@@ -37,7 +37,7 @@ import com.techempower.util.*;
  * This is the HandlerInjector class for the &#064;Entity annotation.
  * This class handles fetching DataEntities from the cache based.
  */
-public class EntityInjector<D extends BasicDispatcher, C extends BasicContext>
+public class EntityInjector<D extends BasicDispatcher, C extends Context>
   implements ParameterInjector<D, C>
 {
   
