@@ -48,6 +48,7 @@
     <module>gemini-log4j2</module>
     <module>gemini-logback</module>
     <module>gemini-log4j12</module>
+    <module>gemini-legacy-dispatching</module>
   </modules>
 
   <properties>
