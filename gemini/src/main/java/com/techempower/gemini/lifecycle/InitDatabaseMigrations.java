@@ -31,14 +31,16 @@ import java.sql.*;
 import com.techempower.data.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.data.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Applies any pending database migrations.
  */
 public class InitDatabaseMigrations implements InitializationTask, Configurable
 {
+  private Logger  log     = LoggerFactory.getLogger(getClass());
   private boolean enabled = false;
 
   /**
@@ -52,38 +54,37 @@ public class InitDatabaseMigrations implements InitializationTask, Configurable
   @Override
   public void taskInitialize(GeminiApplication app)
   {
-    final ComponentLog log = app.getLog(COMPONENT_CODE);
     if (!enabled)
     {
-      log.log("Database migrations disabled.");
+      log.info("Database migrations disabled.");
       return;
     }
 
     final ConnectorFactory cf = app.getConnectorFactory();
     if (!cf.isEnabled())
     {
-      log.log("ConnectorFactor not enabled. Skipping database migrations.");
+      log.info("ConnectorFactor not enabled. Skipping database migrations.");
       return;
     }
 
     final DatabaseMigrator migrator = app.getDatabaseMigrator();
     if (migrator == null)
     {
-      log.log("DatabaseMigrator unavailable. Skipping database migrations.");
+      log.info("DatabaseMigrator unavailable. Skipping database migrations.");
       return;
     }
 
-    log.log("Applying database migrations.");
+    log.info("Applying database migrations.");
 
     try (ConnectionMonitor monitor = cf.getConnectionMonitor())
     {
       // Start the migration
       int migrationsApplied = migrator.migrate(monitor);
-      log.log("Database migrations applied: " + migrationsApplied);
+      log.info("Database migrations applied: {}", migrationsApplied);
     }
     catch (SQLException e)
     {
-      log.log("Database migrations caught exception ", e);
+      log.error("Database migrations caught exception ", e);
     }
   }
 

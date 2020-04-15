@@ -11,7 +11,7 @@ public class AdminHandler extends SecureMethodUriHandler<Context, User>
 
   public AdminHandler(GeminiApplication app)
   {
-    super(app, "hAdm", new AuthorizerByAdmin(), app.getSecurity().getForceLoginRejector());
+    super(app, new AuthorizerByAdmin(), app.getSecurity().getForceLoginRejector());
   }
 
   @Path

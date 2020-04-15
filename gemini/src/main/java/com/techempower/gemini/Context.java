@@ -34,13 +34,13 @@ import com.techempower.gemini.Request.*;
 import com.techempower.gemini.context.*;
 import com.techempower.gemini.internationalization.*;
 import com.techempower.gemini.session.*;
-import com.techempower.log.*;
 import com.techempower.security.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class Context
 {
-  public static final String        COMPONENT_CODE = "ctxt";
-  public static final String        SO_CONSUMABLE_REQUEST = 
+  public static final String        SO_CONSUMABLE_REQUEST =
       "_consumable_prior_request";
   protected static final ThreadLocal<Context> 
                                     CONTEXTS_BY_THREAD = new ThreadLocal<>();
@@ -49,7 +49,7 @@ public abstract class Context
       BaseEncoding.base32().omitPadding();
   
   protected final GeminiApplication   application;
-  protected final ComponentLog        log;
+  protected final Logger              log = LoggerFactory.getLogger(getClass());
   protected final Dispatcher          dispatcher;
   protected final BasicInfrastructure infrastructure;
   protected final long                processingStart;
@@ -81,7 +81,6 @@ public abstract class Context
 
     this.sessionNamedValues = new SessionNamedValues(this);
     this.messages        = new Messages(this);
-    this.log             = application.getLog(COMPONENT_CODE);
 
     // Register this Context to the current thread.
     CONTEXTS_BY_THREAD.set(this);
@@ -146,14 +145,6 @@ public abstract class Context
   public GeminiApplication getApplication()
   {
     return this.application;
-  }
-
-  /**
-   * Returns a reference to the ComponentLog.
-   */
-  protected ComponentLog getLog()
-  {
-    return this.log;
   }
 
   /**
@@ -626,7 +617,7 @@ public abstract class Context
     }
     catch (IOException ioexc)
     {
-      this.log.log("IOException on print().");
+      this.log.info("IOException on print().");
     }
   }
 
@@ -645,7 +636,7 @@ public abstract class Context
    */
   protected void processRenderException(Exception exc, String pageName, String description)
   {
-    this.log.log("Exception while including " + pageName + ": " + exc);
+    this.log.info("Exception while including {}: ", pageName, exc);
 
     this.dispatcher.dispatchException(this, exc, description);
   }

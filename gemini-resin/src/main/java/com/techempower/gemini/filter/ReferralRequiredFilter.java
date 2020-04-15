@@ -83,7 +83,7 @@ public class ReferralRequiredFilter
     {
       referrer = "";
     }
-    debug("Referrer: " + referrer);
+    log.info("Referrer: {}", referrer);
     
     if (referrer.startsWith(requiredReferrerValue))
     {
@@ -115,7 +115,8 @@ public class ReferralRequiredFilter
     final String filename = uri.substring(context.length());
     final String hashValue = Integer.toString(Math.abs(filename.hashCode()), 36).toLowerCase();
     final String providedHash = request.getParameter("a");
-    debug("File: " + filename + "; desired hash: " + hashValue + "; received hash: " + providedHash);
+    log.info("File: {}; desired hash: {}; received hash: {}",
+        filename, hashValue, providedHash);
     return hashValue.equals(providedHash);
   }
   

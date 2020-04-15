@@ -33,6 +33,8 @@ import com.techempower.gemini.*;
 import com.techempower.gemini.path.*;
 import com.techempower.helper.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles requests for the /robots.txt file.  To use, attach this to the
@@ -45,7 +47,7 @@ public class RobotsHandler
      extends BasicPathHandler<Context>
   implements Configurable
 {
-  
+  private final       Logger log        = LoggerFactory.getLogger(getClass());
   public static final String DISALLOWED = "User-agent: *\nDisallow: /";
   
   private String body = DISALLOWED;
@@ -55,7 +57,7 @@ public class RobotsHandler
    */
   public RobotsHandler(GeminiApplication app)
   {
-    super(app, "robo");
+    super(app);
     app.getConfigurator().addConfigurable(this);
   }
 
@@ -81,7 +83,8 @@ public class RobotsHandler
         }
         catch (IOException ioexc)
         {
-          l("Unable to read " + filename + "; using disallow-all robots.txt response.");
+          log.info("Unable to read {}; using disallow-all robots.txt response.",
+              filename);
         }
       }
     }

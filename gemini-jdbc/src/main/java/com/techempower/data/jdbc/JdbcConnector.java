@@ -34,7 +34,8 @@ import java.util.*;
 import com.techempower.data.*;
 import com.techempower.data.mapping.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a simple gateway to the database, through which queries can be
@@ -67,7 +68,7 @@ public class JdbcConnector
   //
 
   private final        JdbcConnectionManager manager;
-  private final        ComponentLog          componentLog;  // A ComponentLog instance to use for logging.
+  private final        Logger                log = LoggerFactory.getLogger(getClass());
 
   private              int                   tryCount                = 0;     // How many times has this connector tried the query?
   private              Statement             statement               = null;  // Statement object.
@@ -105,7 +106,6 @@ public class JdbcConnector
     //
 
     this.manager = manager;
-    this.componentLog = manager.getLog();
     this.setReadOnly(readOnly);
     this.setForwardOnly(forwardOnly);
     this.query = query;
@@ -131,7 +131,7 @@ public class JdbcConnector
   @Override
   public void setQuery(String query)
   {
-    log("setQuery: " + query, LogLevel.DEBUG);
+    log.debug("setQuery: {}", query);
 
     // Close any statement or result set that may be open.
     close(false);
@@ -177,23 +177,6 @@ public class JdbcConnector
   public boolean getReadOnly()
   {
     return this.readOnly;
-  }
-
-  /**
-   * Logs a String to the ComponentLog if it has been provided.
-   */
-  protected void log(String toLog, int logLevel)
-  {
-    this.componentLog.log(toLog, logLevel);
-  }
-
-  /**
-   * Logs a String to the ComponentLog if it has been provided, plus a
-   * Throwable if you are lucky enough to have one.
-   */
-  protected void log(String toLog, int logLevel, Throwable t)
-  {
-    this.componentLog.log(toLog, logLevel, t);
   }
 
   /**
@@ -282,7 +265,7 @@ public class JdbcConnector
   {
     if (this.forwardOnly)
     {
-      log("Call to first on a forward-only query.", LogLevel.NORMAL);
+      log.info("Call to first on a forward-only query.");
       return;
     }
 
@@ -292,7 +275,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception on first(): " + exc, LogLevel.NORMAL);
+      log.info("Exception on first(): ", exc);
       this.nextThrewException = true;
     }
   }
@@ -305,7 +288,7 @@ public class JdbcConnector
   {
     if (this.forwardOnly)
     {
-      log("Call to last on a forward-only query.", LogLevel.NORMAL);
+      log.info("Call to last on a forward-only query.");
       return;
     }
 
@@ -315,7 +298,7 @@ public class JdbcConnector
     }
     catch (Exception exc)
     {
-      log("Exception on last(): " + exc, LogLevel.NORMAL);
+      log.info("Exception on last(): ", exc);
       this.nextThrewException = true;
     }
   }
@@ -362,7 +345,7 @@ public class JdbcConnector
   {
     if (this.forwardOnly)
     {
-      log("Call to moveAbsolute on a forward-only query.", LogLevel.NORMAL);
+      log.info("Call to moveAbsolute on a forward-only query.");
       return;
     }
 
@@ -372,7 +355,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while moving to absolute position " + position + ": " + exc, LogLevel.NORMAL);
+      log.info("Exception while moving to absolute position {}: ", position, exc);
     }
   }
 
@@ -389,7 +372,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while getting row number: " + exc, LogLevel.NORMAL);
+      log.info("Exception while getting row number: ", exc);
     }
 
     return 0;
@@ -417,7 +400,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while gathering field names: " + exc, LogLevel.NORMAL);
+      log.info("Exception while gathering field names: ", exc);
     }
     return new String[0];
   }
@@ -444,7 +427,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while gathering field names: " + exc, LogLevel.NORMAL);
+      log.info("Exception while gathering field names: ", exc);
     }
     return new int[0];
   }
@@ -463,7 +446,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while retrieving field " + fieldName + ": " + exc, LogLevel.NORMAL);
+      log.info("Exception while retrieving field {}: ", fieldName, exc);
       return null;
     }
   }
@@ -826,7 +809,7 @@ public class JdbcConnector
       }
       catch (SQLException sqlexc)
       {
-        log("Exception while closing result set: " + sqlexc, LogLevel.ALERT);
+        log.warn("Exception while closing result set: ", sqlexc);
       }
       this.resultSet = null;
     }
@@ -840,7 +823,7 @@ public class JdbcConnector
       }
       catch (SQLException sqlexc)
       {
-        log("Exception while closing statement: " + sqlexc, LogLevel.ALERT);
+        log.warn("Exception while closing statement: ", sqlexc);
       }
       this.statement = null;
     }
@@ -863,7 +846,7 @@ public class JdbcConnector
       }
       catch (SQLException sqlexc)
       {
-        log("Exception while closing forced connection: " + sqlexc, LogLevel.ALERT);
+        log.warn("Exception while closing forced connection: ", sqlexc);
       }
       this.forcedConnection = null;
     }
@@ -948,7 +931,7 @@ public class JdbcConnector
             }
             else
             {
-              log("runUpdateQuery: ConnectionProfile's Connection is null!", LogLevel.CRITICAL);
+              log.error("runUpdateQuery: ConnectionProfile's Connection is null!");
               return RUNQUERY_EXCEPTION;
             }
           }
@@ -960,7 +943,7 @@ public class JdbcConnector
             }
             else
             {
-              log("runUpdateQuery: SQL Exception while creating statement: " + sqlexc, LogLevel.ALERT);
+              log.warn("runUpdateQuery: SQL Exception while creating statement: ", sqlexc);
               notifyListener(JdbcConnectorConstants.METHOD_RUN_UPDATE_QUERY, sqlexc);
 
               // If we could not create the Statement, we can't do anything
@@ -999,7 +982,7 @@ public class JdbcConnector
             }
             else
             {
-              log("runUpdateQuery: SQL Exception executing query: " + sqlexc, LogLevel.ALERT);
+              log.warn("runUpdateQuery: SQL Exception executing query: ", sqlexc);
               instruction = notifyListener(JdbcConnectorConstants.METHOD_RUN_UPDATE_QUERY, sqlexc);
               if (instruction == DatabaseConnectionListener.INSTRUCT_DO_NOTHING)
               {
@@ -1023,7 +1006,7 @@ public class JdbcConnector
       }
       else
       {
-        log("runUpdateQuery: No valid connection available, aborting query.", LogLevel.CRITICAL);
+        log.error("runUpdateQuery: No valid connection available, aborting query.");
       }
     }
 
@@ -1111,7 +1094,7 @@ public class JdbcConnector
         }
         catch (SQLException sqlexc)
         {
-          log("SQL Exception while creating statement: " + sqlexc, LogLevel.ALERT);
+          log.warn("SQL Exception while creating statement: ", sqlexc);
 
           // Close connection; will try reopening on next request.
           this.connectionProfile.close();
@@ -1136,8 +1119,8 @@ public class JdbcConnector
           catch(Exception e) {}
           this.statement = null;
           
-          log("SQL Exception while running query: " + sqlexc, LogLevel.ALERT);
-          log("Query was: " + getQuery(), LogLevel.ALERT);
+          log.warn("SQL Exception while running query: ", sqlexc);
+          log.warn("Query was: {}", getQuery());
           throw new JdbcConnectorError("runQuery failed.", sqlexc);
         }
       }
@@ -1171,7 +1154,7 @@ public class JdbcConnector
             catch(Exception e) {}
             this.statement = null;
             
-            log("SQL Exception while creating statement: " + sqlexc, LogLevel.ALERT);
+            log.warn("SQL Exception while creating statement: ", sqlexc);
 
             // Close connection; will try reopening on next request.
             this.connectionProfile.close();
@@ -1200,8 +1183,8 @@ public class JdbcConnector
               // Did we get disconnected?
               checkForDisconnectExceptions(sqlexc, this.connectionProfile);
 
-              log("SQL Exception while running query: " + sqlexc, LogLevel.ALERT);
-              log("Query was: " + getQuery(), LogLevel.ALERT);
+              log.warn("SQL Exception while running query: ", sqlexc);
+              log.warn("Query was: {}", getQuery());
 
               instruction = notifyListener(JdbcConnectorConstants.METHOD_RUN_QUERY, sqlexc);
             }
@@ -1218,7 +1201,7 @@ public class JdbcConnector
     }
     else
     {
-      log("No valid connection available, aborting query.", LogLevel.CRITICAL);
+      log.error("No valid connection available, aborting query.");
       return RUNQUERY_EXCEPTION;
     }
 
@@ -1237,7 +1220,7 @@ public class JdbcConnector
     // indicates a connection issue.
     if (sqlexc.getSQLState().startsWith("08"))
     {
-      log("SQL state: " + sqlexc.getSQLState() + "; closing connection.", LogLevel.DEBUG);
+      log.debug("SQL state: {}; closing connection.", sqlexc.getSQLState());
       profile.close();
     }
     else
@@ -1250,7 +1233,7 @@ public class JdbcConnector
         )
       {
         // Close connection; will try reopening on next request.
-        log("Exception text suggests connection error; closing connection.", LogLevel.DEBUG);
+        log.debug("Exception text suggests connection error; closing connection.");
         profile.close();
       }
     }
@@ -1277,7 +1260,7 @@ public class JdbcConnector
     // Check for empty batch.
     if (sqlCommands == null || sqlCommands.isEmpty())
     {
-      log("executeBatch: No batch commands defined.", LogLevel.ALERT);
+      log.warn("executeBatch: No batch commands defined.");
     }
 
     // We've got commands; proceed.
@@ -1314,7 +1297,7 @@ public class JdbcConnector
               }
               catch (SQLException sqlexc)
               {
-                log("SQL Exception while creating statement: " + sqlexc, LogLevel.ALERT);
+                log.warn("SQL Exception while creating statement: ", sqlexc);
 
                 // Close connection; will try reopening on next request.
                 this.connectionProfile.close();
@@ -1345,8 +1328,8 @@ public class JdbcConnector
                 catch(Exception e) {}
                 this.statement = null;
                 
-                log("SQL Exception while running query: " + sqlexc, LogLevel.ALERT);
-                log("Query was: " + getQuery(), LogLevel.ALERT);
+                log.warn("SQL Exception while running query: ", sqlexc);
+                log.warn("Query was: {}", getQuery());
                 
                 throw new JdbcConnectorError("executeBatch failed.", sqlexc);
               }
@@ -1367,7 +1350,7 @@ public class JdbcConnector
                 // Close connection; will try reopening on next request.
                 this.connectionProfile.close();
 
-                log("SQL Exception while creating statement: " + sqlexc, LogLevel.ALERT);
+                log.warn("SQL Exception while creating statement: ", sqlexc);
                 
                 instruction = notifyListener(JdbcConnectorConstants.METHOD_EXECUTE_BATCH, sqlexc);
 
@@ -1399,8 +1382,8 @@ public class JdbcConnector
                   catch(Exception e) {}
                   this.statement = null;
                   
-                  log("SQL Exception while running query: " + sqlexc, LogLevel.ALERT);
-                  log("Query was: " + getQuery(), LogLevel.ALERT);
+                  log.warn("SQL Exception while running query: ", sqlexc);
+                  log.warn("Query was: {}", getQuery());
                   checkForDisconnectExceptions(sqlexc, this.connectionProfile);
 
                   instruction = notifyListener(JdbcConnectorConstants.METHOD_EXECUTE_BATCH, sqlexc);
@@ -1534,7 +1517,7 @@ public class JdbcConnector
       catch(SQLException exc) {}
       this.statement = null;
       
-      log("SQLException in generateStatement: " + sqlexc, LogLevel.ALERT);
+      log.warn("SQLException in generateStatement: ", sqlexc);
 
       this.nextThrewException = true;
       this.resultSet          = null;
@@ -1708,7 +1691,7 @@ public class JdbcConnector
           }
           catch (SQLException e)
           {
-            log("SQL Exception while getting meta data for tables: " + e, LogLevel.ALERT);
+            log.warn("SQL Exception while getting meta data for tables: ", e);
 
             // Close connection; will try reopening on next request.
             this.connectionProfile.close();
@@ -1733,10 +1716,10 @@ public class JdbcConnector
     }
     else
     {
-      log("No valid connection available, aborting query.", LogLevel.CRITICAL);
+      log.error("No valid connection available, aborting query.");
     }
 
-    log("Returning from getTableMetaData.", LogLevel.MINIMUM);
+    log.trace("Returning from getTableMetaData.");
 
     return null;
   }
@@ -1802,7 +1785,7 @@ public class JdbcConnector
           }
           catch (SQLException e)
           {
-            log("SQL Exception while getting meta data for tables: " + e, LogLevel.ALERT);
+            log.warn("SQL Exception while getting meta data for tables: ", e);
 
             // Close connection; will try reopening on next request.
             this.connectionProfile.close();
@@ -1827,10 +1810,10 @@ public class JdbcConnector
     }
     else
     {
-      log("No valid connection available, aborting query.", LogLevel.CRITICAL);
+      log.error("No valid connection available, aborting query.");
     }
 
-    log("Returning from getTableMetaData.", LogLevel.MINIMUM);
+    log.trace("Returning from getTableMetaData.");
 
     return null;
   }
@@ -1889,8 +1872,7 @@ public class JdbcConnector
     }
     catch (SQLException e)
     {
-      log("Exception while calling wasNull() on the result set: " + e,
-          LogLevel.NORMAL);
+      log.info("Exception while calling wasNull() on the result set: ", e);
     }
     return false;
   }
@@ -1978,10 +1960,6 @@ public class JdbcConnector
    */
   private void logWarnings(Connection c)
   {
-    if (!this.manager.getAttributes().getLogWarnings())
-    {
-      return;
-    }
     try
     {
       if (c != null)
@@ -1991,8 +1969,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while logging warnings on Connection " + c,
-          LogLevel.ALERT, exc);
+      log.warn("Exception while logging warnings on Connection {}", c, exc);
     }
   }
 
@@ -2003,10 +1980,6 @@ public class JdbcConnector
    */
   private void logWarnings(Statement s)
   {
-    if (!this.manager.getAttributes().getLogWarnings())
-    {
-      return;
-    }
     try
     {
       if (s != null)
@@ -2017,8 +1990,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while logging warnings on Statement " + s,
-          LogLevel.ALERT, exc);
+      log.warn("Exception while logging warnings on Statement {}", s, exc);
     }
   }
 
@@ -2029,10 +2001,6 @@ public class JdbcConnector
    */
   private void logWarnings(ResultSet rs)
   {
-    if (!this.manager.getAttributes().getLogWarnings())
-    {
-      return;
-    }
     try
     {
       if (rs != null)
@@ -2043,8 +2011,7 @@ public class JdbcConnector
     }
     catch (SQLException exc)
     {
-      log("Exception while logging warnings on ResultSet " + rs,
-          LogLevel.ALERT, exc);
+      log.warn("Exception while logging warnings on ResultSet {}", rs, exc);
     }
   }
 
@@ -2053,16 +2020,11 @@ public class JdbcConnector
    */
   private void logWarnings(SQLWarning warning)
   {
-    if (!this.manager.getAttributes().getLogWarnings())
-    {
-      return;
-    }
     SQLWarning w = warning;
     while (w != null)
     {
-      log("Warning: Error " + w.getErrorCode() + ", SQL state "
-          + w.getSQLState() + ", message " + w.getMessage(),
-          this.manager.getAttributes().getWarningLogLevel(), w.getCause());
+      log.warn("Warning: Error {}, SQL state {}, message {}", w.getErrorCode(),
+          w.getSQLState(), w.getMessage(), w.getCause());
       w = w.getNextWarning();
     }
   }

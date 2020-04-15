@@ -34,7 +34,8 @@ import javax.servlet.http.*;
 
 import com.techempower.*;
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Gemini's foundation servlet.  As part of building a Gemini web
@@ -77,19 +78,13 @@ public abstract class InfrastructureServlet
   extends    HttpServlet
 {
   private static final long   serialVersionUID   = 8642344935L;
-  
-  //
-  // Constants.
-  //
-
-  public static final String COMPONENT_CODE = "svlt";    // Four-letter component ID
 
   //
   // Member variables.
   //
 
   private final GeminiApplication application = getApplication();
-  private final ComponentLog      log         = this.application.getLog(COMPONENT_CODE);
+  private final Logger            log         = LoggerFactory.getLogger(getClass());
   private final Version           version     = this.application.getVersion();
   
   //
@@ -121,7 +116,7 @@ public abstract class InfrastructureServlet
     }
     catch (IllegalStateException e)
     {
-      log.log("Defaulting config to null for mocking servlet. Exception: " + e);
+      log.info("Defaulting config to null for mocking servlet. Exception: ", e);
       config = HttpInitConfig.createHttpInitConfig(null, null);
     }
     
@@ -283,16 +278,17 @@ public abstract class InfrastructureServlet
     
     if (enumeration.hasMoreElements())
     {
-      this.log.log("Servlet initialization parameters:");
+      this.log.info("Servlet initialization parameters:");
       while (enumeration.hasMoreElements())
       {
         String name = enumeration.nextElement();
-        this.log.log(name + ": " + getServletConfig().getInitParameter(name));      
+        this.log.info("{}: {}", name,
+            getServletConfig().getInitParameter(name));
       }
     }
     else
     {
-      this.log.log("No Servlet initialization parameters set.");
+      this.log.info("No Servlet initialization parameters set.");
     }
 
     ServletContext servletContext = getServletConfig().getServletContext();
@@ -300,16 +296,16 @@ public abstract class InfrastructureServlet
     
     if (enumeration.hasMoreElements())
     {
-      this.log.log("ServletContext initialization parameters:");
+      this.log.info("ServletContext initialization parameters:");
       while (enumeration.hasMoreElements())
       {
         String name = enumeration.nextElement();
-        this.log.log(name + ": " + servletContext.getInitParameter(name));      
+        this.log.info("{}: {}", name, servletContext.getInitParameter(name));
       }
     }
     else
     {
-      this.log.log("No ServletContext initialization parameters set.");
+      this.log.info("No ServletContext initialization parameters set.");
     }
   }
 

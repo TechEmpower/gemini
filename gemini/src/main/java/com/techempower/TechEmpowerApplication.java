@@ -31,9 +31,10 @@ import java.util.*;
 
 import com.techempower.asynchronous.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A base for applications' main classes.  Typically, an application that uses
@@ -49,12 +50,10 @@ public class TechEmpowerApplication
   //
 
   private final Version                  version;
-  private final Log                      rootLog;
-  private final ComponentLog             log;
+  private final Logger                   log = LoggerFactory.getLogger(getClass());
   private final Scheduler                scheduler;
   private final List<Asynchronous>       asynchronousRscs;
   private final List<DeferredStartAsynchronous> deferredRscs;
-  private final LogWriterManager         logManager;
 
   //
   // Member methods.
@@ -69,14 +68,6 @@ public class TechEmpowerApplication
     this.asynchronousRscs = new ArrayList<>();
     this.deferredRscs     = new ArrayList<>();
     this.version          = constructVersion();
-    this.logManager       = constructLogCloser();
-   
-    // LogWriterManager is a special case that is started as soon as 
-    // constructed. 
-    this.logManager.begin();
-    
-    this.rootLog          = constructLog();
-    this.log              = getLog("teap");
     this.scheduler        = constructScheduler();
   }
 
@@ -87,14 +78,6 @@ public class TechEmpowerApplication
   {
     return new Version();
   }
-
-  /**
-   * Constructs a Log reference.  Overload to return a custom object.
-   */
-  protected Log constructLog()
-  {
-    return new BasicLog(this);
-  }
   
   /**
    * Construct a Scheduler.  Schedule events at construction time by 
@@ -103,14 +86,6 @@ public class TechEmpowerApplication
   protected Scheduler constructScheduler()
   {
     return new Scheduler(this);
-  }
-  
-  /**
-   * Construct a LogWriterCloser.
-   */
-  protected LogWriterManager constructLogCloser()
-  {
-    return new LogWriterManager(this);
   }
 
   /**
@@ -121,30 +96,6 @@ public class TechEmpowerApplication
   {
     return version;
   }
-
-  /**
-   * Gets a ComponentLog for a component.
-   */
-  public ComponentLog getLog(String componentCode)
-  {
-    return rootLog.getComponentLog(componentCode);
-  }
-  
-  /**
-   * Gets the application's ComponentLog.
-   */
-  protected ComponentLog getComponentLog()
-  {
-    return log;
-  }
-  
-  /**
-   * Gets the actual application log reference.
-   */
-  public Log getApplicationLog()
-  {
-    return rootLog;
-  }
   
   /**
    * Gets the main application scheduler.  If none exists it will be created.
@@ -153,14 +104,6 @@ public class TechEmpowerApplication
   public Scheduler getScheduler()
   {
     return scheduler;
-  }
-  
-  /**
-   * Gets the application's LogWriterCloser.
-   */
-  public LogWriterManager getLogManager()
-  {
-    return logManager;
   }
 
   /**
@@ -270,11 +213,6 @@ public class TechEmpowerApplication
     {
       async.end();
     }
-    
-    // The LogManager is a special case that we should stop after all other
-    // Asynchronous resources so that any log messages those write as they
-    // are stopping will be captured to the log.
-    logManager.end();
   }
 
 }   // End TechEmpowerApplication.

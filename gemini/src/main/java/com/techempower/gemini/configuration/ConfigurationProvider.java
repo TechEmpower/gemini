@@ -27,7 +27,6 @@
 package com.techempower.gemini.configuration;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
 
 /**
@@ -54,6 +53,6 @@ public interface ConfigurationProvider
    * No changes made to the provided EnhancedProperties will be retained if
    * the provider returns false.
    */
-  boolean load(GeminiApplication application, ComponentLog log, EnhancedProperties props);
+  boolean load(GeminiApplication application, EnhancedProperties props);
   
 }

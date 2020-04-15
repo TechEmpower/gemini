@@ -35,7 +35,6 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 import com.techempower.helper.*;
-import com.techempower.log.*;
 
 /*
   To use, put this in your web.xml:
@@ -93,7 +92,7 @@ public class ThrottleFilter
     super.init(config);
     maxConcurrentRequests = (int)getInitParameter(config, "MaxConcurrentRequests",
       maxConcurrentRequests);
-    debug("max concurrent requests: " + maxConcurrentRequests);
+    log.info("max concurrent requests: {}", maxConcurrentRequests);
     
     String unthrottledIpAddressPatterns = getInitParameter(config, "UnthrottledIpAddressPatterns", null);
     welcomeIpAddressPatterns = StringHelper.splitTrimAndLower(unthrottledIpAddressPatterns, ",");
@@ -101,12 +100,12 @@ public class ThrottleFilter
     {
       for (int i = 0; i < welcomeIpAddressPatterns.length; i++)
       {
-        debug("will not throttle this IP address pattern: " + welcomeIpAddressPatterns[i]);
+        log.info("will not throttle this IP address pattern: {}", welcomeIpAddressPatterns[i]);
       }
     }
     else
     {
-      debug("will throttle all IP address patterns.");
+      log.info("will throttle all IP address patterns.");
     }
 
     String unthrottledUserAgentConfig = getInitParameter(config,
@@ -116,12 +115,12 @@ public class ThrottleFilter
     {
       for (int i = 0; i < welcomeAbuserUserAgents.length; i++)
       {
-        debug("will not throttle this User-Agent: " + welcomeAbuserUserAgents[i]);
+        log.info("will not throttle this User-Agent: {}", welcomeAbuserUserAgents[i]);
       }
     }
     else
     {
-      debug("will throttle all User-Agents.");
+      log.info("will throttle all User-Agents.");
     }
 
     String bannedUserAgentConfig = getInitParameter(config,
@@ -131,12 +130,12 @@ public class ThrottleFilter
     {
       for (int i = 0; i < bannedUserAgents.length; i++)
       {
-        debug("will ban this User-Agent: " + bannedUserAgents[i]);
+        log.info("will ban this User-Agent: {}", bannedUserAgents[i]);
       }
     }
     else
     {
-      debug("will not ban any User-Agents.");
+      log.info("will not ban any User-Agents.");
     }
 
     String bannedIpAddressConfig = getInitParameter(config, "BannedIpAddressPatterns", null);
@@ -145,12 +144,12 @@ public class ThrottleFilter
     {
       for (int i = 0; i < bannedIpAddressPatterns.length; i++)
       {
-        debug("will ban this IP address pattern: " + bannedIpAddressPatterns[i]);
+        log.info("will ban this IP address pattern: {}", bannedIpAddressPatterns[i]);
       }
     }
     else
     {
-      debug("will not ban any IP address patterns.");
+      log.info("will not ban any IP address patterns.");
     }
 
     String unthrottledUriConfig = getInitParameter(config, "UnthrottledUris", null);
@@ -159,12 +158,12 @@ public class ThrottleFilter
     {
       for (int i = 0; i < welcomeAbuserUris.length; i++)
       {
-        debug("will not throttle this URI: " + welcomeAbuserUris[i]);
+        log.info("will not throttle this URI: {}", welcomeAbuserUris[i]);
       }
     }
     else
     {
-      debug("will throttle all URIs.");
+      log.info("will throttle all URIs.");
     }
   }
 
@@ -188,14 +187,14 @@ public class ThrottleFilter
     final String userAgent = request.getHeader("User-Agent");
     final String requestSignature = getRequestSignature(request);
 
-    debug("ipAddress:  " + ipAddress, LogLevel.DEBUG);
-    debug("User-Agent:  " + userAgent, LogLevel.DEBUG);
-    debug("Request sig: " + requestSignature, LogLevel.DEBUG);
+    log.debug("ipAddress: {}", ipAddress);
+    log.debug("User-Agent: {}", userAgent);
+    log.debug("Request sig: {}", requestSignature);
     
     // If the IP address pattern is approved, then don't do any throttling.
     if (isWelcomeIpAddressPattern(ipAddress))
     {
-      debug(ipAddress + " is an approved IP address pattern.", LogLevel.DEBUG);
+      log.debug("{} is an approved IP address pattern.", ipAddress);
       chain.doFilter(request, response);
       return;
     }
@@ -206,7 +205,7 @@ public class ThrottleFilter
     // If the User-Agent is approved, then don't do any throttling.
     if (!bannedIp && isWelcomeAbuser(userAgent))
     {
-      debug(ipAddress + " has approved User-Agent: " + userAgent, LogLevel.DEBUG);
+      log.debug("{} has approved User-Agent: {}", ipAddress, userAgent);
       chain.doFilter(request, response);
       return;
     }
@@ -214,18 +213,18 @@ public class ThrottleFilter
     // If the URI is approved, then don't do any throttling.
     if (!bannedIp && isWelcomeAbuserUri(requestSignature))
     {
-      debug(ipAddress + " has approved URI: " + requestSignature, LogLevel.DEBUG);
+      log.debug("{} has approved URI: {}", ipAddress, requestSignature);
       chain.doFilter(request, response);
       return;
     }
 
     if (bannedIp)
     {
-      debug(ipAddress + " has banned IP address", LogLevel.DEBUG);
+      log.debug("{} has banned IP address", ipAddress);
     }
     else if (isBannedUserAgent(userAgent))
     {
-      debug(ipAddress + " has banned User-Agent: " + userAgent, LogLevel.DEBUG);
+      log.debug("{} has banned User-Agent: {}", ipAddress, userAgent);
     }
     else
     {
@@ -276,7 +275,7 @@ public class ThrottleFilter
         }
         catch (Exception e)
         {
-          debug("Exception while filtering.", e);
+          log.info("Exception while filtering.", e);
         }
         finally
         {
@@ -295,10 +294,9 @@ public class ThrottleFilter
     
     // We don't increment here because this request
     // is going to get throttled and return immediately.
-    String msg = System.currentTimeMillis() + " - "
-      + StringHelper.padSpace(ipAddress, 15) + " - " + userAgent
-      + " - throttling request for " + requestSignature; 
-    debug(msg);
+    log.info("{} - {} - {} - throttling request for {}",
+        System.currentTimeMillis(), StringHelper.padSpace(ipAddress, 15),
+        userAgent, requestSignature);
     
     response.sendError(503);
   }

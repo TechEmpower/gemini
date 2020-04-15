@@ -30,7 +30,8 @@ import java.lang.annotation.*;
 import java.lang.reflect.*;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Response class that tosses a file. This is used with the &#064;File annotation
@@ -55,11 +56,15 @@ import com.techempower.log.*;
 public class FileResponse<D extends BasicDispatcher, C extends LegacyContext> 
   implements HandlerResponse<D, C>
 {
-  private ComponentLog log;
+  private Logger log = LoggerFactory.getLogger(getClass());
   
+  public FileResponse()
+  {
+  }
+
+  @Deprecated(forRemoval = true)
   public FileResponse(GeminiApplication application)
   {
-    this.log = application.getLog("FiR");
   }
   
   /**
@@ -87,7 +92,7 @@ public class FileResponse<D extends BasicDispatcher, C extends LegacyContext>
     }
     else
     {
-      this.log.log("Returned object not of type File or String, can't include File.");
+      this.log.info("Returned object not of type File or String, can't include File.");
       return false;
     }
     

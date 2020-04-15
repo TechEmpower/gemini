@@ -30,8 +30,9 @@ package com.techempower.gemini.internationalization;
 import java.util.*;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An interface for loading, persisting, and quickly retrieving cached 
@@ -48,7 +49,7 @@ public abstract class ResourceManager
   
   private final GeminiApplication   application;
   private final GeminiLocaleManager localeManager;
-  private final ComponentLog        log;
+  private final Logger              log = LoggerFactory.getLogger(getClass());
   
   //
   // Methods.
@@ -67,7 +68,6 @@ public abstract class ResourceManager
   {
     this.application = application;
     this.localeManager = localeManager;
-    this.log = application.getLog("rMgr");
   }
   
   /**
@@ -84,14 +84,6 @@ public abstract class ResourceManager
   protected GeminiLocaleManager getLocaleManager()
   {
     return this.localeManager;
-  }
-  
-  /**
-   * Gets the ComponentLog reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return this.log;
   }
   
   /**

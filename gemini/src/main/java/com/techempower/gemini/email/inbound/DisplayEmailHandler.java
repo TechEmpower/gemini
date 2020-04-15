@@ -28,7 +28,8 @@
 package com.techempower.gemini.email.inbound;
 
 import com.techempower.gemini.email.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DisplayEmailHandler simply displays an e-mail to the console when it is
@@ -42,18 +43,23 @@ public class DisplayEmailHandler
   // Member variables.
   //
 
-  private final ComponentLog log;
-  
+  private final Logger log;
+
   //
   // Member methods.
   //
-  
+
   /**
-   * Constructor.  
+   * Constructor.
    */
-  public DisplayEmailHandler(ComponentLog log)
+  public DisplayEmailHandler(Logger log)
   {
     this.log = log;
+  }
+
+  public DisplayEmailHandler()
+  {
+    this.log = LoggerFactory.getLogger(getClass());
   }
   
   /**
@@ -62,18 +68,18 @@ public class DisplayEmailHandler
   @Override
   public boolean handleEmail(EmailPackage email)
   {
-    this.log.log("From: " + email.getAuthor());
-    this.log.log("To  : " + email.getRecipient());
-    this.log.log("Subj: " + email.getSubject());
+    this.log.info("From: {}", email.getAuthor());
+    this.log.info("To  : {}", email.getRecipient());
+    this.log.info("Subj: {}", email.getSubject());
     if (email.getAttachments() != null)
     {
       for (EmailAttachment attach : email.getAttachments())
       {
-        this.log.log("Attc: " + attach.getName());
+        this.log.info("Attc: {}", attach.getName());
       }
     }
-    this.log.log("Body: " + email.getTextBody());
-    this.log.log("Html: " + email.getHtmlBody());
+    this.log.info("Body: {}", email.getTextBody());
+    this.log.info("Html: {}", email.getHtmlBody());
     
     // Don't delete on our behalf.
     return false;

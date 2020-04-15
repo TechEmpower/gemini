@@ -34,8 +34,9 @@ import java.util.concurrent.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.email.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides a simple e-mail templating functionality to Gemini applications.
@@ -57,6 +58,7 @@ public class SimpleEmailTemplater
   
   private List<String> templatesToLoad;
   private boolean      requireSubject = true;
+  private Logger       log            = LoggerFactory.getLogger(getClass());
 
   //
   // Member methods.
@@ -99,7 +101,7 @@ public class SimpleEmailTemplater
       this.templatesToLoad = null;
     }
     
-    getLog().log(loaded + " e-mail" + StringHelper.pluralize(loaded) + " loaded.");
+    log.info("{} e-mail{} loaded.", loaded, StringHelper.pluralize(loaded));
     
     return loaded;
   }
@@ -143,7 +145,7 @@ public class SimpleEmailTemplater
     }
     else
     {
-      getLog().log("Template not found by ID: " + templateID);
+      log.info("Template not found by ID: {}", templateID);
     }
     
     return null;
@@ -240,7 +242,7 @@ public class SimpleEmailTemplater
     // If there's a filename, go ahead.
     if (filename != null)
     {
-      getLog().log("Attempting to load " + filename, LogLevel.DEBUG);
+      log.debug("Attempting to load {}", filename);
       
       final File textFile = new File(filename);
       final String htmlFilename = FileHelper.replaceExtension(filename, "html");
@@ -257,7 +259,7 @@ public class SimpleEmailTemplater
       }
       catch (IOException ioexc)
       {
-        getLog().log("Cannot read email contents for " + mailID + ": " + ioexc);
+        log.error("Cannot read email contents for {}", mailID, ioexc);
       }
     }
 
@@ -342,26 +344,26 @@ public class SimpleEmailTemplater
 	              }
 	              
 	              newEmail.setHtmlBody(messageBody.toString());
-	              getLog().log("Read HTML alternate for " + mailID, LogLevel.MINIMUM);
-	              //log.debug("Read HTML alternate for " + mailID);
+	              log.trace("Read HTML alternate for {}", mailID);
+	              //log.debug("Read HTML alternate for ", mailID);
             	}
             }
           }
           else
           {
-            getLog().log("E-mail template file for " + mailID + " has no valid subject!", LogLevel.ALERT);
+            log.warn("E-mail template file for {} has no valid subject!", mailID);
           }
         }
         else
         {
-          getLog().log("E-mail template file for " + mailID + " has no contents!", LogLevel.ALERT);
+          log.warn("E-mail template file for {} has no contents!", mailID);
         }
 
         return 1;
       }
       catch (IOException ioexc)
       {
-        getLog().log("Cannot read email contents for " + mailID + ": " + ioexc);
+        log.error("Cannot read email contents for {}", mailID, ioexc);
       }
       finally
       {

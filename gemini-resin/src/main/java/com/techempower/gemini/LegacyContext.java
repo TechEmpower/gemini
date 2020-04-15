@@ -33,7 +33,6 @@ import java.util.Map.Entry;
 import com.techempower.gemini.context.*;
 import com.techempower.gemini.session.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 
 /**
  * Provides legacy applications with now-outdated Context functionality and
@@ -304,7 +303,7 @@ public abstract class LegacyContext
     }
     catch (IOException ioexc)
     {
-      getLog().log("Exception while attempting to print exception to Context:\n" + ioexc);
+      log.info("Exception while attempting to print exception to Context:\n", ioexc);
     }
   }
 
@@ -657,7 +656,7 @@ public abstract class LegacyContext
       key = this.getAllRequestParametersKey();
     }
     getApplication().getStore().setCachedResponse(key, responseText);
-    getLog().log("Caching response for key: " + key + ", referrer: " + headers().referrer(), LogLevel.DEBUG);
+    log.debug("Caching response for key: {}, referrer: {}", key, headers().referrer());
     return this.respondWithText(responseText);
   }
 
@@ -701,7 +700,7 @@ public abstract class LegacyContext
     String cachedResponse = getApplication().getStore().getCachedResponse(this.getAllRequestParametersKey(expectedParams));
     if (cachedResponse != null)
     {
-      getLog().log("Using cached response.", LogLevel.DEBUG);
+      log.debug("Using cached response.");
       return this.respondWithText(cachedResponse);
     }
     return false;
@@ -723,7 +722,7 @@ public abstract class LegacyContext
       }
       catch (Exception exc)
       {
-        getLog().log("::respondWithText caught exception ", exc);
+        log.info("::respondWithText caught exception ", exc);
       }
       finally
       {

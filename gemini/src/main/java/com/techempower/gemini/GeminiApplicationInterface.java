@@ -35,7 +35,6 @@ import com.techempower.gemini.email.outbound.*;
 import com.techempower.gemini.internationalization.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.session.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 
 /**
@@ -133,16 +132,6 @@ public interface GeminiApplicationInterface
    * such as the name and version number of the application.
    */
   Version getVersion();
-
-  /**
-   * Gets a ComponentLog for a component.
-   */
-  ComponentLog getLog(String componentCode);
-
-  /**
-   * Gets the actual application log reference.
-   */
-  Log getApplicationLog();
   
   /**
    * Gets a reference to the PyxisSecurity object from an Application.

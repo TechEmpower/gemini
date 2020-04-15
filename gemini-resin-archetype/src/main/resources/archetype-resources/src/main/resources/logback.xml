@@ -1,0 +1,19 @@
+<configuration>
+  <property name="DEFAULT_CONSOLE_LOG_PATTERN" value="%40.40logger{40}" />
+  <conversionRule conversionWord="req"
+                  converterClass="com.techempower.gemini.log.RequestPatternConverter" />
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <!-- Provide CONSOLE_LOG_PATTERN as an env variable/system property set -->
+      <!-- to %c in order to enable full class package names in the console -->
+      <pattern>%-5level %d{yyyy-MM-dd HH:mm:ss.SSS} ${CONSOLE_LOG_PATTERN:-${DEFAULT_CONSOLE_LOG_PATTERN}} %req- %msg%n</pattern>
+    </encoder>
+  </appender>
+  <root level="${GLOBAL_LOG_LEVEL:-WARN}">
+    <appender-ref ref="STDOUT"/>
+  </root>
+  <!-- Different log levels may be specified through the environment variables/system properties -->
+  <!-- If not specified, defaults to the value after ":-", which is "INFO" in this case -->
+  <logger name="com.techempower" level="${TECHEMPOWER_LOG_LEVEL:-INFO}" />
+  <logger name="${package}" level="${LOG_LEVEL:-TRACE}" />
+</configuration>

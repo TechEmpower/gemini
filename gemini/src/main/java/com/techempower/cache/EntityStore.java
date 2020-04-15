@@ -47,9 +47,10 @@ import com.techempower.data.annotation.*;
 import com.techempower.gemini.cluster.*;
 import com.techempower.gemini.configuration.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.reflect.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class serves as a storage manager for several entity groups and the
@@ -81,8 +82,6 @@ public class EntityStore
   // Constants.
   //
 
-  public static final String     COMPONENT_CODE = "cach";
-  
   private static final Class<?>[] NO_PARAMETERS  = new Class[0];
   private static final Object[]   NO_VALUES      = new Object[0];
   private static final int        INITIAL_GROUPS_SIZE = 20;
@@ -97,8 +96,7 @@ public class EntityStore
   private final Map<Class<? extends Identifiable>,EntityGroup<? extends Identifiable>>
                                                         groups;
   private final ConnectorFactory                        connectorFactory;
-  private final ComponentLog                            log;
-  private final ComponentLog                            entityLog;
+  private final Logger                                  log = LoggerFactory.getLogger(getClass());
   private volatile CacheListener[]                      listeners;
 
   private ExecutorService preinitializationTasks = Executors.newSingleThreadExecutor();
@@ -173,9 +171,7 @@ public class EntityStore
     this.connectorFactory = connectorFactory;
     this.groups           = new HashMap<>(INITIAL_GROUPS_SIZE);
     this.listeners        = new CacheListener[0];
-    this.log              = application.getLog(COMPONENT_CODE);
-    this.entityLog        = application.getLog("data");
-    
+
     // Start constructing Reflections on a new thread since it takes a
     // bit of time.
     preinitializationTasks.submit(new Runnable() {
@@ -183,13 +179,13 @@ public class EntityStore
       public void run() {
         try
         {
-          log.log("Instantiating Reflections component.");
+          log.info("Instantiating Reflections component.");
           reflections = PackageClassLoader.getReflectionClassLoader(application);
-          log.log("Reflections component instantiated: " + reflections);
+          log.info("Reflections component instantiated: {}", reflections);
         }
         catch (Exception exc)
         {
-          log.log("Exception while instantiating Reflections component.", exc);
+          log.error("Exception while instantiating Reflections component.", exc);
         }
       }
     });
@@ -266,14 +262,6 @@ public class EntityStore
       return methodIndexed != null && methodIndexed;
     }
   }
-  
-  /**
-   * Gets a ComponentLog for entities to use.
-   */
-  public ComponentLog getEntityLog()
-  {
-    return entityLog;
-  }
 
   /**
    * Reset all entity groups controlled by this controller.
@@ -293,7 +281,7 @@ public class EntityStore
    */
   public void reset(boolean notifyListeners, boolean notifyDistributionListeners)
   {
-    log.log("Full reset.", LogLevel.DEBUG);
+    log.debug("Full reset.");
 
     // Reset entity groups.
     for (EntityGroup<?> group : groups.values())
@@ -536,8 +524,7 @@ public class EntityStore
     methodValueCaches.put(group.type(), 
         new MethodValueCache<>(this, group.type()));
     
-    log.log("Registered " + group + " with id " + group.getGroupNumber(),
-        LogLevel.DEBUG);
+    log.debug("Registered {} with id {}", group, group.getGroupNumber());
     return group;
   }
 
@@ -564,14 +551,6 @@ public class EntityStore
   {
     return application;
   }
-  
-  /**
-   * Gets the ComponentLog reference.
-   */
-  public ComponentLog getLog()
-  {
-    return log;
-  }
 
   /**
    * Initialize the EntityStore.  The basic implementation provided here
@@ -583,16 +562,16 @@ public class EntityStore
     // Wait for pre-initialization tasks to complete.
     try
     {
-      log.log("Completing preinitialization tasks.");
+      log.info("Completing preinitialization tasks.");
       preinitializationTasks.shutdown();
-      log.log("Awaiting termination of preinitialization tasks.");
+      log.info("Awaiting termination of preinitialization tasks.");
       preinitializationTasks.awaitTermination(5L, TimeUnit.MINUTES);
-      log.log("Preinitialization tasks complete.");
-      log.log("Reflections component: " + reflections);
+      log.info("Preinitialization tasks complete.");
+      log.info("Reflections component: {}", reflections);
     }
     catch (InterruptedException iexc)
     {
-      log.log("Preinitialization interrupted.", iexc);
+      log.error("Preinitialization interrupted.", iexc);
     }
     
     // Throw an exception if Reflections is not ready.
@@ -1189,8 +1168,7 @@ public class EntityStore
       cachedRelations.add(cr);
       // Give the relation a unique ID.
       cr.setId(cachedRelations.size());
-      log.log("Registered " + cr + " with id " + cr.getId(),
-          LogLevel.DEBUG);
+      log.debug("Registered {} with id {}", cr, cr.getId());
     }
 
     // if we're provided with a definition Class, we need to add this relation
@@ -1211,7 +1189,7 @@ public class EntityStore
   @SuppressWarnings("unchecked")
   public void register()
   {
-    log.log("Registering annotated entities, relations, and type adapters.");
+    log.info("Registering annotated entities, relations, and type adapters.");
     try
     {
       final ExecutorService service = Executors.newFixedThreadPool(5);
@@ -1404,10 +1382,10 @@ public class EntityStore
       }
       catch (InterruptedException iexc)
       {
-        log.log("Unable to register all entities in 1 hour!", LogLevel.CRITICAL);
+        log.error("Unable to register all entities in 1 hour!");
       }
-    
-      log.log("Done registering annotated items.");
+
+      log.info("Done registering annotated items.");
     }
     catch (ReflectionsException e) 
     {

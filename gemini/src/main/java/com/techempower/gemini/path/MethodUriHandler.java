@@ -36,7 +36,8 @@ import com.techempower.gemini.path.MethodUriHandler.PathUriMethod.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
-import com.techempower.log.LogLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Building on the BasicPathHandler, the MethodUriHandler provides easy
@@ -49,20 +50,20 @@ public class MethodUriHandler<C extends Context>
   private final PathUriTree    putRequestHandleMethods;
   private final PathUriTree    postRequestHandleMethods;
   private final PathUriTree    deleteRequestHandleMethods;
-  protected final MethodAccess methodAccess; 
+  protected final MethodAccess methodAccess;
+  private         Logger       log = LoggerFactory.getLogger(getClass());
   
   /**
    * Constructor.
    *
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param jsw A JavaScriptWriter to use when serializing objects as JSON; if
    *     null, the application's default JavaScriptWriter will be used.
    */
-  public MethodUriHandler(GeminiApplication app, String componentCode, 
+  public MethodUriHandler(GeminiApplication app,
       JavaScriptWriter jsw)
   {
-    super(app, componentCode, jsw);
+    super(app, jsw);
 
     getRequestHandleMethods = new PathUriTree();
     putRequestHandleMethods = new PathUriTree();
@@ -78,22 +79,10 @@ public class MethodUriHandler<C extends Context>
    * serialization.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
-   */
-  public MethodUriHandler(GeminiApplication app, String componentCode)
-  {
-    this(app, componentCode, null);
-  }
-  
-  /**
-   * Constructor.  Use the application's default JavaScriptWriter for JSON
-   * serialization and use a default component code of "urhd".
-   * 
-   * @param app The GeminiApplication reference.
    */
   public MethodUriHandler(GeminiApplication app)
   {
-    this(app, "urhd", null);
+    this(app, null);
   }
   
   /**
@@ -328,7 +317,7 @@ public class MethodUriHandler<C extends Context>
         }
         catch (RequestBodyException e)
         {
-          log().log("Got RequestBodyException.", LogLevel.DEBUG, e);
+          log.debug("Got RequestBodyException.", e);
           return this.error(e.getStatusCode(), e.getMessage());
         }
       }

@@ -31,8 +31,9 @@ import java.sql.*;
 import com.techempower.data.*;
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Verifies connectivity to the database before allowing the application to
@@ -47,6 +48,7 @@ public class InitDatabaseConnectionTest
   private String testQuery  = "SELECT 1 AS Result;";
   private String testColumn = "Result";
   private String testValue  = "1";
+  private Logger log = LoggerFactory.getLogger(getClass());
   
   /**
    * Constructor.
@@ -59,7 +61,6 @@ public class InitDatabaseConnectionTest
   @Override
   public void taskInitialize(GeminiApplication app)
   {
-    final ComponentLog log = app.getLog(COMPONENT_CODE);
     final ConnectorFactory cf = app.getConnectorFactory();
     
     // Only proceed if we've got a test query specified and the application's
@@ -68,8 +69,8 @@ public class InitDatabaseConnectionTest
        && (StringHelper.isNonEmpty(testQuery))
        )
     {
-      log.log("Testing database connectivity.");
-      log.log("Running test query: " + testQuery);
+      log.info("Testing database connectivity.");
+      log.info("Running test query: {}", testQuery);
       try (
           Connection c = cf.getConnectionMonitor().getConnection();
           PreparedStatement statement = c.prepareStatement(testQuery)
@@ -81,7 +82,7 @@ public class InitDatabaseConnectionTest
           final String returnValue = DatabaseHelper.getString(resultSet, testColumn, "");
           if (testValue.equals(returnValue))
           {
-            log.log("Successfully communicated with database.");
+            log.info("Successfully communicated with database.");
             cf.determineIdentifierQuoteString();
             return;
           }
@@ -104,7 +105,7 @@ public class InitDatabaseConnectionTest
     }
     else
     {
-      log.log("Skipping database connectivity test.");
+      log.info("Skipping database connectivity test.");
     }
   }
 

@@ -61,7 +61,7 @@ public class RequireHttpsFilter
   public void init(FilterConfig config)
   {
     super.init(config);
-    debug("RequireHttpsFilter loaded.");
+    log.info("RequireHttpsFilter loaded.");
   }
   
   /**
@@ -99,7 +99,7 @@ public class RequireHttpsFilter
       }
       else
       {
-        debug("Cannot parse insecure request from " + url);
+        log.info("Cannot parse insecure request from {}", url);
       }
     }
     

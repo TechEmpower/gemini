@@ -24,6 +24,7 @@
         <include>README.md</include>
         <include>Dockerfile</include>
         <include>db/migration/**/*</include>
+        <include>log4j2.xml</include>
         <include>src/main/webapp/WEB-INF/configuration/**/*</include>
         <include>src/main/webapp/WEB-INF/web.xml</include>
         <include>src/main/webapp/WEB-INF/resin.xml</include>

@@ -29,7 +29,6 @@ package com.techempower.gemini.manager;
 import com.techempower.cache.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
 
 /**
@@ -52,16 +51,14 @@ public class BasicManager<A extends GeminiApplication>
   implements Configurable 
 {
 
-  private final A            application;
-  private final ComponentLog log;
+  private final A      application;
 
   /**
    * Constructor.
    */
-  public BasicManager(A application, String componentCode)
+  public BasicManager(A application)
   {
     this.application = application;
-    this.log = application.getLog(componentCode);
     application.getConfigurator().addConfigurable(this);
   }
 
@@ -71,14 +68,6 @@ public class BasicManager<A extends GeminiApplication>
   protected A app()
   {
     return application;
-  }
-  
-  /**
-   * Gets a reference to the log.
-   */
-  protected ComponentLog log()
-  {
-    return log;
   }
   
   /**
@@ -95,42 +84,6 @@ public class BasicManager<A extends GeminiApplication>
   protected PyxisSecurity security()
   {
     return application.getSecurity(); 
-  }
-  
-  /**
-   * Write something to the log.  This is just a convenience alias for
-   * log.debug.
-   */
-  protected void l(String toLog) 
-  {
-    log.log(toLog);
-  }
-  
-  /**
-   * Write something to the log.  This is just a convenience alias for
-   * log.debug.
-   */
-  protected void l(String toLog, int debugLevel) 
-  {
-    log.log(toLog, debugLevel);
-  }
-  
-  /**
-   * Write something to the log.  This is just a convenience alias for
-   * log.debug.
-   */
-  protected void l(String toLog, Throwable throwable) 
-  {
-    log.log(toLog, LogLevel.ALERT, throwable);
-  }
-  
-  /**
-   * Write something to the log.  This is just a convenience alias for
-   * log.debug.
-   */
-  protected void l(String toLog, int debugLevel, Throwable throwable) 
-  {
-    log.log(toLog, debugLevel, throwable);
   }
   
   @Override

@@ -34,8 +34,9 @@ import java.util.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.monitor.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple PercentageEvaluator that detects if any given thread has utilized
@@ -59,7 +60,7 @@ public class   BasicSpikeDetector
   // Member variables.
   //
   
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final Set<String>       ignored;
   private final Set<String>       ignoredStackItems;
   private final List<List<Long>>  overThreshold;
@@ -78,7 +79,6 @@ public class   BasicSpikeDetector
   public BasicSpikeDetector(GeminiApplication application, 
       int intervalsBeforeExceptional, int percentageThreshold)
   {
-    this.log = application.getLog("Spke");
     this.intervalsBeforeExceptional = intervalsBeforeExceptional;
     this.percentageThreshold = percentageThreshold;
     this.ignored = new HashSet<>();
@@ -161,7 +161,7 @@ public class   BasicSpikeDetector
             // exception.  Otherwise, let's proceed.
             if (!containsIgnoredStackItems(stackTrace))
             {
-              this.log.log("Exceptional thread detected: " + sample.getId());
+              this.log.info("Exceptional thread detected: {}", sample.getId());
               if (toReturn == null)
               {
                 toReturn = new StringBuilder();
@@ -291,7 +291,7 @@ public class   BasicSpikeDetector
     
     if (this.ignored.size() > 0)
     {
-      this.log.log(this.ignored.size() + " thread(s) ignored for alerts.");
+      this.log.info("{} thread(s) ignored for alerts.", this.ignored.size());
     }
     
     // Read in ignored stack trace items.
@@ -308,7 +308,8 @@ public class   BasicSpikeDetector
     
     if (this.ignoredStackItems.size() > 0)
     {
-      this.log.log(this.ignoredStackItems.size() + " stack item(s) ignored for alerts.");
+      this.log.info("{} stack item(s) ignored for alerts.",
+          this.ignoredStackItems.size());
     }
   }
   

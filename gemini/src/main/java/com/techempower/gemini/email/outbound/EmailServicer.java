@@ -34,9 +34,10 @@ import com.techempower.asynchronous.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.email.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * EmailServicer is used by applications to send outbound e-mail.  The 
@@ -71,7 +72,6 @@ public class EmailServicer
   // Constants.
   //
 
-  public static final String COMPONENT_CODE         = "emsv";
   public static final int    DEFAULT_SENDER_THREADS = 10;
   public static final long   DEFAULT_DELAY_MILLIS   = 0L;
   public static final IntRange REASONABLE_THREAD_COUNT = new IntRange(1, 500);
@@ -80,8 +80,8 @@ public class EmailServicer
   // Member variables.
   //
 
-  private final    ComponentLog          log;
-  private final    EmailTransport        transport;
+  private final    Logger         log = LoggerFactory.getLogger(getClass());
+  private final    EmailTransport transport;
 
   private final    AtomicInteger         queued;
   private final    AtomicInteger         sent;
@@ -102,7 +102,6 @@ public class EmailServicer
    */
   public EmailServicer(GeminiApplication application)
   {
-    this.log         = application.getLog(COMPONENT_CODE);
     this.executor    = new PausableScheduledThreadPoolExecutor(this.senderThreads);
     this.queued      = new AtomicInteger();
     this.sent        = new AtomicInteger();
@@ -126,21 +125,21 @@ public class EmailServicer
     
     // Set the delays.
     setBeforeDeliveryDelayMillis(focus.getLong("BeforeDeliveryDelayMillis", getBeforeDeliveryDelayMillis()));
-    log.log("Email delivery will be delayed by " + getBeforeDeliveryDelayMillis() + "ms.");
+    log.info("Email delivery will be delayed by {}ms.", getBeforeDeliveryDelayMillis());
     setAfterDeliverySleepMillis(focus.getLong("AfterDeliverySleepMillis", getAfterDeliverySleepMillis()));
-    log.log("Outbound email threads will sleep for " + getAfterDeliverySleepMillis() + "ms after each delivery.");
+    log.info("Outbound email threads will sleep for {}ms after each delivery.", getAfterDeliverySleepMillis());
     
     // Get the number of threads.
     int newSenderThreads = this.senderThreads;
     if (props.has("OutboundEmailThreads"))
     {
       newSenderThreads = props.getInt("OutboundEmailThreads", newSenderThreads);
-      log.log("OutboundEmailerThreads is deprecated. Use OutboundEmail.Threads instead.");
+      log.info("OutboundEmailerThreads is deprecated. Use OutboundEmail.Threads instead.");
     }
     if (props.has("EmailerThreads"))
     {
       newSenderThreads = props.getInt("EmailerThreads", newSenderThreads);
-      log.log("EmailerThreads is deprecated. Use OutboundEmail.Threads instead.");
+      log.info("EmailerThreads is deprecated. Use OutboundEmail.Threads instead.");
     }
     newSenderThreads = focus.getInt("Threads", newSenderThreads);
     
@@ -359,7 +358,7 @@ public class EmailServicer
     {
       if (email == null)
       {
-        log.log("Email is null.  Cannot queue.");
+        log.info("Email is null.  Cannot queue.");
         return false;
       }
       else
@@ -380,8 +379,8 @@ public class EmailServicer
         }
         else
         {
-          log.log("Cannot send e-mail."
-              + "Author: " + email.getAuthor() + "; Recipient: " + email.getRecipient());
+          log.info("Cannot send e-mail.Author: {}; Recipient: {}",
+              email.getAuthor(), email.getRecipient());
           return false;
         }
       }
@@ -390,7 +389,7 @@ public class EmailServicer
     {
       // If outbound e-mail delivery is disabled, just say we were 
       // successful.
-      log.log("Email Servicer not enabled.");
+      log.info("Email Servicer not enabled.");
       return true;
     }
   }
@@ -405,21 +404,14 @@ public class EmailServicer
   }
   
   /**
-   * Gets the log reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return log;
-  }
-  
-  /**
    * A Runnable responsible for sending an e-mail via the Transport.
    */
   private static class Sender 
     implements Runnable
   {
     private final EmailServicer  servicer;
-    private final EmailPackage   email; 
+    private final EmailPackage   email;
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     public Sender(EmailServicer servicer, EmailPackage email)
     {
@@ -442,15 +434,16 @@ public class EmailServicer
       else
       {
         email.incrementDeliveryAttempts();
-        log("Mail to " + email.getRecipient() + " failed on try "
-            + email.getDeliveryAttempts() + ". RecipientSource: "
-            + email.getRecipientSource() + ". Headers: " + email.getHeaders());
+        log.info(
+            "Mail to {} failed on try {}. RecipientSource: {}. Headers: {}",
+            email.getRecipient(), email.getDeliveryAttempts(),
+            email.getRecipientSource(), email.getHeaders());
 
         // If we have exceeded the number of delivery attempts, then trash
         // the e-mail.
         if (email.getDeliveryAttempts() >= servicer.getTransport().getRetryLimit())
         {
-          log("Mail removed from queue.");
+          log.info("Mail removed from queue.");
           servicer.incrementRemoved();
         }
 
@@ -459,7 +452,7 @@ public class EmailServicer
         {
           // Ask for this to be requeued but do not increment the queued count.
           servicer.sendMail(email, false);
-          log("Mail requeued.");
+          log.info("Mail requeued.");
         }
       }
       
@@ -468,11 +461,6 @@ public class EmailServicer
       {
         ThreadHelper.sleep(servicer.getAfterDeliverySleepMillis());
       }
-    }
-    
-    private void log(String debug)
-    {
-      servicer.getLog().log(debug);
     }
   }
   

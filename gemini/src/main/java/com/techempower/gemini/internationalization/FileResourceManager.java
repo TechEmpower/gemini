@@ -33,6 +33,8 @@ import java.util.*;
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of ResourceManager that loads resources from files.  Files 
@@ -90,6 +92,7 @@ public class FileResourceManager
   private String                       resourceLocation;
   private Map<Locale, GeminiResources> loadedResources = new HashMap<>();
   private volatile GeminiResources     rootResources;
+  private          Logger              log = LoggerFactory.getLogger(getClass());
   
   //
   // Methods.
@@ -110,7 +113,7 @@ public class FileResourceManager
     super(application, localeManager, props);
     this.resourceLocation = props.get("I18n.ResourcesLocation",
         DEFAULT_RESOURCE_LOCATION);
-    getLog().log("Resources location: " + this.resourceLocation);
+    log.info("Resources location: {}", this.resourceLocation);
   }
 
   /**
@@ -242,7 +245,7 @@ public class FileResourceManager
     if (!resourceFile.exists())
     {
       // The resources file doesn't exist.
-      getLog().log("Resources file not found: \"" + filename + "\"");
+      log.info("Resources file not found: \"{}\"", filename);
       return null;
     }
 
@@ -256,14 +259,15 @@ public class FileResourceManager
       Properties props = new Properties();
       props.load(in);
 
-      getLog().log("Loaded resources from \"" + filename + "\".");
+      log.info("Loaded resources from \"{}\".", filename);
       
       return props;
     }
     catch (IOException ioexception)
     {
       // there was a problem reading the input, we'll log it.
-      getLog().log("Exception while reading resource file: \"" + filename + "\"", ioexception);
+      log.error("Exception while reading resource file: \"{}\"",
+          filename, ioexception);
     }
 
     return null;
@@ -342,8 +346,7 @@ public class FileResourceManager
     }
     catch (IOException e)
     {
-      getLog().log(
-          "::save - threw exception while trying to write to file.", e);
+      log.error("::save - threw exception while trying to write to file.", e);
     }
 
     // We've run into an error while trying to save

@@ -31,7 +31,8 @@ import java.util.*;
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Holds user interface resources (in the form of macro-enabled Strings) for
@@ -50,11 +51,6 @@ import com.techempower.log.*;
  */
 public class GeminiResources
 {
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "reso";
 
   /**
    * A set of macro indicators that is reused for macro expansion.
@@ -69,7 +65,7 @@ public class GeminiResources
   // Member variables.
   //
 
-  private final ComponentLog        log;
+  private final Logger              log = LoggerFactory.getLogger(getClass());
   private final Locale              locale;
   private final GeminiResources     parent;
   private       Properties          properties;
@@ -99,7 +95,6 @@ public class GeminiResources
   protected GeminiResources(GeminiApplication app, Properties properties,
       Locale locale, GeminiResources parent)
   {
-    this.log        = app.getLog(COMPONENT_CODE);
     this.properties = properties;
     this.locale     = locale;
     this.parent     = parent;
@@ -137,7 +132,7 @@ public class GeminiResources
       {
         // There are no more parents to check.  We're at the root.  So let's
         // log the issue and return just the Key as if it were the Value.
-        this.log.log("Key \"" + key + "\" does not exist in the resources.");
+        this.log.info("Key \"{}\" does not exist in the resources.", key);
         return key;
       }
       else
@@ -152,7 +147,7 @@ public class GeminiResources
       {
         // The value for this key is empty, log it since this probably 
         // shouldn't be the case.
-        this.log.log("Value for key \"" + key + "\" is empty.");
+        this.log.info("Value for key \"{}\" is empty.", key);
       }
       return value;
     }

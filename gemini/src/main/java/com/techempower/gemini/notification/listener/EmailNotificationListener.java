@@ -35,8 +35,9 @@ import com.techempower.gemini.*;
 import com.techempower.gemini.email.*;
 import com.techempower.gemini.notification.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Listens to administrative notifications, sending them out as e-mails.
@@ -56,7 +57,6 @@ public class EmailNotificationListener
   // Constants
   //
   
-  public  static final String COMPONENT_CODE = "emNL";
   public  static final String PROPERTY_PREFIX = "EmailNotificationListener.";
   public  static final int    MAXIMUM_SYNOPSIS_LENGTH = 40;
   public  static final String DEFAULT_FROM_ADDRESS = "exceptions@techempower.com";
@@ -68,7 +68,7 @@ public class EmailNotificationListener
   //
   
   private final GeminiApplication application;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final SimpleDateFormat  format = new SimpleDateFormat("MM-dd HH:mm:ss");
   
   private String            fromMailAddress = DEFAULT_FROM_ADDRESS;
@@ -84,7 +84,6 @@ public class EmailNotificationListener
   public EmailNotificationListener(GeminiApplication application)
   {
     this.application = application;
-    this.log = application.getLog(COMPONENT_CODE);
     application.getConfigurator().addConfigurable(this);
   }
 
@@ -264,7 +263,7 @@ public class EmailNotificationListener
   @Override
   public void configure(EnhancedProperties props)
   {
-    log.log("Configuring email notification recipients.");
+    log.info("Configuring email notification recipients.");
     final List<Recipient> newRecipients = new ArrayList<>();
     final String recipientPrefix = PROPERTY_PREFIX + "Recipient";
     int index = 1;
@@ -272,12 +271,12 @@ public class EmailNotificationListener
     {
       final Recipient recipient = new Recipient(props, recipientPrefix + index + ".");
       newRecipients.add(recipient);
-      log.log("Recipient " + index + ": " + recipient);
+      log.info("Recipient {}: {}", index, recipient);
       index++;
     }
     recipients = newRecipients;
-    log.log(recipients.size() + " notification recipient" 
-       + StringHelper.pluralize(recipients.size()) + " configured.");
+    log.info("{} notification recipient{} configured.",
+        recipients.size(), StringHelper.pluralize(recipients.size()));
     
     fromMailAddress = props.get(PROPERTY_PREFIX + "FromAddress", 
         DEFAULT_FROM_ADDRESS);
@@ -287,7 +286,7 @@ public class EmailNotificationListener
        || (recipients.size() == 0)
        )
     {
-      log.log("EmailNotificationListener disabled (both To and From email addresses must be provided in configuration).");
+      log.info("EmailNotificationListener disabled (both To and From email addresses must be provided in configuration).");
     }
   }
   

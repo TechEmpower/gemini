@@ -35,11 +35,11 @@ import java.util.*;
 import com.techempower.data.util.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
 
 import gnu.trove.map.*;
 import gnu.trove.map.hash.*;
+import org.slf4j.Logger;
 
 /**
  * Provides some static helper functionality for Gemini applications.
@@ -116,7 +116,7 @@ public final class GeminiHelper
    * Dump an arbitrary file to the response.
    */
   public static boolean fileDump(GeminiApplication application, 
-      Context context, String filename, byte[] bytes, ComponentLog log)
+      Context context, String filename, byte[] bytes, Logger log)
   {
     prepareDump(application, context, filename);
     try 
@@ -127,7 +127,7 @@ public final class GeminiHelper
     }
     catch (IOException ioexc)
     {
-      log.log("IOException while dumping file: " + ioexc);
+      log.info("IOException while dumping file: ", ioexc);
     }
     
     return false;
@@ -139,7 +139,7 @@ public final class GeminiHelper
    */
   public static boolean dataDump(GeminiApplication application,
       Context context, List<? extends TabularColumn> fieldAttribs, String query,
-      String exportFilename, ComponentLog log) throws SQLException
+      String exportFilename, Logger log) throws SQLException
   {
     try (
         Connection c = application.getConnectorFactory().getConnectionMonitor().getConnection();
@@ -163,7 +163,7 @@ public final class GeminiHelper
    */
   public static boolean dataDump(GeminiApplication application,
       Context context, List<? extends TabularColumn> fieldAttribs,
-      ResultSet resultSet, String exportFilename, ComponentLog log) throws SQLException
+      ResultSet resultSet, String exportFilename, Logger log) throws SQLException
   {
     prepareDump(application, context, exportFilename);
     
@@ -205,7 +205,7 @@ public final class GeminiHelper
     }
     catch (IOException ioexc)
     {
-      log.log("IOException while dumping data: " + ioexc);
+      log.info("IOException while dumping data: ", ioexc);
     }
 
     return false;

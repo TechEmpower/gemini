@@ -32,9 +32,10 @@ import java.util.*;
 
 import com.techempower.gemini.jsp.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides access to application settings (as opposed to Constants, which
@@ -119,7 +120,7 @@ public class BasicInfrastructure
   //
 
   private final GeminiApplication application;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   
   private String            serverName              = DEFAULT_URL_PREFIX;
   private String            standardDomain          = DEFAULT_URL_PREFIX;
@@ -160,9 +161,6 @@ public class BasicInfrastructure
     // Copy parameters.
     this.application = application;
 
-    // Set up log reference.
-    this.log = application.getLog(COMPONENT_CODE);
-    
     // Set the Infrastructure as an Asynchronous resource.
     application.addAsynchronous(this);
 
@@ -203,7 +201,7 @@ public class BasicInfrastructure
 
     if (props.get("StyleSheetName") != null)
     {
-      this.log.log("StyleSheetName is deprecated!", LogLevel.ALERT);
+      this.log.warn("StyleSheetName is deprecated!");
     }
     this.servletName              = props.get("ServletURL", this.servletName);
     this.allowDirectJSPs          = props.getBoolean("AllowDirectJSPs", false);
@@ -214,59 +212,59 @@ public class BasicInfrastructure
     // Clean up any missing trailing slashes.
     if (!this.htmlFileDirectory.endsWith("/"))
     {
-      this.log.log("HTMLDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("HTMLDirectory should end with a trailing slash.");
       this.htmlFileDirectory = this.htmlFileDirectory + '/';
     }
     if (!this.cssFileDirectory.endsWith("/"))
     {
-      this.log.log("CSSDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("CSSDirectory should end with a trailing slash.");
       this.cssFileDirectory = this.cssFileDirectory + '/';
     }
     if (!this.jsFileDirectory.endsWith("/"))
     {
-      this.log.log("JavaScriptDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("JavaScriptDirectory should end with a trailing slash.");
       this.jsFileDirectory = this.jsFileDirectory + '/';
     }
     if (!this.imageFileDirectory.endsWith("/"))
     {
-      this.log.log("ImageDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("ImageDirectory should end with a trailing slash.");
       this.imageFileDirectory = this.imageFileDirectory + '/';
     }
     if (!this.jspFileDirectory.endsWith("/"))
     {
-      this.log.log("JSPDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("JSPDirectory should end with a trailing slash.");
       this.jspFileDirectory = this.jspFileDirectory + '/';
     }
     if (!this.jspPhysicalDirectory.endsWith(File.separator))
     {
-      this.log.log("JSPPhysicalDirectory should end with a trailing slash or backslash.", LogLevel.ALERT);
+      this.log.warn("JSPPhysicalDirectory should end with a trailing slash or backslash.");
       this.jspPhysicalDirectory = this.jspPhysicalDirectory + File.separator;
     }
 
     // Clean up any missing trailing slashes.
     if (this.secureHtmlFileDirectory != null && !this.secureHtmlFileDirectory.endsWith("/"))
     {
-      this.log.log("HTMLDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("HTMLDirectory should end with a trailing slash.");
       this.secureHtmlFileDirectory = this.secureHtmlFileDirectory + '/';
     }
     if (this.secureCssFileDirectory != null && !this.secureCssFileDirectory.endsWith("/"))
     {
-      this.log.log("CSSDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("CSSDirectory should end with a trailing slash.");
       this.secureCssFileDirectory = this.secureCssFileDirectory + '/';
     }
     if (this.secureJsFileDirectory != null && !this.secureJsFileDirectory.endsWith("/"))
     {
-      this.log.log("JavaScriptDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("JavaScriptDirectory should end with a trailing slash.");
       this.secureJsFileDirectory = this.secureJsFileDirectory + '/';
     }
     if (this.secureImageFileDirectory != null && !this.secureImageFileDirectory.endsWith("/"))
     {
-      this.log.log("ImageDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("ImageDirectory should end with a trailing slash.");
       this.secureImageFileDirectory = this.secureImageFileDirectory + '/';
     }
     if (this.cachedResponseDirectory != null && !this.cachedResponseDirectory.endsWith("/"))
     {
-      this.log.log("CachedResponsesDirectory should end with a trailing slash.", LogLevel.ALERT);
+      this.log.warn("CachedResponsesDirectory should end with a trailing slash.");
       this.cachedResponseDirectory = this.cachedResponseDirectory + '/';
     }
     
@@ -275,11 +273,12 @@ public class BasicInfrastructure
       File cachedToDiskDir = new File(this.cachedResponseDirectory);
       if(cachedToDiskDir.exists() || cachedToDiskDir.mkdirs())
       {
-        this.log.log("CachedToDisk directory: " + this.cachedResponseDirectory);
+        this.log.info("CachedToDisk directory: {}", this.cachedResponseDirectory);
       }
       else
       {
-        this.log.log("CachedToDisk directory could not be created (tried " + this.cachedResponseDirectory + ")");
+        this.log.info("CachedToDisk directory could not be created (tried {})",
+            this.cachedResponseDirectory);
       }
     }
 
@@ -291,14 +290,6 @@ public class BasicInfrastructure
     
     // Do any custom configuration.
     customConfigure(props);
-  }
-  
-  /**
-   * Gets the Infrastructure's ComponentLog.
-   */
-  protected ComponentLog getLog()
-  {
-    return this.log;
   }
   
   /**

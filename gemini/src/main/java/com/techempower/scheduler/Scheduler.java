@@ -32,8 +32,9 @@ import java.util.*;
 import com.techempower.*;
 import com.techempower.asynchronous.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple task scheduler.  Maintains a separate thread that periodically
@@ -72,7 +73,6 @@ public class Scheduler
   // Constants.
   //
 
-  public static final String COMPONENT_CODE     = "schd";    // Four-letter component ID
   public static final int    DEFAULT_SLEEP_TIME = 5000;      // five seconds
   public static final int    MINIMUM_SLEEP_TIME_SECONDS = 0;
   public static final int    MAXIMUM_SLEEP_TIME_SECONDS = 600;  // 10 minutes.
@@ -82,7 +82,7 @@ public class Scheduler
   //
 
   private final TechEmpowerApplication  application;
-  private final ComponentLog            log;
+  private final Logger                  log = LoggerFactory.getLogger(getClass());
   private final List<ScheduledEvent>    scheduledEvents  = new ArrayList<>();
   private final SchedulerThread         schedulerThread;
   private       long                    sleepTime        = DEFAULT_SLEEP_TIME;
@@ -98,7 +98,6 @@ public class Scheduler
   public Scheduler(TechEmpowerApplication application)
   {
     this.application     = application;
-    this.log             = application.getLog(COMPONENT_CODE);
     this.schedulerThread = new SchedulerThread(this);
     
     // Register as an asynchronous resource.
@@ -115,14 +114,6 @@ public class Scheduler
     setSleepTime(props.getInt("SchedulerSleepSeconds", 
         (int)(getSleepTime() * UtilityConstants.SECOND)));
     setEnabled(props.getBoolean("SchedulerEnabled", true));
-  }
-  
-  /**
-   * Gets a reference to the Scheduler's ComponentLog.
-   */
-  protected ComponentLog getLog()
-  {
-    return log;
   }
 
   /**
@@ -147,8 +138,8 @@ public class Scheduler
     if (scheduledEvents.contains(event))
     {
       // Rescheduled.
-      log.log(event.getName() + " rescheduled for " 
-          + DateHelper.STANDARD_TECH_FORMAT.format(new Date(whenToInvoke)) );
+      log.info("{} rescheduled for {}", event.getName(),
+          DateHelper.STANDARD_TECH_FORMAT.format(new Date(whenToInvoke)));
     }
     else
     {
@@ -156,8 +147,8 @@ public class Scheduler
       // this event, add it.
       scheduledEvents.add(event);
 
-      log.log(event + " scheduled for " 
-          + DateHelper.STANDARD_TECH_FORMAT.format(new Date(whenToInvoke)) );
+      log.info("{} scheduled for {}", event,
+          DateHelper.STANDARD_TECH_FORMAT.format(new Date(whenToInvoke)));
     }
   }
 
@@ -257,11 +248,11 @@ public class Scheduler
     this.schedulerEnabled = schedulerEnabled;
     if (!schedulerEnabled)
     {
-      log.log("Scheduler disabled.  No events will run.");
+      log.info("Scheduler disabled.  No events will run.");
     }
     else
     {
-      log.log("Scheduler enabled.");
+      log.info("Scheduler enabled.");
     }
   }
 
@@ -283,8 +274,8 @@ public class Scheduler
     int newSeconds = NumberHelper.boundInteger(seconds, 
         MINIMUM_SLEEP_TIME_SECONDS, MAXIMUM_SLEEP_TIME_SECONDS);
     sleepTime = newSeconds * UtilityConstants.SECOND;
-    log.log("Sleep time set to " + newSeconds + " second" 
-        + StringHelper.pluralize(newSeconds) + ".");
+    log.info("Sleep time set to {} second{}.",
+        newSeconds, StringHelper.pluralize(newSeconds));
   }
 
   /**
@@ -347,7 +338,7 @@ public class Scheduler
       // Set executing flag.
       event.setExecuting(true);
 
-      log.log("Executing " + event.getName() + " on new thread.");
+      log.info("Executing {} on new thread.", event.getName());
       final EventRunnerThread ert = new EventRunnerThread(event, this, onDemandExecution);
       ert.start();
 
@@ -373,7 +364,7 @@ public class Scheduler
     {
       // Set executing flag.
       event.setExecuting(true);
-      log.log("Executing " + event);
+      log.info("Executing {}", event);
       final Chronograph chrono = new Chronograph();
       try
       {
@@ -381,18 +372,18 @@ public class Scheduler
       }
       catch (Exception exc)
       {
-        log.log("Exception while executing " + event, exc);
+        log.info("Exception while executing {}", event, exc);
         return false;
       }
       catch (Error error)
       {
-        log.log("Error while executing " + event, error);
+        log.error("Error while executing {}", event, error);
         return false;
       }
       finally
       {
         event.setExecuting(false);
-        log.log(event.getName() + " complete. " + chrono);
+        log.info("{} complete. {}", event.getName(), chrono);
       }
 
       return true;

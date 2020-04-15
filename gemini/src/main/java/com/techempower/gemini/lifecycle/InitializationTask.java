@@ -59,10 +59,5 @@ public interface InitializationTask
    * @param application A reference to the application.
    */
   void taskInitialize(GeminiApplication application);
-
-  /**
-   * A standard component code that is available for initialization tasks.
-   */
-  public static final String COMPONENT_CODE = "init";
   
 }

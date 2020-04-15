@@ -30,6 +30,8 @@ import java.util.*;
 
 import com.techempower.helper.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An event that is executed on a daily basis at a given hour-minute
@@ -44,8 +46,9 @@ public abstract class DailyEvent
   //
   // Member variables.
   //
-  
-  private final int hour;
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
+  private final int    hour;
   private final int minute;
   
   //
@@ -117,7 +120,7 @@ public abstract class DailyEvent
     }
     catch (Exception exc)
     {
-      scheduler.getLog().log("Exception while executing " + this, exc);
+      log.error("Exception while executing {}", this, exc);
     }
     finally
     {

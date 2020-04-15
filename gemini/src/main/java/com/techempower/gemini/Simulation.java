@@ -170,7 +170,7 @@ public abstract class Simulation
     try
     {
       // Set the Context information to be displayed with every log message.
-      GeminiComponentLog.setContextInformation(context);
+      ContextLogInfo.setContextInformation(context);
   
       this.application.getDispatcher().dispatch(context);
     }
@@ -180,7 +180,7 @@ public abstract class Simulation
       this.application.getDispatcher().dispatchComplete(context);
       
       // Clear the Context info now that this Thread is done handling the request.
-      GeminiComponentLog.clearContextInformation();
+      ContextLogInfo.clearContextInformation();
       
       // The current Context's usage is now complete, dissociate it with
       // the current thread.

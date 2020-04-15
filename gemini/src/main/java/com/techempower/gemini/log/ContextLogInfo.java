@@ -31,33 +31,19 @@ import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.session.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 
 /**
- * GeminiComponentLog provides a means to easily attach component codes to 
- * output that is being written to a Log implementation.
- *   <p>
- * Unlike ComponentLog, GeminiComponentLog adds the session id to the debug
- * string before passing it to the regular log.  If the application 
- * implements PyxisApplication, and its user class implements PyxisUser,
- * and stores its user in session using PyxisConstants.SESSION_USER, it 
- * will also add the userid to the debug string.
- *   <p>
- * Generally, the ComponentLog constructor is not called directly, but rather
- * through calls to GeminiApplication.getLog(), which provides an appropriate
- * reference to the application's Log instance.
- *   <p>
- * See com.techempower.Log for the specifications of the debug levels.
- *
- * @see Log
- * @see ComponentLog
+ * ContextLogInfo provides a string with the the active request's session
+ * id, among other things. If the application implements PyxisApplication, and
+ * its user class implements PyxisUser, and stores its user in session using
+ * PyxisConstants.SESSION_USER, it will also add the userid to the debug
+ * string.
  */
-public class GeminiComponentLog
-     extends ComponentLog
+public class ContextLogInfo
 {
 
   /**
-   * This is a ThreadLocal class used only by the GeminiComponentLog.
+   * This is a ThreadLocal class used only by the ContextLogInfo.
    */
   private static class ThreadLocalContextInfo extends ThreadLocal<String>
   {
@@ -66,12 +52,12 @@ public class GeminiComponentLog
     {
       return "";
     }
-    
+
     public String getStringValue()
     {
       return super.get();
     }
-    
+
     public void setStringValue(String s)
     {
       super.set(s);
@@ -83,14 +69,13 @@ public class GeminiComponentLog
    * with each log message.
    */
   private static final ThreadLocalContextInfo CONTEXT_INFO = new ThreadLocalContextInfo();
-  
+
   /**
-   * Constructor.  Generally not invoked directly, but rather through
-   * GeminiApplication.getLog().
+   * You may not instantiate this class.
    */
-  public GeminiComponentLog(Log log, String componentCode)
+  private ContextLogInfo()
   {
-    super(log, componentCode);
+    // Does nothing.
   }
 
   /**
@@ -101,7 +86,7 @@ public class GeminiComponentLog
    * 
    * @return String
    */
-  private static String getContextInformation()
+  public static String getContextInformation()
   {
     return CONTEXT_INFO.getStringValue();
   }
@@ -115,31 +100,30 @@ public class GeminiComponentLog
     final StringBuilder buffer = new StringBuilder();
 
     final Session session = context.getSession(false);
-    buffer.append(StringHelper.truncateAtEnd((session == null ? "none" : session.getId()), 4));
-    buffer.append(" ");
-    
+    buffer.append("s[");
+    buffer.append(StringHelper.truncateAtEnd((session == null
+        ? "none" : session.getId()), 4));
+    buffer.append("] ");
+
     if (context.getRequestNumber() > 0) // Means we are counting requests.
     {
-      buffer.append("- ");
+      buffer.append("r[");
       buffer.append(context.getRequestNumber());
-      buffer.append(" ");
+      buffer.append("] ");
     }
 
     final PyxisSecurity security = context.getApplication().getSecurity();
     PyxisUser user = null;
-      
+
     if (security != null)
     {
       user = security.getUser(context);
     }
     if (user != null)
     {
+      buffer.append("u[");
       buffer.append(user.getId());
-      buffer.append(" ");
-    }
-    else
-    {
-      buffer.append("- ");
+      buffer.append("] ");
     }
 
     CONTEXT_INFO.setStringValue(buffer.toString());
@@ -154,68 +138,4 @@ public class GeminiComponentLog
     CONTEXT_INFO.setStringValue("");
   }
 
-  //
-  // Normal debug methods.
-  //
-
-  /**
-   * Debug output.
-   */
-  @Override
-  public void log(String debugString, int debugLevel, Throwable exc)
-  {
-    super.log(getContextInformation() + debugString, debugLevel, exc);
-  }
-
-  /**
-   * Debug output.
-   */
-  @Override
-  public void log(String debugString, Throwable exc)
-  {
-    super.log(getContextInformation() + debugString, exc);
-  }
-
-  /**
-   * Log output.
-   */
-  @Override
-  public void log(String logString, int debugLevel)
-  {
-    super.log(getContextInformation() + logString, debugLevel);
-  }
-
-  /**
-   * Log output.
-   */
-  @Override
-  public void log(String logString)
-  {
-    super.log(getContextInformation() + logString);
-  }
-
-  /**
-   * @see com.techempower.log.ComponentLog#assertion(boolean, String, int)
-   */
-  @Override
-  public void assertion(
-    boolean evalExpression,
-    String debugString,
-    int debugLevel)
-  {
-    super.assertion(
-      evalExpression,
-      getContextInformation() + debugString,
-      debugLevel);
-  }
-
-  /**
-   * @see com.techempower.log.ComponentLog#assertion(boolean, String)
-   */
-  @Override
-  public void assertion(boolean evalExpression, String debugString)
-  {
-    super.assertion(evalExpression, getContextInformation() + debugString);
-  }
-
-} // End GeminiComponentLog
+} // End ContextLogInfo

@@ -36,9 +36,10 @@ import com.techempower.*;
 import com.techempower.asynchronous.*;
 import com.techempower.data.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages a list of JdbcConnectionProfile objects.
@@ -69,9 +70,9 @@ public class JdbcConnectionManager
   private final DatabaseConnectionListener   listener;
   private final List<JdbcConnectionProfile>  profiles;
   private final ThreadLocal<JdbcConnectionProfile> profilesForThreads;
-  private final TechEmpowerApplication       application;
-  private final ComponentLog                 log;
-  private final JdbcConnectionManagerThread  thread;
+  private final TechEmpowerApplication      application;
+  private final Logger                      log = LoggerFactory.getLogger(getClass());
+  private final JdbcConnectionManagerThread thread;
   private final AtomicInteger                profileIndexScanOffset = new AtomicInteger(0);        
   
   private transient long nextCheckSizeTime = System.currentTimeMillis() + POOL_SHRINK_PERIODICITY;
@@ -92,7 +93,6 @@ public class JdbcConnectionManager
     this.attributes  = attributes;
     this.listener    = attributes.getListener();
     this.application = attributes.getApplication();
-    this.log         = attributes.getLog();
     
     // The thread's sleep interval is the configured test interval divided by
     // the minimum number of Connections in the pool.  That is, on average, 
@@ -165,7 +165,7 @@ public class JdbcConnectionManager
     
     private void log(String debug)
     {
-      JdbcConnectionManager.this.log.log(debug, LogLevel.NORMAL);
+      JdbcConnectionManager.this.log.info(debug);
     }
   }
   
@@ -269,7 +269,7 @@ public class JdbcConnectionManager
       }
       else
       {
-        log.log("Cannot establish connection to populate pool.", LogLevel.ALERT);
+        log.warn("Cannot establish connection to populate pool.");
       }
     }
     
@@ -576,14 +576,6 @@ public class JdbcConnectionManager
   protected JdbcConnectionAttributes getAttributes()
   {
     return attributes;
-  }
-  
-  /**
-   * Gets the ComponentLog.
-   */
-  protected ComponentLog getLog()
-  {
-    return log;
   }
 
   /**

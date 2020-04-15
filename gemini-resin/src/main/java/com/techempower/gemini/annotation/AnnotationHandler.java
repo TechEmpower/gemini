@@ -36,7 +36,8 @@ import com.techempower.gemini.*;
 import com.techempower.gemini.annotation.injector.*;
 import com.techempower.gemini.annotation.intercept.*;
 import com.techempower.gemini.annotation.response.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of Handler the wraps the necessary reflection to convert methods
@@ -204,8 +205,8 @@ import com.techempower.log.*;
 public final class AnnotationHandler 
   implements Handler<BasicDispatcher,LegacyContext>
 {
-  private GeminiApplication                       application;
-  private ComponentLog                            log;
+  private GeminiApplication application;
+  private Logger            log = LoggerFactory.getLogger(getClass());
   
   // Handler object associated with the handle method
   // this is required to invoke the method
@@ -245,7 +246,6 @@ public final class AnnotationHandler
       Object handleObject, Method method, String[] commands)
   {
     this.application  = application;
-    this.log          = application.getLog("hAnn");
     this.handleObject = handleObject;
     this.method       = method;
     this.commands     = commands;
@@ -348,7 +348,8 @@ public final class AnnotationHandler
       // The argument list that we provided to the method was wrong in some way,
       // this usually indicates that the prepareArgs method incorrectly returned a null to a
       // primitive type.
-      this.log.log("Error: Invoking method (" + this.method.getName() + ") with incorrect arguments.");
+      this.log.info("Error: Invoking method ({}) with incorrect arguments.",
+          this.method.getName());
       throw new AnnotationException(e);
     }
     catch (Exception e)
@@ -437,7 +438,7 @@ public final class AnnotationHandler
           } 
           catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) 
           {
-            this.log.log("Error: Intercept (" + clazz.getName() + ") could not be created with GeminiApplication, using default constructor.");
+            this.log.info("Error: Intercept ({}) could not be created with GeminiApplication, using default constructor.", clazz.getName());
           } 
         }
       }
@@ -451,11 +452,11 @@ public final class AnnotationHandler
         }
         catch (InstantiationException | NoSuchMethodException | InvocationTargetException e) 
         {
-          this.log.log("Error: Intercept (" + clazz.getName() + ") has not defined a default constructor.");
+          this.log.info("Error: Intercept ({}) has not defined a default constructor.", clazz.getName());
         } 
         catch (IllegalAccessException e) 
         {
-          this.log.log("Error: Intercept (" + clazz.getName() + ") is not a public class.");
+          this.log.info("Error: Intercept ({}) is not a public class.", clazz.getName());
         }
       }
       
@@ -574,7 +575,7 @@ public final class AnnotationHandler
                   } 
                   catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) 
                   {
-                    this.log.log("Error: Injector (" + clazz.getName() + ") could not be created with GeminiApplication, using default constructor.");
+                    this.log.info("Error: Injector ({}) could not be created with GeminiApplication, using default constructor.", clazz.getName());
                   } 
                 }
               }
@@ -588,11 +589,11 @@ public final class AnnotationHandler
                 }
                 catch (InstantiationException | NoSuchMethodException | InvocationTargetException e) 
                 {
-                  this.log.log("Error: Injector (" + clazz.getName() + ") has not defined a default constructor.");
+                  this.log.info("Error: Injector ({}) has not defined a default constructor.", clazz.getName());
                 } 
                 catch (IllegalAccessException e) 
                 {
-                  this.log.log("Error: Injector (" + clazz.getName() + ") is not a public class.");
+                  this.log.info("Error: Injector ({}) is not a public class.", clazz.getName());
                 }
               }
               
@@ -670,7 +671,7 @@ public final class AnnotationHandler
               } 
               catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException e) 
               {
-                this.log.log("Error: Response (" + clazz.getName() + ") could not be created with GeminiApplication, using default constructor.");
+                this.log.info("Error: Response ({}) could not be created with GeminiApplication, using default constructor.", clazz.getName());
               } 
             }
           }
@@ -684,11 +685,11 @@ public final class AnnotationHandler
             }
             catch (InstantiationException | NoSuchMethodException | InvocationTargetException e) 
             {
-              this.log.log("Error: Response (" + clazz.getName() + ") has not defined a default constructor.");
+              this.log.info("Error: Response ({}) has not defined a default constructor.", clazz.getName());
             } 
             catch (IllegalAccessException e) 
             {
-              this.log.log("Error: Response (" + clazz.getName() + ") is not a public class.");
+              this.log.info("Error: Response ({}) is not a public class.", clazz.getName());
             }
           }
           

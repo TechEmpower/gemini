@@ -28,6 +28,7 @@
 package com.techempower.gemini.cluster.jms;
 
 import com.techempower.gemini.GeminiApplication;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -48,11 +49,17 @@ public class BlockingConsumer
    * a different connection/socket, since different sessions can be built from
    * the same connection object. Connection objects are resource heavy<br>
    */
+  public BlockingConsumer(Connection connection, String destination)
+  {
+    super(connection, destination);
+    this.log = LoggerFactory.getLogger(getClass());
+  }
+
+  @Deprecated(forRemoval = true)
   public BlockingConsumer(GeminiApplication application,
       Connection connection, String destination)
   {
-    super(application, connection, destination);
-    this.log = application.getLog("BCon");
+    this(connection, destination);
   }
 
   /**
@@ -65,7 +72,7 @@ public class BlockingConsumer
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     consumer = session.createConsumer(session.createQueue(destination));
 
-    log.log(connection + " BlockingConsumer@'" + destination + "'");
+    log.info("{} BlockingConsumer@'{}'", connection, destination);
     return this;
   }
 
@@ -75,8 +82,8 @@ public class BlockingConsumer
   @Override
   public void close()
   {
-    log.log("BlockingConsumer [" + consumer + "] is closing session ["
-        + session + "] for <queue://" + destination + ">");
+    log.info("BlockingConsumer [{}] is closing session [{}] for <queue://{}>",
+        consumer, session, destination);
     super.close();
   }
 }

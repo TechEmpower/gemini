@@ -37,8 +37,9 @@ import org.flywaydb.core.api.configuration.*;
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of DatabaseMigrator that uses the Flyway library.
@@ -47,15 +48,14 @@ public class FlywayMigrator implements DatabaseMigrator
 {
 
   private FluentConfiguration flywayConfig;
-  private ComponentLog log;
-  private GeminiApplication app;
+  private Logger              log = LoggerFactory.getLogger(getClass());
+  private GeminiApplication   app;
 
   /**
    * Constructor
    */
   public FlywayMigrator(GeminiApplication app)
   {
-    log = app.getLog("DBMF");
     this.app = app;
     this.app.getConfigurator().addConfigurable(this);
   }
@@ -77,7 +77,8 @@ public class FlywayMigrator implements DatabaseMigrator
     // Log configuration customizations
     for (Entry<String, String> e : conf.entrySet())
     {
-      log.log("Flyway configuration customization: " + e.getKey() + ": " + e.getValue());
+      log.info("Flyway configuration customization: {}: {}",
+          e.getKey(), e.getValue());
     }
 
     // Create the Flyway configuration
@@ -88,7 +89,7 @@ public class FlywayMigrator implements DatabaseMigrator
     // Log migration locations being used
     for (Location l : flywayConfig.getLocations())
     {
-      log.log("Flyway location: " + l);
+      log.info("Flyway location: {}", l);
     }
   }
 
@@ -100,11 +101,11 @@ public class FlywayMigrator implements DatabaseMigrator
       Flyway f = flywayConfig.dataSource(dataSource).load();
       for (MigrationInfo i : f.info().pending())
       {
-        log.log("Pending migration: " + i.getScript());
+        log.info("Pending migration: {}", i.getScript());
       }
       return f.migrate();
     }
-    log.log("Flyway not initialized. Skipping database migrations.");
+    log.info("Flyway not initialized. Skipping database migrations.");
     return 0;
   }
 }

@@ -32,8 +32,9 @@ import com.techempower.gemini.notification.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.password.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitors login attempts and notifies administrators of especially
@@ -48,7 +49,6 @@ public class AbuseListener
   // Constants.
   //
   
-  public static final String COMPONENT_CODE       = "Abus";
   public static final String DEFAULT_PROPS_PREFIX = "AbuseListener.";
   public static final int    THRESHOLD_MINUTE     = 20;
   public static final int    THRESHOLD_HOUR       = 200;
@@ -60,7 +60,7 @@ public class AbuseListener
   //
   
   private final GeminiApplication application;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final String            propsPrefix;
 
   private int                     thresholdMinute      = THRESHOLD_MINUTE;
@@ -86,7 +86,6 @@ public class AbuseListener
   public AbuseListener(GeminiApplication application, String propsPrefix)
   {
     this.application = application;
-    this.log = application.getLog(COMPONENT_CODE);
     if (StringHelper.isNonEmpty(propsPrefix))
     {
       this.propsPrefix = propsPrefix;
@@ -156,7 +155,7 @@ public class AbuseListener
    */
   protected synchronized void processAlert(String alert)
   {
-    log.log(alert);
+    log.info(alert);
     
     long current = System.currentTimeMillis();
 

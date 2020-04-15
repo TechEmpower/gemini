@@ -27,7 +27,8 @@
 package com.techempower.gemini.lifecycle;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Displays start-up banner and shutdown message.
@@ -37,19 +38,18 @@ public class   InitDisplayBanner
                ShutdownTask
 {
 
+  private Logger log = LoggerFactory.getLogger(getClass());
+
   @Override
   public void taskInitialize(GeminiApplication app) 
   {
-    final ComponentLog log = app.getLog(COMPONENT_CODE);
-    log.log(app.getVersion().getProductName() + " starting.");
+    log.info(app.getVersion().getProductName() + " starting.");
   }
 
   @Override
   public void taskShutdown(GeminiApplication app)
   {
-    final ComponentLog log = app.getLog("shut");
-    log.log(app.getVersion().getNameAndDeployment() + " shutting down.");
+    log.info(app.getVersion().getNameAndDeployment() + " shutting down.");
   }
-
 
 }

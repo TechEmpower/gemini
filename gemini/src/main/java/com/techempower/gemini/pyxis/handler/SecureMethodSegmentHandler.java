@@ -66,7 +66,6 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
    * Constructor.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param jsw The JavaScriptWriter to use for JSON serialization.
    * @param authorizer The Authorizer to determine if the user is authorized;
    *        this is optional, if null any user that is present will be
@@ -75,10 +74,12 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
    *        this is optional, if null, the Security's force-login Rejector
    *        will be used.
    */
-  public SecureMethodSegmentHandler(GeminiApplication app, String componentCode,
-      JavaScriptWriter jsw, Authorizer authorizer, Rejector rejector)
+  public SecureMethodSegmentHandler(GeminiApplication app,
+                                    JavaScriptWriter jsw,
+                                    Authorizer authorizer,
+                                    Rejector rejector)
   {
-    super(app, componentCode, jsw);
+    super(app, jsw);
     
     this.rejector = rejector != null 
         ? rejector 
@@ -93,7 +94,6 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
    * serialization.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param authorizer The Authorizer to determine if the user is authorized;
    *        this is optional, if null any user that is present will be
    *        assumed to be authorized.
@@ -101,10 +101,11 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
    *        this is optional, if null, the Security's force-login Rejector
    *        will be used.
    */
-  public SecureMethodSegmentHandler(GeminiApplication app, String componentCode,
-      Authorizer authorizer, Rejector rejector)
+  public SecureMethodSegmentHandler(GeminiApplication app,
+                                    Authorizer authorizer,
+                                    Rejector rejector)
   {
-    this(app, componentCode, null, authorizer, rejector);
+    this(app, null, authorizer, rejector);
   }
 
   /**
@@ -114,11 +115,10 @@ public class SecureMethodSegmentHandler<C extends Context, U extends PyxisUser>
    * force-login Rejector will be used by default. 
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    */
-  public SecureMethodSegmentHandler(GeminiApplication app, String componentCode)
+  public SecureMethodSegmentHandler(GeminiApplication app)
   {
-    this(app, componentCode, null, null, null);        
+    this(app, null, null, null);
   }
 
   /**
