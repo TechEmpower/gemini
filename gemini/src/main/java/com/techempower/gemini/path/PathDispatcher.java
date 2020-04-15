@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, TechEmpower, Inc.
+ * Copyright (c) 2020, TechEmpower, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
