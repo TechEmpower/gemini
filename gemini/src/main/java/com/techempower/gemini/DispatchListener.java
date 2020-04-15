@@ -30,6 +30,9 @@ package com.techempower.gemini;
 /**
  * An interface allowing classes to monitor Dispatcher activity.
  */
+// TODO?: Move this to gemini-legacy-dispatching. Might be hard, transitively
+//  is depended on by gemini-jdbc's JdbcMonitorListener among many other things
+//  in gemini, gemini-resin, etc.
 public interface DispatchListener
 {
   

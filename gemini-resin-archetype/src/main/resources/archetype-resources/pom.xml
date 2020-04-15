@@ -48,6 +48,16 @@
     </dependency>
     <dependency>
       <groupId>com.techempower</groupId>
+      <artifactId>gemini-legacy-dispatching</artifactId>
+      <version>${geminiVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.techempower</groupId>
+      <artifactId>gemini-resin-legacy-dispatching</artifactId>
+      <version>${geminiVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.techempower</groupId>
       <artifactId>gemini-jdbc</artifactId>
       <version>${geminiVersion}</version>
     </dependency>
