@@ -48,6 +48,8 @@
     <module>gemini-log4j2</module>
     <module>gemini-logback</module>
     <module>gemini-log4j12</module>
+    <module>gemini-legacy-dispatching</module>
+    <module>gemini-resin-legacy-dispatching</module>
   </modules>
 
   <properties>
@@ -135,6 +137,16 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>gemini-hikaricp</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>gemini-legacy-dispatching</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>gemini-resin-legacy-dispatching</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

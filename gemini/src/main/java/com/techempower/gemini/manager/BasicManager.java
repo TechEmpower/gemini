@@ -44,7 +44,10 @@ import com.techempower.util.*;
  *   <p>
  * It is common for applications to inherit from an intermediate subclass of
  * BasicManager such as BasicPathManager.
- * 
+ *
+ * TODO?: BasicPathManager is no longer in this Maven module. Will this be a
+ *  problem for javadoc compilation?
+ *
  * @see com.techempower.gemini.path.BasicPathManager
  */
 public class BasicManager<A extends GeminiApplication>
