@@ -30,6 +30,8 @@ import java.util.*;
 
 import com.techempower.helper.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An event that is executed on a monthly basis at a given day-hour-minute
@@ -44,8 +46,9 @@ public abstract class MonthlyEvent
   //
   // Member variables.
   //
-  
-  private final int day;
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
+  private final int    day;
   private final int hour;
   private final int minute;
   
@@ -123,7 +126,7 @@ public abstract class MonthlyEvent
     }
     catch (Exception exc)
     {
-      scheduler.getLog().log("Exception while executing " + this, exc);
+      log.error("Exception while executing {}", this, exc);
     }
     finally
     {

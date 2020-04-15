@@ -36,8 +36,9 @@ import com.techempower.*;
 import com.techempower.gemini.configuration.*;
 import com.techempower.gemini.lifecycle.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides an application-wide configuration facility. Application components
@@ -64,7 +65,6 @@ public class Configurator
   // Constants.
   //
 
-  public static final String COMPONENT_CODE             = "conf";    // Four-letter component ID
   public static final String CONFIGURATION_FILENAME_EXT = ".conf";
   
   // Special property names.
@@ -85,8 +85,8 @@ public class Configurator
   //
 
   private final List<Configurable> configurableComponents = new CopyOnWriteArrayList<>();
-  private final GeminiApplication  application;
-  private final ComponentLog       log;
+  private final GeminiApplication           application;
+  private final Logger                      log       = LoggerFactory.getLogger(getClass());
   private final List<ConfigurationProvider> providers = new ArrayList<>(1);
   
   private boolean              configured  = false;
@@ -102,8 +102,7 @@ public class Configurator
   protected Configurator(GeminiApplication application)
   {
     this.application = application;
-    this.log         = application.getLog(COMPONENT_CODE);
-    
+
     addStandardProviders();
     
     // Add ourselves as an application initialization task.
@@ -116,14 +115,6 @@ public class Configurator
   protected GeminiApplication getApplication()
   {
     return application;
-  }
-  
-  /**
-   * Gets the Configurator's ComponentLog reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return log;
   }
   
   /**
@@ -225,7 +216,7 @@ public class Configurator
     // Get a reference to the version.
     final Version version = application.getVersion();
 
-    log.log("Configuring " + version.getAbbreviatedProductName() + ".");
+    log.info("Configuring {}.", version.getAbbreviatedProductName());
 
     // Get configuration properties from a provider.
     final EnhancedProperties props = getConfigurationFromProviders();
@@ -250,14 +241,14 @@ public class Configurator
       lastProps = props;
       
       // Log the completion.
-      log.log("Configuration complete.");
+      log.info("Configuration complete.");
       
       // Configuration successful.
       return true;
     }
     else
     {
-      log.log("Configuration failed; unable to read configuration file(s).", LogLevel.CRITICAL);
+      log.error("Configuration failed; unable to read configuration file(s).");
     }
     
     // Not able to configure.
@@ -314,7 +305,7 @@ public class Configurator
       // Create a new properties object for each provider to use.
       EnhancedProperties props = constructProperties();
       
-      boolean loaded = provider.load(application, log, props);
+      boolean loaded = provider.load(application, props);
       if (loaded)
       {
         return props;
@@ -391,7 +382,7 @@ public class Configurator
           String appRootPath = config.getRealPath("/");
           if(!appRootPath.endsWith(File.separator))
           {
-            log.log("Servlet.ApplicationRoot did not end with file separator. Adding.", LogLevel.NOTICE);
+            log.debug("Servlet.ApplicationRoot did not end with file separator. Adding.");
             appRootPath = appRootPath + File.separator;
           }
           props.put(PROP_APPROOT, appRootPath);
@@ -441,9 +432,6 @@ public class Configurator
   {
     // Configure the log and the application first.
 
-    // Configure log files.
-    application.getApplicationLog().configure(props, version);
-
     // Configure the application itself.
     application.configure(props);
 
@@ -487,10 +475,9 @@ public class Configurator
     final int workers = NumberHelper.boundInteger(
         Runtime.getRuntime().availableProcessors(), 1, 8);
 
-    log.log("Configuring " + size + " Configurable" 
-        + StringHelper.pluralize(size) + " using " + workers + " worker"
-        + StringHelper.pluralize(workers) + ". " 
-        + chrono, LogLevel.DEBUG);
+    log.debug("Configuring {} Configurable{} using {} worker{}. {}",
+        size, StringHelper.pluralize(size), workers,
+        StringHelper.pluralize(workers), chrono);
     
     final CountDownLatch latch = new CountDownLatch(workers);
     final ConcurrentLinkedQueue<Configurable> queue = 
@@ -506,14 +493,13 @@ public class Configurator
           configurable = queue.poll();
           if (configurable != null)
           {
-            log.log("CW" + workerId + " configuring " 
-                + configurable + ".", LogLevel.DEBUG);
+            log.debug("CW{} configuring {}.", workerId, configurable);
             configurable.configure(props);
           }
         }
         while (configurable != null);
         latch.countDown();
-        log.log("CW" + workerId + " done. " + cwc, LogLevel.DEBUG);
+        log.debug("CW{} done. {}", workerId, cwc);
       });
     }
     
@@ -523,7 +509,7 @@ public class Configurator
     }
     catch (InterruptedException iexc) { }
     
-    log.log("Done configuring Configurables. " + chrono, LogLevel.DEBUG);
+    log.debug("Done configuring Configurables. {}", chrono);
   }
   
   /**

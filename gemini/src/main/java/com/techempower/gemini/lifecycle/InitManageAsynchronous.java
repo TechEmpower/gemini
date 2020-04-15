@@ -27,7 +27,8 @@
 package com.techempower.gemini.lifecycle;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Starts the application's Asynchronous resources. 
@@ -36,12 +37,12 @@ public class   InitManageAsynchronous
     implements InitializationTask,
                ShutdownTask
 {
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
   public void taskInitialize(GeminiApplication application) 
   {
-    final ComponentLog log = application.getLog(COMPONENT_CODE);
-    log.log("Starting asynchronous resources.");
+    log.info("Starting asynchronous resources.");
 
     // Start the asynchronous resources.
     application.startAsynchronousResources();
@@ -50,8 +51,7 @@ public class   InitManageAsynchronous
   @Override
   public void taskShutdown(GeminiApplication application) 
   {
-    final ComponentLog log = application.getLog("shut");
-    log.log("Stopping asynchronous resources.");
+    log.info("Stopping asynchronous resources.");
 
     // Stop the asynchronous resources.
     application.stopAsynchronousResources();

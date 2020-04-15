@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+  <Properties>
+    <!-- Specify this env variable as %c to enable full class package names in the console -->
+    <Property name="CONSOLE_LOG_PATTERN">%40.40logger{4.}</Property>
+  </Properties>
+  <Appenders>
+    <Console name="STDOUT" target="SYSTEM_OUT">
+      <PatternLayout pattern="%-5level %d{yyyy-MM-dd HH:mm:ss.SSS} ${env:CONSOLE_LOG_PATTERN} %req- %msg%n"/>
+    </Console>
+    <RollingFile name="FILE" fileName="${env:LOG_FILE_PATH:-./Logs/Application-Logs}/${date:yyyy-MM-dd}.log"
+                 filePattern="${env:LOG_FILE_PATH:-./Logs/Application-Logs}/${date:yyyy-MM-dd}_%i.log">
+      <PatternLayout>
+        <Pattern>%-5level %d{yyyy-MM-dd HH:mm:ss.SSS} %logger %req- %msg%n</Pattern>
+      </PatternLayout>
+      <Policies>
+        <!-- This is part of the creation of a new log file each day -->
+        <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+      </Policies>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="${env:GLOBAL_LOG_LEVEL:-warn}">
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="FILE"/>
+    </Root>
+    <!-- Different log levels may be specified through the environment variables -->
+    <!-- If not specified, defaults to the value after ":-", which is "info" in this case -->
+    <Logger name="com.techempower" level="${env:TECHEMPOWER_LOG_LEVEL:-info}"/>
+    <Logger name="com.yourpackage" level="${env:LOG_LEVEL:-trace}"/>
+  </Loggers>
+</Configuration>

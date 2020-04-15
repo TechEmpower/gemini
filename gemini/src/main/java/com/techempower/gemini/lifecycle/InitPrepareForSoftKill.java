@@ -27,7 +27,8 @@
 package com.techempower.gemini.lifecycle;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Prepare for a soft-kill of the application process by attaching a Java
@@ -37,15 +38,14 @@ import com.techempower.log.*;
 public class InitPrepareForSoftKill
   implements InitializationTask
 {
-
+  private Logger log = LoggerFactory.getLogger(getClass());
   @Override
   public void taskInitialize(final GeminiApplication application) 
   {
-    final ComponentLog log = application.getLog("shut");
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
-        log.log("Received soft kill. Stopping application.");
+        log.info("Received soft kill. Stopping application.");
         application.end();
       }
     });

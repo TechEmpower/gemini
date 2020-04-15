@@ -29,8 +29,9 @@ package com.techempower.gemini.feature;
 import java.util.*;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic implementation of the FeatureManager interface.  The Basic 
@@ -48,7 +49,7 @@ public class BasicFeatureManager
   // Variables.
   //
   
-  private final ComponentLog             log;
+  private final Logger                   log = LoggerFactory.getLogger(getClass());
   private final Map<String, FeatureNode> nodes;
   private final List<FeatureNode>        roots;
   
@@ -63,7 +64,6 @@ public class BasicFeatureManager
    */
   public BasicFeatureManager(GeminiApplication application)
   {
-    this.log = application.getLog("fMgr");
     this.status = new HashMap<>();
     this.nodes = new HashMap<>();
     this.roots = new ArrayList<>(2);
@@ -239,7 +239,7 @@ public class BasicFeatureManager
   @Override
   public void configure(EnhancedProperties props)
   {
-    this.log.log("Configuring features.");
+    this.log.info("Configuring features.");
     
     String key;
     String[] nodeArray;
@@ -272,7 +272,7 @@ public class BasicFeatureManager
       }
       else
       {
-        this.log.log("Feature not found: " + key);
+        this.log.info("Feature not found: {}", key);
       }
     }
     

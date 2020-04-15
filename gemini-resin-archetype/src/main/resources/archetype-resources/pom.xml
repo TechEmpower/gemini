@@ -43,8 +43,18 @@
     </dependency>
     <dependency>
       <groupId>com.techempower</groupId>
+      <artifactId>gemini-logback</artifactId>
+      <version>${geminiVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.techempower</groupId>
       <artifactId>gemini-jdbc</artifactId>
       <version>${geminiVersion}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.8.0-beta4</version>
     </dependency>
     <!-- gemini-hikaricp is an alternative to gemini-jdbc -->
     <!-- <dependency> -->

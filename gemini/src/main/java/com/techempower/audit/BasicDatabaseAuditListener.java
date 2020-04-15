@@ -33,8 +33,9 @@ import java.util.*;
 import com.techempower.*;
 import com.techempower.data.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic database audit listener that uses a BasicConnectorFactory and
@@ -59,19 +60,13 @@ import com.techempower.util.*;
 public class BasicDatabaseAuditListener
   implements AuditListener
 {
-  
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "audb";
-  
+
   //
   // Member variables.
   //
   
   private final ConnectorFactory       connFactory;
-  private final ComponentLog           log;
+  private final Logger                 log        = LoggerFactory.getLogger(getClass());
   private       String                 auditTable = "Audit";
   
   //
@@ -85,7 +80,6 @@ public class BasicDatabaseAuditListener
     ConnectorFactory connectorFactory)
   {
     this.connFactory = connectorFactory;
-    this.log         = application.getLog(COMPONENT_CODE);
   }
   
   /**
@@ -116,12 +110,10 @@ public class BasicDatabaseAuditListener
     if (audit.getAffected() == null
         || session.getCause() == null)
     {
-      log.log("Unexpected input to auditCommitted.  "
-          + "Session: " + session + ", "
-          + "Audit: " + audit + ", "
-          + "Affected: " + audit.getAffected() + ", "
-          + "Cause: " + session.getCause() + ".",
-          LogLevel.DEBUG);
+      log.debug(
+          "Unexpected input to auditCommitted.  " +
+              "Session: {}, Audit: {}, Affected: {}, Cause: {}.",
+          session, audit, audit.getAffected(), session.getCause());
       return;
     }
 
@@ -166,7 +158,7 @@ public class BasicDatabaseAuditListener
     }
     catch (SQLException exc)
     {
-      log.log("Unable to persist audit.", exc);
+      log.error("Unable to persist audit.", exc);
     }
   }
 

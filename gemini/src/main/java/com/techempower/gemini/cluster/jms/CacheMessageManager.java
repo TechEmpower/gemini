@@ -35,10 +35,11 @@ import com.techempower.gemini.cluster.DistributionListener;
 import com.techempower.gemini.cluster.message.BroadcastMessage;
 import com.techempower.gemini.cluster.message.CacheMessage;
 import com.techempower.gemini.cluster.message.CachedRelationMessage;
-import com.techempower.log.*;
 import com.techempower.util.Configurable;
 import com.techempower.util.EnhancedProperties;
 import com.techempower.util.Identifiable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -56,7 +57,6 @@ public class CacheMessageManager
     implements CacheListener, CachedRelationListener, DistributionListener, Configurable
 {
   public static final String      CACHE_TOPIC_DESTINATION = "CACHE.TOPIC";
-  public static final String      LOG_COMPONENT_CODE      = "CchL";
   public static final String      MESSAGE_PROPERTY_UUID   = "Gemini.CacheMgr.ClientUUID";
 
   //
@@ -64,7 +64,7 @@ public class CacheMessageManager
   //
 
   private final GeminiApplication application;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final EntityStore       store;
   private Connection              connection;
   private GeminiPublisher         publisher;
@@ -83,7 +83,6 @@ public class CacheMessageManager
       Connection connection)
   {
     this.application = application;
-    this.log = application.getLog(LOG_COMPONENT_CODE);
     this.store = application.getStore();
     this.connection = connection;
     this.application.getConfigurator().addConfigurable(this);
@@ -125,14 +124,14 @@ public class CacheMessageManager
     }
     newConnection.start();
 
-    this.publisher = new GeminiPublisher(application, newConnection,
+    this.publisher = new GeminiPublisher(newConnection,
         CacheMessageManager.CACHE_TOPIC_DESTINATION);
     publisher.start();
 
-    this.subscriber = new AsyncSubscriber(application, newConnection,
+    this.subscriber = new AsyncSubscriber(newConnection,
         CacheMessageManager.CACHE_TOPIC_DESTINATION);
     subscriber.start(new CacheSignalListener(this.application));
-    log.log("JMS Connection established @" + newConnection.getClientID());
+    log.info("JMS Connection established @{}", newConnection.getClientID());
   }
 
   /**
@@ -140,7 +139,7 @@ public class CacheMessageManager
    */
   public void close()
   {
-    log.log("CacheMessageManager is closing.");
+    log.info("CacheMessageManager is closing.");
     if (publisher != null)
     {
       publisher.close();
@@ -165,7 +164,7 @@ public class CacheMessageManager
     }
     catch (JMSException e)
     {
-      log.log("CacheMessageManager::send caught ", e);
+      log.info("CacheMessageManager::send caught ", e);
     }
   }
 
@@ -177,7 +176,7 @@ public class CacheMessageManager
   public void cacheFullReset()
   {
     // This is not a good idea. All instances will be slamming the DB server.
-    log.log("Distributing a full cache reset is disabled.");
+    log.info("Distributing a full cache reset is disabled.");
 
 //    final CacheMessage message = new CacheMessage();
 //    message.setAction(CacheMessage.ACTION_FULL_RESET);
@@ -192,7 +191,7 @@ public class CacheMessageManager
     {
       return; // Don't distribute notifications for un-cached objects.
     }
-    log.log("Sending 'cache type reset': " + type.getSimpleName());
+    log.info("Sending 'cache type reset': {}", type.getSimpleName());
 
     final CacheMessage message = new CacheMessage();
     message.setAction(CacheMessage.ACTION_GROUP_RESET);
@@ -209,7 +208,8 @@ public class CacheMessageManager
     {
       return; // Don't distribute notifications for un-cached objects.
     }
-    log.log("Sending 'cache object expired': " + type.getSimpleName() + "/" + identifier);
+    log.info("Sending 'cache object expired': {}/{}",
+        type.getSimpleName(), identifier);
 
     final T entity = group.get(identifier);
 
@@ -237,7 +237,8 @@ public class CacheMessageManager
     {
       return; // Don't distribute notifications for un-cached objects.
     }
-    log.log("Sending 'remove from cache': " + type.getSimpleName() + "/" + identifier);
+    log.info("Sending 'remove from cache': {}/{}",
+        type.getSimpleName(), identifier);
 
     final CacheMessage message = new CacheMessage();
     message.setAction(CacheMessage.ACTION_OBJECT_REMOVE);
@@ -253,7 +254,7 @@ public class CacheMessageManager
   @Override
   public void add(long relationID, long leftID, long rightID)
   {
-    log.log("Sending 'rel add': l" + leftID + "/r" + rightID);
+    log.info("Sending 'rel add': l{}/r{}", leftID, rightID);
     final CachedRelationMessage message = new CachedRelationMessage();
     message.setAction(CachedRelationMessage.ACTION_ADD);
     message.setRelationId(relationID);
@@ -271,7 +272,7 @@ public class CacheMessageManager
     }
     else
     {
-      log.log("Sending 'rel add all': rel" + relationID);
+      log.info("Sending 'rel add all': rel{}", relationID);
       final CachedRelationMessage message = new CachedRelationMessage();
       message.setAction(CachedRelationMessage.ACTION_ADD_ALL);
       message.setRelationId(relationID);
@@ -283,7 +284,7 @@ public class CacheMessageManager
   @Override
   public void clear(long relationID)
   {
-    log.log("Sending 'rel clear': rel" + relationID);
+    log.info("Sending 'rel clear': rel{}", relationID);
     final CachedRelationMessage message = new CachedRelationMessage();
     message.setAction(CachedRelationMessage.ACTION_CLEAR);
     message.setRelationId(relationID);
@@ -293,7 +294,8 @@ public class CacheMessageManager
   @Override
   public void remove(long relationID, long leftID, long rightID)
   {
-    log.log("Sending 'rel remove': rel" + relationID + "/l" + leftID + "/r" + rightID);
+    log.info("Sending 'rel remove': rel{}/l{}/r{}",
+        relationID, leftID, rightID);
     CachedRelationMessage message = new CachedRelationMessage();
     message.setAction(CachedRelationMessage.ACTION_REMOVE);
     message.setRelationId(relationID);
@@ -311,7 +313,7 @@ public class CacheMessageManager
     }
     else
     {
-      log.log("Sending 'rel remove all': rel" + relationID);
+      log.info("Sending 'rel remove all': rel{}", relationID);
       final CachedRelationMessage message = new CachedRelationMessage();
       message.setAction(CachedRelationMessage.ACTION_REMOVE_ALL);
       message.setRelationId(relationID);
@@ -323,7 +325,7 @@ public class CacheMessageManager
   @Override
   public void removeLeftValue(long relationID, long leftID)
   {
-    log.log("Sending 'rel remove left': rel" + relationID + "/l" + leftID);
+    log.info("Sending 'rel remove left': rel{}/l{}", relationID, leftID);
     final CachedRelationMessage message = new CachedRelationMessage();
     message.setAction(CachedRelationMessage.ACTION_REMOVE_LEFT_VALUE);
     message.setRelationId(relationID);
@@ -334,7 +336,7 @@ public class CacheMessageManager
   @Override
   public void removeRightValue(long relationID, long rightID)
   {
-    log.log("Sending 'rel remove right': rel" + relationID + "/l" + rightID);
+    log.info("Sending 'rel remove right': rel{}/l{}", relationID, rightID);
     final CachedRelationMessage message = new CachedRelationMessage();
     message.setAction(CachedRelationMessage.ACTION_REMOVE_RIGHT_VALUE);
     message.setRelationId(relationID);
@@ -351,7 +353,7 @@ public class CacheMessageManager
     }
     else
     {
-      log.log("Sending 'rel replace all': rel" + relationID);
+      log.info("Sending 'rel replace all': rel{}", relationID);
       final CachedRelationMessage message = new CachedRelationMessage();
       message.setAction(CachedRelationMessage.ACTION_REPLACE_ALL);
       message.setRelationId(relationID);
@@ -363,7 +365,7 @@ public class CacheMessageManager
   @Override
   public void reset(long relationID)
   {
-    log.log("Sending 'rel reset': rel" + relationID);
+    log.info("Sending 'rel reset': rel{}", relationID);
     final CachedRelationMessage message = new CachedRelationMessage();
     message.setAction(CachedRelationMessage.ACTION_RESET);
     message.setRelationId(relationID);
@@ -406,7 +408,7 @@ public class CacheMessageManager
           String senderUuid = message.getStringProperty(MESSAGE_PROPERTY_UUID);
           if (senderUuid == null)
           {
-            log.log("Could not find the Unique Client ID sent from a cache update. Ignoring message.");
+            log.info("Could not find the Unique Client ID sent from a cache update. Ignoring message.");
             return;
           }
           else if (senderUuid.equals(instanceID))
@@ -416,13 +418,13 @@ public class CacheMessageManager
         }
         catch (JMSException | ClassCastException e)
         {
-          log.log("CacheSignalListener::onMessage caught ", e);
+          log.info("CacheSignalListener::onMessage caught ", e);
           return;
         }
       }
       else
       {
-        log.log("CacheSignalListener::onMessage: Someone sent a jms.Message of non-type ObjectMessage, so it cannot be converted to a CacheMessage.");
+        log.info("CacheSignalListener::onMessage: Someone sent a jms.Message of non-type ObjectMessage, so it cannot be converted to a CacheMessage.");
         return;
       }
 
@@ -434,7 +436,7 @@ public class CacheMessageManager
         {
           case (CacheMessage.ACTION_FULL_RESET):
           {
-            log.log("Receiving 'cache full reset': " + cacheMessage);
+            log.info("Receiving 'cache full reset': {}", cacheMessage);
             store.reset(true, false);
             break;
           }
@@ -452,15 +454,16 @@ public class CacheMessageManager
                 // This is a new entity, so create it and put it into the cache.
                 entity = cg.newObjectFromMap(cacheMessage.getObjectProperties());
                 cg.addToCache(entity);
-                log.log("Received 'cache object expired':" + cacheMessage);
+                log.info("Received 'cache object expired':{}", cacheMessage);
               }
               else
               {
                 // This is an existing entity, so update it.
                 cg.updateObjectFromMap(entity, cacheMessage.getObjectProperties());
                 cg.reorder(entity.getId());
-                log.log("Received 'cache object expired': " + cacheMessage
-                    + ", existing entity: " + entity);
+                log.info(
+                    "Received 'cache object expired': {}, existing entity: {}",
+                    cacheMessage, entity);
               }
             }
             else if (group instanceof EntityGroup)
@@ -471,8 +474,8 @@ public class CacheMessageManager
               // nothing to update here.
             }
             else            {
-              log.log("Receiving 'cache object expired' but group id is invalid:"
-                  + cacheMessage + ", group: " + group);
+              log.info("Receiving 'cache object expired' but group id is invalid:{}, group: {}",
+                  cacheMessage, group);
             }
 
             break;
@@ -484,7 +487,7 @@ public class CacheMessageManager
             if (group instanceof CacheGroup)
             {
               ((CacheGroup<Identifiable>)group).removeFromCache(cacheMessage.getObjectId());
-              log.log("Received 'cache object remove' for: " + cacheMessage);
+              log.info("Received 'cache object remove' for: {}", cacheMessage);
             }
             else if (group instanceof EntityGroup)
             {
@@ -495,27 +498,23 @@ public class CacheMessageManager
             }
             else
             {
-              log.log("Received 'cache object remove' but group id is invalid: "
-                  + cacheMessage.getGroupId()
-                  + ", group: "
-                  + group
-                  + ", cacheMessage: " + cacheMessage);
+              log.info("Received 'cache object remove' but group id is " +
+                  "invalid: {}, group: {}, cacheMessage: {}",
+                  cacheMessage.getGroupId(), group, cacheMessage);
             }
             break;
           }
           case (CacheMessage.ACTION_GROUP_RESET):
           {
             store.reset(store.getGroup(cacheMessage.getGroupId()).type(), true, false);
-            log.log("Received 'cache group reset' for group id "
-                + cacheMessage.getGroupId() + ", cacheMessage: "
-                + cacheMessage);
+            log.info("Received 'cache group reset' for group id {}, " +
+                "cacheMessage: {}", cacheMessage.getGroupId(), cacheMessage);
             break;
           }
           default:
           {
-            log.log("Unknown CacheHandler action: "
-                + cacheMessage.getAction() + ", cacheMessage: "
-                + cacheMessage);
+            log.warn("Unknown CacheHandler action: {}, cacheMessage: {}",
+                cacheMessage.getAction(), cacheMessage);
           }
         }
       }
@@ -529,67 +528,67 @@ public class CacheMessageManager
           {
             relation.add(cachedRelationMessage.getLeftId(),
                 cachedRelationMessage.getRightId(), false, true, false);
-            log.log("Received 'rel add': " + cachedRelationMessage);
+            log.info("Received 'rel add': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_ADD_ALL):
           {
             relation.addAll(cachedRelationMessage.getRelation(), false, true, false);
-            log.log("Received 'rel add all': " + cachedRelationMessage);
+            log.info("Received 'rel add all': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_CLEAR):
           {
             relation.clear(false, true, false);
-            log.log("Received 'rel clear': " + cachedRelationMessage);
+            log.info("Received 'rel clear': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_REMOVE):
           {
             relation.remove(cachedRelationMessage.getLeftId(),
                 cachedRelationMessage.getRightId(), false, true, false);
-            log.log("Received 'rel remove': " + cachedRelationMessage);
+            log.info("Received 'rel remove': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_REMOVE_ALL):
           {
             relation.removeAll(cachedRelationMessage.getRelation(), false,
                 true, false);
-            log.log("Received 'rel remove all': " + cachedRelationMessage);
+            log.info("Received 'rel remove all': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_REMOVE_LEFT_VALUE):
           {
             relation.removeLeftValue(cachedRelationMessage.getLeftId(),
                 false, true, false);
-            log.log("Received 'rel remove left': " + cachedRelationMessage);
+            log.info("Received 'rel remove left': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_REMOVE_RIGHT_VALUE):
           {
             relation.removeRightValue(cachedRelationMessage.getRightId(),
                 false, true, false);
-            log.log("Received 'rel remove right': " + cachedRelationMessage);
+            log.info("Received 'rel remove right': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_REPLACE_ALL):
           {
             relation.replaceAll(cachedRelationMessage.getRelation(), false,
                 true, false);
-            log.log("Received 'rel replace all': " + cachedRelationMessage);
+            log.info("Received 'rel replace all': {}", cachedRelationMessage);
             break;
           }
           case (CachedRelationMessage.ACTION_RESET):
           {
             relation.reset(true, false);
-            log.log("Received 'rel reset': " + cachedRelationMessage);
+            log.info("Received 'rel reset': {}", cachedRelationMessage);
             break;
           }
           default:
           {
-            log.log("Unknown CachedRelationHandler action: "
-                + cachedRelationMessage.getAction()
-                + ", cachedRelationMessage: " + cachedRelationMessage);
+            log.info("Unknown CachedRelationHandler action: {}, " +
+                "cachedRelationMessage: {}", cachedRelationMessage.getAction(),
+                cachedRelationMessage);
           }
         }
       }

@@ -36,6 +36,8 @@ import com.techempower.gemini.path.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A reusable foundation for application login functionality.  This
@@ -100,6 +102,7 @@ public class LoginHandler<C extends Context>
   private String            surplusLoginTemplate  = DEFAULT_SURPLUS_TEMPLATE;
   private String            surplusLoginMessage   = DEFAULT_SURPLUS_LOGIN_MESSAGE;
   private String            loginSuccessMessage   = DEFAULT_LOGIN_MESSAGE;
+  private Logger            log                   = LoggerFactory.getLogger(getClass());
   //private boolean           capturePosts          = false;
   
   //
@@ -187,7 +190,8 @@ public class LoginHandler<C extends Context>
       }
       else
       {
-        l("Too many attempts from " + context.getClientId() + "; blocked temporarily.");
+        log.info("Too many attempts from {}; blocked temporarily.",
+            context.getClientId());
       }
 
       if (success)
@@ -253,7 +257,7 @@ public class LoginHandler<C extends Context>
   protected boolean handlePostLogin(Context context)
   {
     final String redirectUrl = security.getPostLoginUrl(context);
-    l("Redirecting: " + redirectUrl);
+    log.info("Redirecting: {}", redirectUrl);
 
     // If the request appears to be asking for a JSON response, and we're
     // configured to respond with JSON, let's do so.

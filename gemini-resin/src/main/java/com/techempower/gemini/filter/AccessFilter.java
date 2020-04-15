@@ -212,23 +212,23 @@ public class AccessFilter
         
         if (!found)
         {  
-          debug("User group " + userGroupName + " not found!");
+          log.info("User group {} not found!", userGroupName);
         }
       }
       catch (Exception exc)
       {
-        debug("Exception while finding user group " + userGroupName + ".", exc);
+        log.info("Exception while finding user group {}.", userGroupName, exc);
       }
     }
     
     // Show how we're configured.
     if (userGroup != null)
-    {  
-      debug("Configured [g: " + userGroup.getName() + "]");
+    {
+      log.info("Configured [g: {}]", userGroup.getName());
     }
     else
     {
-      debug("Configured to not require group membership.");
+      log.info("Configured to not require group membership.");
     }
   }
  

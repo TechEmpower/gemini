@@ -51,8 +51,7 @@ import com.techempower.gemini.feature.BasicFeatureManager;
 import com.techempower.gemini.feature.FeatureManager;
 import com.techempower.gemini.internationalization.GeminiLocaleManager;
 import com.techempower.gemini.lifecycle.*;
-import com.techempower.gemini.log.GeminiComponentLog;
-import com.techempower.gemini.log.GeminiLog;
+import com.techempower.gemini.log.ContextLogInfo;
 import com.techempower.gemini.monitor.GeminiMonitor;
 import com.techempower.gemini.mustache.MustacheManager;
 import com.techempower.gemini.notification.Notifier;
@@ -65,18 +64,16 @@ import com.techempower.helper.ImageHelper;
 import com.techempower.helper.JvmImageHelper;
 import com.techempower.helper.StringHelper;
 import com.techempower.helper.ThreadHelper;
-import com.techempower.helper.ThrowableHelper;
 import com.techempower.js.JacksonJavaScriptReader;
 import com.techempower.js.JacksonJavaScriptWriter;
 import com.techempower.js.JavaScriptReader;
 import com.techempower.js.JavaScriptWriter;
-import com.techempower.log.ComponentLog;
-import com.techempower.log.Log;
-import com.techempower.log.LogLevel;
 import com.techempower.util.Chronograph;
 import com.techempower.util.Configurable;
 import com.techempower.util.EnhancedProperties;
 import com.techempower.util.UtilityConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A repository for reaching references to application infrastructure
@@ -146,7 +143,7 @@ public abstract class GeminiApplication
   // Member variables.
   //
 
-  private final ComponentLog               log;
+  private final Logger                     log = LoggerFactory.getLogger(getClass());
   private       InitConfig                 initConfig;
   private final BasicInfrastructure        infrastructure;
   private final Configurator               configurator;
@@ -199,16 +196,6 @@ public abstract class GeminiApplication
   {
     super();
 
-    // Construct a ComponentLog.
-    try
-    {
-      this.log = getLog("gemi");
-    }
-    catch (Exception exc)
-    {
-      throw new GeminiInstantiationError("Failed to instantiate log.", exc);
-    }
-
     try
     {
       // The following methods are available for overloading by the 
@@ -256,7 +243,7 @@ public abstract class GeminiApplication
     catch (Exception exc)
     {
       setState(OperationalState.FAILED);
-      log.log("Failed to instantiate application.", LogLevel.CRITICAL, exc);
+      log.error("Failed to instantiate application.", exc);
       throw new GeminiInstantiationError("Failed to instantiate application.", exc);
     }
   }
@@ -266,11 +253,11 @@ public abstract class GeminiApplication
   {
     if (props.get("StartupMailRecipients") != null)
     {
-      log.log("Property \"StartupMailRecipients\" is deprecated.");
+      log.info("Property \"StartupMailRecipients\" is deprecated.");
     }
     if (props.get("StartupMailAuthor") != null)
     {
-      log.log("Property \"StartupMailAuthor\" is deprecated.");
+      log.info("Property \"StartupMailAuthor\" is deprecated.");
     }
 
     administratorEmail = props.get("AdministratorEmail", administratorEmail);
@@ -315,7 +302,7 @@ public abstract class GeminiApplication
       }
       catch (Exception exc)
       {
-        log.log("No matching character set for name " + responseCharsetName, exc);
+        log.error("No matching character set for name {}", responseCharsetName, exc);
         defaultResponseCharset = null;
       }
     }
@@ -329,7 +316,7 @@ public abstract class GeminiApplication
       }
       catch (Exception exc)
       {
-        log.log("No matching character set for name " + requestCharsetName, exc);
+        log.error("No matching character set for name {}", requestCharsetName, exc);
         defaultRequestCharset = null;
       }
     }
@@ -518,12 +505,6 @@ public abstract class GeminiApplication
     return new BasicInfrastructure(this);
   }
 
-  @Override
-  protected Log constructLog()
-  {
-    return new GeminiLog(this);
-  }
-
   /**
    * Construct a Configurator.
    */
@@ -709,7 +690,7 @@ public abstract class GeminiApplication
    */
   protected ImageHelper constructImageHelper()
   {
-    return new JvmImageHelper(this);
+    return new JvmImageHelper();
   }
   
   /**
@@ -1116,7 +1097,7 @@ public abstract class GeminiApplication
     try
     {
       // Set the Context information to be displayed with every log message.
-      GeminiComponentLog.setContextInformation(context);
+      ContextLogInfo.setContextInformation(context);
 
       getDispatcher().dispatch(context);
     }
@@ -1126,7 +1107,7 @@ public abstract class GeminiApplication
       getDispatcher().dispatchComplete(context);
 
       // Clear the Context info now that this Thread is done handling the request.
-      GeminiComponentLog.clearContextInformation();
+      ContextLogInfo.clearContextInformation();
 
       // The current Context's usage is now complete, dissociate it with
       // the current thread.
@@ -1232,8 +1213,8 @@ public abstract class GeminiApplication
       // Increase the initialization attempts.
       initializationAttempts++;
       
-      log.log("Starting initialization attempt " + initializationAttempts 
-          + " of " + MAX_INITIALIZATION_ATTEMPTS + ".");
+      log.info("Starting initialization attempt {} of {}.",
+          initializationAttempts, MAX_INITIALIZATION_ATTEMPTS);
       
       // Attempt initialization.
       if (!attemptInitializationTasks())
@@ -1241,14 +1222,16 @@ public abstract class GeminiApplication
         if (initializationAttempts <= MAX_INITIALIZATION_ATTEMPTS)
         {
           // If initialization fails, start a remediation.
-          log.log("Failed to initialize on attempt " + initializationAttempts 
-              + ". Retrying in " + SECONDS_BETWEEN_ATTEMPTS + " seconds.");
+          log.info(
+              "Failed to initialize on attempt {}. Retrying in {} seconds.",
+              initializationAttempts, SECONDS_BETWEEN_ATTEMPTS);
           ThreadHelper.schedule(() -> start(), SECONDS_BETWEEN_ATTEMPTS, TimeUnit.SECONDS);
         }
         else
         {
-          log.log("All " + MAX_INITIALIZATION_ATTEMPTS + " initialization attempts have failed.");
-          log.log("Running shutdown tasks and halting.");
+          log.error("All {} initialization attempts have failed.",
+              MAX_INITIALIZATION_ATTEMPTS);
+          log.error("Running shutdown tasks and halting.");
           
           setState(OperationalState.FAILED);
           
@@ -1283,7 +1266,7 @@ public abstract class GeminiApplication
       }
       catch (GeminiInitializationError error)
       {
-        log.log("Exception thrown during initialization.", error);
+        log.error("Exception thrown during initialization.", error);
         return false;
       }
     }
@@ -1297,8 +1280,8 @@ public abstract class GeminiApplication
       // Step 3: Set the state to running.
       setState(OperationalState.RUNNING);
       
-      log.log(getVersion().getProductName() + " started.");
-      log.log(STARTUP_CHRONOGRAPH + ".");
+      log.info("{} started.", getVersion().getProductName());
+      log.info("{}.", STARTUP_CHRONOGRAPH);
     }
     
     /**
@@ -1314,12 +1297,8 @@ public abstract class GeminiApplication
         }
         catch (Exception exc)
         {
-          // In the event a shutdown tasks throws an exception, we will report
-          // the exception to stderr (because the log may be closed) and then
-          // proceed to the next shutdown task.
-          System.err.println("Exception while executing shutdown task " 
-              + task.getClass().getSimpleName() + ":\n" 
-              + ThrowableHelper.convertStackTraceToString(exc));
+          log.error("Exception while executing shutdown task {}}",
+              task.getClass().getSimpleName(), exc);
         }
       }
     }

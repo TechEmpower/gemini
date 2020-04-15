@@ -28,7 +28,8 @@ package com.techempower.gemini.lifecycle;
 
 import com.techempower.cache.*;
 import com.techempower.gemini.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Initialize the EntityStore, if one is enabled within the application.
@@ -36,15 +37,15 @@ import com.techempower.log.*;
 public class   InitEntityStore
     implements InitializationTask 
 {
+  private Logger log = LoggerFactory.getLogger(getClass());
 
   @Override
   public void taskInitialize(GeminiApplication application) 
   {
-    final ComponentLog log = application.getLog(COMPONENT_CODE);
     final EntityStore store = application.getStore();
     if (store != null)
     {
-      log.log("Initializing entity store.");
+      log.info("Initializing entity store.");
       store.initialize();
     }
   }

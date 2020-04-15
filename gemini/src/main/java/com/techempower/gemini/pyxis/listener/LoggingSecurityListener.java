@@ -30,7 +30,8 @@ package com.techempower.gemini.pyxis.listener;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.gemini.pyxis.password.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simply logs calls to the listener methods.  Does nothing else.
@@ -38,41 +39,27 @@ import com.techempower.log.*;
 public class LoggingSecurityListener
   implements SecurityListener<Context>
 {
-  
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE       = "NoSL";
-  
+
   //
   // Member variables.
   //
   
-  private final ComponentLog log;
+  private final Logger log = LoggerFactory.getLogger(getClass());
   
   //
   // Member methods.
   //
-  
-  /**
-   * Constructor.
-   */
-  public LoggingSecurityListener(GeminiApplication application)
-  {
-    log = application.getLog(COMPONENT_CODE);
-  }
 
   @Override
   public void loginFailed(Context context)
   {
-    log.log("Login failed: " + context);
+    log.info("Login failed: {}", context);
   }
 
   @Override
   public void loginSuccessful(Context context, PyxisUser user)
   {
-    log.log("Login successful: " + user);
+    log.info("Login successful: {}", user);
   }
 
   @Override
@@ -80,18 +67,18 @@ public class LoggingSecurityListener
   {
     if (context == null)
     {
-      log.log("Logout by session expiration: " + user);
+      log.info("Logout by session expiration: {}", user);
     }
     else
     {
-      log.log("Logout successful: " + user);
+      log.info("Logout successful: {}", user);
     }
   }
 
   @Override
   public void passwordChanged(PasswordProposal proposal)
   {
-    log.log("User " + proposal.username + " changed password.");
+    log.info("User {} changed password.", proposal.username);
   }
 
 }

@@ -29,7 +29,6 @@ package com.techempower.data.jdbc;
 
 import java.io.*;
 import java.sql.*;
-import java.util.logging.*;
 
 import javax.naming.*;
 import javax.sql.*;
@@ -38,8 +37,9 @@ import com.techempower.*;
 import com.techempower.asynchronous.*;
 import com.techempower.data.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of ConnectorFactory that is a thin wrapper around a
@@ -61,7 +61,6 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
   // Constants.
   //
 
-  public static final String COMPONENT_CODE = "JnCf";
   public static final String DEFAULT_PROPERTY_PREFIX = "db.Jndi.";
 
   //
@@ -69,8 +68,7 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
   //
 
   private final String propertyPrefix;
-  private final TechEmpowerApplication app;
-  private final ComponentLog log;
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private DataSource dataSource;
 
@@ -93,7 +91,7 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
    *          the prefix to apply to all property names in the conf file; default
    *          is "db.Jndi."
    */
-  public JndiConnectorFactory(TechEmpowerApplication application, String propertyPrefix)
+  public JndiConnectorFactory(String propertyPrefix)
   {
     // Use default prefix if an empty String is provided.
     if (StringHelper.isNonEmpty(propertyPrefix))
@@ -104,9 +102,13 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
     {
       this.propertyPrefix = DEFAULT_PROPERTY_PREFIX;
     }
+  }
 
-    this.app = application;
-    this.log = app.getLog(COMPONENT_CODE);
+  @Deprecated(forRemoval = true)
+  public JndiConnectorFactory(TechEmpowerApplication application,
+                              String propertyPrefix)
+  {
+    this(propertyPrefix);
   }
 
   /**
@@ -120,7 +122,7 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
     final EnhancedProperties.Focus props = rawProps.focus(propertyPrefix);
     enabled = props.getBoolean("Enabled", true);
     String jndiName = props.get("Name", "java:comp/env/jdbc/database");
-    debug("JNDI name to be fetched: " + jndiName);
+    log.debug("JNDI name to be fetched: {}", jndiName);
 
     // Only proceed if this connector factory is enabled.
     if (enabled)
@@ -135,17 +137,17 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
       }
       catch (NamingException e)
       {
-        debug("Unable to fetch JNDI data source for name " + jndiName, e);
+        log.debug("Unable to fetch JNDI data source for name {}", jndiName, e);
       }
 
       try
       {
-        // TODO: Hook this into the Gemini ComponentLog
+        // TODO: Hook this into slf4j
         dataSource.setLogWriter(new PrintWriter(System.out));
       }
       catch (SQLException e)
       {
-        debug("Unable to set log writer", e);
+        log.debug("Unable to set log writer", e);
       }
 
       // Find out what character is used to escape table and column names in
@@ -157,23 +159,23 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
     }
     else
     {
-      log.log("Database connector factory disabled.");
+      log.info("Database connector factory disabled.");
     }
   }
 
   @Override
   public void determineIdentifierQuoteString()
   {
-    debug("Determining identifier quote string from database.");
+    log.debug("Determining identifier quote string from database.");
     try (ConnectionMonitor monitor = getConnectionMonitor())
     {
       identifierQuoteString = monitor.getConnection().getMetaData().getIdentifierQuoteString();
     }
     catch (Exception e)
     {
-      debug("Exception while reading identifier quote string.", e);
+      log.debug("Exception while reading identifier quote string.", e);
     }
-    debug("Identifier quote string: " + identifierQuoteString);
+    log.debug("Identifier quote string: {}", identifierQuoteString);
   }
 
   /**
@@ -206,33 +208,6 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
   }
 
   /**
-   * Logs a String to the ComponentLog.
-   *
-   * @param logString
-   *          string to log.
-   */
-  protected void debug(String logString)
-  {
-    debug(logString, null);
-  }
-
-  /**
-   * Logs a String to the ComponentLog.
-   *
-   * @param logString
-   *          string to log.
-   * @param e
-   *          an exception or error to log.
-   */
-  protected void debug(String logString, Throwable e)
-  {
-    if (log != null)
-    {
-      log.log(logString, e);
-    }
-  }
-
-  /**
    * Gets a ConnectionMonitor.
    */
   @Override
@@ -255,7 +230,7 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
 
   public void determineDatabaseAffinity()
   {
-    debug("Determining DatabaseAffinity.");
+    log.debug("Determining DatabaseAffinity.");
     String dbProductName = null;
     try (ConnectionMonitor monitor = getConnectionMonitor())
     {
@@ -264,9 +239,10 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
     }
     catch (Exception e)
     {
-      debug("Exception while determining database affinity.", e);
+      log.debug("Exception while determining database affinity.", e);
     }
-    debug("DatabaseAffinity: " + databaseAffinity + " from database product name " + dbProductName);
+    log.debug("DatabaseAffinity: {} from database product name {}",
+        databaseAffinity, dbProductName);
   }
 
   /**
@@ -294,7 +270,7 @@ public class JndiConnectorFactory implements ConnectorFactory, Configurable, Asy
     }
 
     @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException
+    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException
     {
       throw new SQLFeatureNotSupportedException();
     }

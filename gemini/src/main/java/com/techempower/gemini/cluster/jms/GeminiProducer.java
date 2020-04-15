@@ -47,10 +47,16 @@ public class GeminiProducer
    * a different connection/socket, since different sessions can be built from
    * the same connection object. Connection objects are resource heavy
    */
+  public GeminiProducer(Connection connection, String topic)
+  {
+    super(connection, topic);
+  }
+
+  @Deprecated(forRemoval = true)
   public GeminiProducer(GeminiApplication application, Connection connection,
       String topic)
   {
-    super(application, connection, topic);
+    this(connection, topic);
   }
 
   /**
@@ -63,15 +69,15 @@ public class GeminiProducer
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     producer = session.createProducer(session.createQueue(destination));
 
-    log.log(connection + " producer@'" + destination + "'");
+    log.info("{} producer@'{}'", connection, destination);
     return this;
   }
 
   @Override
   public void close()
   {
-    log.log("GeminiProducer <" + producer + "> is closing session <"
-        + session + "> @queue://" + destination);
+    log.info("GeminiProducer <{}> is closing session <{}> @queue://{}",
+        producer, session, destination);
     super.close();
   }
 }

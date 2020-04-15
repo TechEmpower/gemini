@@ -29,6 +29,8 @@ package com.techempower.scheduler;
 
 import com.techempower.thread.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used by the Scheduler to run events on their own thread, if the event
@@ -53,6 +55,7 @@ public class EventRunnerThread
   // Member variables.
   //
 
+  private final Logger         log = LoggerFactory.getLogger(getClass());
   private final ScheduledEvent event;
   private final Scheduler      scheduler;
   private final boolean        onDemandExecution;
@@ -94,18 +97,16 @@ public class EventRunnerThread
     }
     catch (Exception exc)
     {
-      scheduler.getLog().log("Exception while executing (new thread) "
-          + event, exc);
+      log.error("Exception while executing (new thread) {}", event, exc);
     }
     catch (Error error)
     {
-      scheduler.getLog().log("Error while executing (new thread) " 
-          + event, error);
+      log.error("Error while executing (new thread) {}", event, error);
     }
     finally
     {
       event.setExecuting(false);
-      scheduler.getLog().log(event.getName() + " complete. " + chrono);
+      log.info("{} complete. {}", event.getName(), chrono);
     }
   }
   

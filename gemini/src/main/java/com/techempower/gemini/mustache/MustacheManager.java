@@ -32,9 +32,10 @@ import java.util.*;
 import com.github.mustachejava.*;
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Compiles and renders mustache templates.
@@ -72,7 +73,7 @@ public abstract class MustacheManager
 
   protected final GeminiApplication application;
   private final TemplateAppReferences applicationReferences;
-  private final ComponentLog log;
+  private final Logger log = LoggerFactory.getLogger(getClass());
   protected MustacheFactory mustacheFactory;
   protected String mustacheDirectory;
   protected boolean enabled;
@@ -86,7 +87,6 @@ public abstract class MustacheManager
   public MustacheManager(GeminiApplication application)
   {
     this.application = application;
-    this.log = application.getLog("MusM");
     this.application.getConfigurator().addConfigurable(this);
     this.applicationReferences = constructApplicationReferences();
     this.cacheResetEvent = new CacheResetEvent();
@@ -107,14 +107,15 @@ public abstract class MustacheManager
     final EnhancedProperties.Focus focus = props.focus("Mustache.");
     this.enabled = focus.getBoolean("Enabled", true);
     this.useTemplateCache = focus.getBoolean("TemplateCacheEnabled", !application.getVersion().isDevelopment());
-    log.log("Mustache " + (this.useTemplateCache ? "" : "not ") + "using template cache.");
+    log.info("Mustache {}using template cache.",
+        this.useTemplateCache ? "" : "not ");
     final int resetSeconds = focus.getInt("TemplateCacheResetInterval", 0);
     this.resetTemplateCacheInterval = resetSeconds * UtilityConstants.SECOND;
 
     // Warn about deprecated "MustacheDirectory" configuration directive.
     if (props.has("MustacheDirectory"))
     {
-      log.log("MustacheDirectory is deprecated. Use Mustache.Directory instead.");
+      log.warn("MustacheDirectory is deprecated. Use Mustache.Directory instead.");
       this.mustacheDirectory = props.get("MustacheDirectory", mustacheDirectory);
     }
   }

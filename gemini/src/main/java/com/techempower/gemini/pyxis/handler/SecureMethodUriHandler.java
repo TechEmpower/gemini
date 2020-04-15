@@ -66,7 +66,6 @@ public class SecureMethodUriHandler<C extends Context, U extends PyxisUser>
    * serialization.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param authorizer The Authorizer to determine if the user is authorized;
    *        this is optional, if null any user that is present will be
    *        assumed to be authorized.
@@ -74,10 +73,11 @@ public class SecureMethodUriHandler<C extends Context, U extends PyxisUser>
    *        this is optional, if null, the Security's force-login Rejector
    *        will be used.
    */
-  public SecureMethodUriHandler(GeminiApplication app, String componentCode,
-      Authorizer authorizer, Rejector rejector)
+  public SecureMethodUriHandler(GeminiApplication app,
+                                Authorizer authorizer,
+                                Rejector rejector)
   {
-    super(app, componentCode);
+    super(app);
     
     this.rejector = rejector != null 
         ? rejector 
@@ -94,11 +94,10 @@ public class SecureMethodUriHandler<C extends Context, U extends PyxisUser>
    * force-login Rejector will be used by default. 
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    */
-  public SecureMethodUriHandler(GeminiApplication app, String componentCode)
+  public SecureMethodUriHandler(GeminiApplication app)
   {
-    this(app, componentCode, null, null);        
+    this(app, null, null);
   }
 
   /**

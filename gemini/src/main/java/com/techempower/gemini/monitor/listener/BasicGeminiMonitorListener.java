@@ -37,9 +37,10 @@ import com.techempower.gemini.monitor.*;
 import com.techempower.gemini.monitor.cpupercentage.*;
 import com.techempower.gemini.monitor.health.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.text.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A very simple GeminiMonitorListener that writes alerts to the file system.
@@ -60,7 +61,7 @@ public class BasicGeminiMonitorListener
   // Member variables.
   //
   
-  private final ComponentLog       log;
+  private final Logger log = LoggerFactory.getLogger(getClass());
   
   private String fsLocation;
   
@@ -73,8 +74,6 @@ public class BasicGeminiMonitorListener
    */
   public BasicGeminiMonitorListener(GeminiApplication application)
   {
-    this.log = application.getLog("bgml");
-    
     application.getConfigurator().addConfigurable(this);
   }
  
@@ -119,7 +118,7 @@ public class BasicGeminiMonitorListener
     }
     catch (IOException ioexc)
     {
-      this.log.log("Could not write alert file: " + filename + " " + ioexc);
+      this.log.warn("Could not write alert file: {}", filename, ioexc);
     }
   }
   
@@ -144,7 +143,7 @@ public class BasicGeminiMonitorListener
     File file = new File(loc);
     if (!file.mkdirs())
     {
-      this.log.log("Could not create directory: " + this.fsLocation);
+      this.log.info("Could not create directory: {}", this.fsLocation);
     }
   }
   

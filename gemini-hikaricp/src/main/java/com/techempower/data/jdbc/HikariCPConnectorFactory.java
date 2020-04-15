@@ -34,15 +34,15 @@ import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.Map.*;
-import java.util.logging.*;
 
 import com.techempower.*;
 import com.techempower.asynchronous.*;
 import com.techempower.data.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
 import com.zaxxer.hikari.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of ConnectorFactory that is a thin wrapper around the
@@ -67,7 +67,6 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
   // Constants.
   //
 
-  public static final String COMPONENT_CODE = "HkCf";
   public static final String DEFAULT_PROPERTY_PREFIX = "db.HikariCP.";
   public static final String ENV_VAR_MACRO_START = MACRO_START + PROP_ENVIRONMENT_PREFIX;
 
@@ -76,8 +75,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
   //
 
   private final String propertyPrefix;
-  private final TechEmpowerApplication app;
-  private final ComponentLog log;
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   private HikariConfig hikariConfig;
   private HikariDataSource dataSource;
@@ -99,7 +97,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
    *          the prefix to apply to all property names in the conf file; default
    *          is "db.HikariCP."
    */
-  public HikariCPConnectorFactory(TechEmpowerApplication application, String propertyPrefix)
+  public HikariCPConnectorFactory(String propertyPrefix)
   {
     // Use default prefix if an empty String is provided.
     if (StringHelper.isNonEmpty(propertyPrefix))
@@ -110,9 +108,13 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     {
       this.propertyPrefix = DEFAULT_PROPERTY_PREFIX;
     }
+  }
 
-    this.app = application;
-    this.log = app.getLog(COMPONENT_CODE);
+  @Deprecated(forRemoval = true)
+  public HikariCPConnectorFactory(TechEmpowerApplication application,
+                                  String propertyPrefix)
+  {
+    this(propertyPrefix);
   }
 
   /**
@@ -170,25 +172,25 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
             }
           });
         } else {
-          debug("Cannot find property file: " + hikariPropsFile);
+          log.info("Cannot find property file: " + hikariPropsFile);
         }
       } catch (IOException io) {
-        debug("Failed to read property file", io);
+        log.info("Failed to read property file", io);
       }
 
       // Pass to HikariCP our prepared Properties object with any relevant environment
       // variables in place.
       hikariConfig = new HikariConfig(hikariPropsReady);
       dataSource = new HikariDataSource(hikariConfig);
-      debug("Connected: " + dataSource.getJdbcUrl());
+      log.info("Connected: {}", dataSource.getJdbcUrl());
 
-      debug("HikariDataSource: " + dataSource);
+      log.debug("HikariDataSource: {}", dataSource);
       for (Entry<Object, Object> e : dataSource.getDataSourceProperties().entrySet())
       {
         // Log all properties except password.
         if (!StringHelper.containsIgnoreCase(e.getKey() + "", "password"))
         {
-          debug(e.getKey() + ": " + e.getValue());
+          log.debug("{}: {}", e.getKey(), e.getValue());
         }
       }
 
@@ -201,14 +203,14 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     }
     else
     {
-      log.log("Database connector factory disabled.");
+      log.info("Database connector factory disabled.");
     }
   }
 
   /**
    * If there is an environment variable declared, return its name. Otherwise
    * return null.
-   * 
+   *
    * @param s A string like "${Environment.FOO}"
    * @return If s is "${Environment.FOO}", returns "FOO"
    */
@@ -233,16 +235,16 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
   @Override
   public void determineIdentifierQuoteString()
   {
-    debug("Determining identifier quote string from database.");
+    log.debug("Determining identifier quote string from database.");
     try (ConnectionMonitor monitor = getConnectionMonitor())
     {
       identifierQuoteString = monitor.getConnection().getMetaData().getIdentifierQuoteString();
     }
     catch (Exception e)
     {
-      debug("Exception while reading identifier quote string.", e);
+      log.debug("Exception while reading identifier quote string.", e);
     }
-    debug("Identifier quote string: " + identifierQuoteString);
+    log.debug("Identifier quote string: {}", identifierQuoteString);
   }
 
   /**
@@ -279,33 +281,6 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
   }
 
   /**
-   * Logs a String to the ComponentLog.
-   *
-   * @param logString
-   *          string to log.
-   */
-  protected void debug(String logString)
-  {
-    debug(logString, null);
-  }
-
-  /**
-   * Logs a String to the ComponentLog.
-   *
-   * @param logString
-   *          string to log.
-   * @param e
-   *          an exception or error to log.
-   */
-  protected void debug(String logString, Throwable e)
-  {
-    if (log != null)
-    {
-      log.log(logString, e);
-    }
-  }
-
-  /**
    * Gets a ConnectionMonitor.
    */
   @Override
@@ -328,7 +303,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
 
   public void determineDatabaseAffinity()
   {
-    debug("Determining DatabaseAffinity.");
+    log.debug("Determining DatabaseAffinity.");
     String dbProductName = null;
     try (ConnectionMonitor monitor = getConnectionMonitor())
     {
@@ -337,9 +312,10 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     }
     catch (Exception e)
     {
-      debug("Exception while determining database affinity.", e);
+      log.debug("Exception while determining database affinity.", e);
     }
-    debug("DatabaseAffinity: " + databaseAffinity + " from database product name " + dbProductName);
+    log.debug("DatabaseAffinity: {} from database product name {}",
+        databaseAffinity, dbProductName);
   }
 
   /**
@@ -367,7 +343,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     }
 
     @Override
-    public Logger getParentLogger() throws SQLFeatureNotSupportedException
+    public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException
     {
       throw new SQLFeatureNotSupportedException();
     }

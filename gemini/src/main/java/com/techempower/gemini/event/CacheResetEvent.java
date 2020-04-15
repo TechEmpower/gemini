@@ -30,9 +30,10 @@ import java.util.*;
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.scheduler.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple event that can be used to purge the application's cache every few
@@ -65,7 +66,6 @@ public class CacheResetEvent
      extends ScheduledEvent 
   implements Configurable
 {
-  public static final String LOCAL_COMPONENT_CODE1 = "eRST";
 
   public static final String PROPS_PREFIX = "CacheReset.";
   public static final String PROPS_INTERVAL = "IntervalHours";
@@ -78,7 +78,7 @@ public class CacheResetEvent
   private boolean notifyListeners = false;
 
   private final GeminiApplication application;
-  private final ComponentLog log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
 
   /**
    * Constructor.
@@ -87,7 +87,6 @@ public class CacheResetEvent
   {
     super("Cache Reset Event", "Fully resets the application cache.");
     this.application = application;
-    this.log = application.getLog(LOCAL_COMPONENT_CODE1);
 
     application.getConfigurator().addConfigurable(this);
   }
@@ -160,7 +159,7 @@ public class CacheResetEvent
    */
   protected void doReset()
   {
-    this.log.log("Performing full cache reset");
+    this.log.info("Performing full cache reset");
 
     this.application.getStore().reset(this.notifyListeners, false);
   }

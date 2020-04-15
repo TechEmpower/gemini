@@ -28,7 +28,8 @@
 package com.techempower.gemini.cluster.jms;
 
 import com.techempower.gemini.GeminiApplication;
-import com.techempower.log.ComponentLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.*;
 
@@ -39,7 +40,7 @@ import javax.jms.*;
 public class AsyncConsumer
 {
   private Connection      connection;
-  private ComponentLog    log;
+  private Logger          log = LoggerFactory.getLogger(getClass());
   private Session         session;
   private MessageConsumer consumer;
   private String          destination;
@@ -52,12 +53,17 @@ public class AsyncConsumer
    * a different connection/socket, since different sessions can be built from
    * the same connection object. Connection objects are resource heavy
    */
+  public AsyncConsumer(final Connection connection, final String destination)
+  {
+    this.connection = connection;
+    this.destination = destination;
+  }
+
+  @Deprecated(forRemoval = true)
   public AsyncConsumer(final GeminiApplication application,
       final Connection connection, final String destination)
   {
-    this.connection = connection;
-    this.log = application.getLog("AsyC");
-    this.destination = destination;
+    this(connection, destination);
   }
 
   /**
@@ -71,7 +77,7 @@ public class AsyncConsumer
     consumer = session.createConsumer(session.createQueue(destination));
     consumer.setMessageListener(listener);
 
-    log.log(connection + " AsyncConsumer@'" + destination + "'");
+    log.info("{} AsyncConsumer@'{}'", connection, destination);
     return this;
   }
 
@@ -80,8 +86,8 @@ public class AsyncConsumer
    */
   public void close()
   {
-    log.log("AsyncConsumer <" + consumer + "> is closing session <" + session
-        + "> @queue://" + destination);
+    log.info("AsyncConsumer <{}> is closing session <{}> @queue://{}",
+        consumer, session, destination);
     try
     {
       if (consumer != null)
@@ -95,9 +101,9 @@ public class AsyncConsumer
     }
     catch (JMSException e)
     {
-      log.log("AsyncConsumer <" + consumer
-          + "> exception while closing session <" + session + "> @queue://"
-          + destination, e);
+      log.error(
+          "AsyncConsumer <{}> exception while closing session <{}> @queue://{}",
+          consumer, session, destination, e);
     }
   }
 }

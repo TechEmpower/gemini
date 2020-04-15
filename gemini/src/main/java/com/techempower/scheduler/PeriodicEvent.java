@@ -30,6 +30,8 @@ import java.util.*;
 
 import com.techempower.helper.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An event that is executed on a regular interval, measured in seconds.  This
@@ -44,7 +46,8 @@ public abstract class PeriodicEvent
   //
   // Member variables.
   //
-  
+
+  private final Logger log = LoggerFactory.getLogger(getClass());
   private final int initialDelaySeconds;
   private final int intervalSeconds;
   
@@ -122,7 +125,7 @@ public abstract class PeriodicEvent
     }
     catch (Exception exc)
     {
-      scheduler.getLog().log("Exception while executing " + this, exc);
+      log.error("Exception while executing {}", this, exc);
     }
     finally
     {

@@ -39,8 +39,9 @@ import com.techempower.gemini.pyxis.crypto.*;
 import com.techempower.gemini.pyxis.listener.*;
 import com.techempower.gemini.pyxis.password.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * BasicSecurity provides basic authentication services.  Subclass this
@@ -89,7 +90,6 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   // Constants.
   //
 
-  public static final String COMPONENT_CODE               = "secu";
   public static final int    DEFAULT_FAILED_RESET_SECONDS = 300;  // 5 minutes.
   public static final String PROPS_PREFIX                 = "BasicSecurity.";
 
@@ -98,7 +98,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   //
 
   private final GeminiApplication          application;
-  private final ComponentLog               log;
+  private final Logger                     log = LoggerFactory.getLogger(getClass());
   private final PyxisSettings              settings;
   private final EntityStore                store;
   private final Cryptograph                cryptograph;
@@ -134,7 +134,6 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
       Class<? extends EntityRelationDescriptor<U,Login>> userToLoginRelationDefinition)
   {
     this.application    = application;
-    this.log            = application.getLog(COMPONENT_CODE);
     this.settings       = constructPyxisSettings(application);
     this.listeners      = new CopyOnWriteArrayList<>();
     final List<PasswordRequirement> requirements = constructPasswordRequirements();
@@ -154,7 +153,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
     
     if (this.store == null)
     {
-      log.log("ERROR: CachingSecurity cannot function without an application cache!", LogLevel.CRITICAL);
+      log.error("CachingSecurity cannot function without an application cache!");
     }
     
     addStandardListeners();
@@ -196,14 +195,6 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
   public PyxisSettings getSettings()
   {
     return settings;
-  }
-  
-  /**
-   * Gets the ComponentLog reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return log;
   }
   
   /**
@@ -255,7 +246,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
         break;
       }
     }
-    log.log("Using " + passwordHasher.getName() + " hashing algorithm.");
+    log.info("Using {} hashing algorithm.", passwordHasher.getName());
   }
   
   /**
@@ -605,7 +596,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
     {
       // This could come up if the implementation does not provide a
       // getUserEmail method.
-      log.log("Exception while retrieving user by email address: " + exc);
+      log.info("Exception while retrieving user by email address: ", exc);
     }
     return null;
   }
@@ -867,7 +858,7 @@ public class BasicSecurity<U extends PyxisUser, G extends PyxisUserGroup>
         notify.loginSuccessful(context, user);
       }
       
-      log.log("Logged in: " + user);
+      log.info("Logged in: {}", user);
 
       return true;
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, TechEmpower, Inc.
+ * Copyright (c) 2018, TechEmpower, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,26 +30,25 @@ import java.io.*;
 import java.util.*;
 
 import com.google.common.io.*;
-import com.techempower.gemini.Request.*;
 import com.techempower.gemini.context.*;
 import com.techempower.gemini.internationalization.*;
 import com.techempower.gemini.session.*;
-import com.techempower.log.*;
 import com.techempower.security.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BasicContext implements Context
 {
-  public static final String        COMPONENT_CODE = "ctxt";
-  public static final String        SO_CONSUMABLE_REQUEST = 
-      "_consumable_prior_request";
-  protected static final ThreadLocal<Context>
-                                    CONTEXTS_BY_THREAD = new ThreadLocal<>();
+  public static final String        SO_CONSUMABLE_REQUEST =
+          "_consumable_prior_request";
+  protected static final ThreadLocal<BasicContext>
+          CONTEXTS_BY_THREAD = new ThreadLocal<>();
   private static final String       SO_TOKEN_PROVIDER = "_token_provider";
-  private static final BaseEncoding TOKEN_ENCODING = 
-      BaseEncoding.base32().omitPadding();
-  
+  private static final BaseEncoding TOKEN_ENCODING =
+          BaseEncoding.base32().omitPadding();
+
   protected final GeminiApplication   application;
-  protected final ComponentLog        log;
+  protected final Logger              log = LoggerFactory.getLogger(getClass());
   protected final Dispatcher          dispatcher;
   protected final BasicInfrastructure infrastructure;
   protected final long                processingStart;
@@ -81,7 +80,6 @@ public abstract class BasicContext implements Context
 
     this.sessionNamedValues = new SessionNamedValues(this);
     this.messages        = new Messages(this);
-    this.log             = application.getLog(COMPONENT_CODE);
 
     // Register this Context to the current thread.
     CONTEXTS_BY_THREAD.set(this);
@@ -135,7 +133,7 @@ public abstract class BasicContext implements Context
    * All ThreadLocal variables used elsewhere within your application will
    * be subject to the same constraint.
    */
-  public static Context get()
+  public static BasicContext get()
   {
     return CONTEXTS_BY_THREAD.get();
   }
@@ -146,14 +144,6 @@ public abstract class BasicContext implements Context
   public GeminiApplication getApplication()
   {
     return this.application;
-  }
-
-  /**
-   * Returns a reference to the ComponentLog.
-   */
-  protected ComponentLog getLog()
-  {
-    return this.log;
   }
 
   /**
@@ -216,7 +206,7 @@ public abstract class BasicContext implements Context
    * pass-through to response.getOutputStream().
    */
   public OutputStream getOutputStream()
-      throws IOException
+          throws IOException
   {
     return this.request.getOutputStream();
   }
@@ -243,6 +233,14 @@ public abstract class BasicContext implements Context
   public Request getRequest()
   {
     return this.request;
+  }
+
+  /**
+   * Gets the request method (e.g., "GET" or "POST") as a String.
+   */
+  public HttpRequest.HttpMethod getRequestMethod()
+  {
+    return ((HttpRequest)this.request).getRequestMethod();
   }
 
   /**
@@ -448,8 +446,8 @@ public abstract class BasicContext implements Context
   {
     Session currentSession = getSession(false);
     return (currentSession == null)
-        ? true
-        : currentSession.isNew();
+            ? true
+            : currentSession.isNew();
   }
 
   /**
@@ -618,7 +616,7 @@ public abstract class BasicContext implements Context
     }
     catch (IOException ioexc)
     {
-      this.log.log("IOException on print().");
+      this.log.info("IOException on print().");
     }
   }
 
@@ -637,7 +635,7 @@ public abstract class BasicContext implements Context
    */
   protected void processRenderException(Exception exc, String pageName, String description)
   {
-    this.log.log("Exception while including " + pageName + ": " + exc);
+    this.log.info("Exception while including {}: ", pageName, exc);
 
     this.dispatcher.dispatchException(this, exc, description);
   }

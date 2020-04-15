@@ -31,8 +31,9 @@ import java.io.*;
 import java.util.*;
 
 import com.techempower.gemini.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The standard implementation of the ConfigurationProvider interface, this
@@ -100,6 +101,7 @@ import com.techempower.util.*;
 public class FileConfigurationProvider
     implements ConfigurationProvider
 {
+  private final Logger log = LoggerFactory.getLogger(getClass());
 
   /**
    * Constructor.
@@ -117,30 +119,30 @@ public class FileConfigurationProvider
    * Attempt to load a configuration file from disk.
    */
   @Override
-  public boolean load(GeminiApplication application, ComponentLog log,
-      EnhancedProperties props)
+  public boolean load(GeminiApplication application,
+                      EnhancedProperties props)
   {
     try
     {
       // Get the configuration filename(s).
-      String filenames = getConfigFilenames(application, log);
+      String filenames = getConfigFilenames(application);
       StringTokenizer tokenizer = new StringTokenizer(filenames, ",");
       while (tokenizer.hasMoreTokens())
       {
         // Trim off extra spaces.
         String filename = tokenizer.nextToken().trim();
-        loadPropertiesFromFile(application, log, props, filename);
+        loadPropertiesFromFile(application, props, filename);
       }
 
       // Look for extended configuration properties.
-      loadExtendedProperties(application, log, props);
+      loadExtendedProperties(application, props);
 
       // Did we load anything?
       return (props.size() > 0);
     }
     catch (IOException ioexc)
     {
-      log.log("IOException while loading configuration files: " + ioexc);
+      log.error("IOException while loading configuration files: ", ioexc);
     }
 
     // If we get here, we did not load properties successfully.
@@ -151,7 +153,7 @@ public class FileConfigurationProvider
    * Modifies the given properties from the given configuration file.
    */
   protected void loadPropertiesFromFile(GeminiApplication application,
-      ComponentLog log, EnhancedProperties props, String filename)
+      EnhancedProperties props, String filename)
       throws IOException
   {
     boolean loaded = false;
@@ -269,7 +271,7 @@ public class FileConfigurationProvider
 
     if (loaded)
     {
-      log.log("Read " + filename);
+      log.info("Read {}", filename);
     }
   }
 
@@ -278,17 +280,17 @@ public class FileConfigurationProvider
    * used to specify a configuration filename that these properties extend.
    */
   protected void loadExtendedProperties(GeminiApplication application,
-      ComponentLog log, EnhancedProperties props)
+      EnhancedProperties props)
       throws IOException
   {
     for (String extendedFilename : props.getArray("Extends"))
     {
       EnhancedProperties extendedProps = new EnhancedProperties(application);
-      loadPropertiesFromFile(application, log, extendedProps,
+      loadPropertiesFromFile(application, extendedProps,
           extendedFilename);
 
       // Recursively load the extended properties.
-      loadExtendedProperties(application, log, extendedProps);
+      loadExtendedProperties(application, extendedProps);
 
       // The extended properties should have be overwritten by these
       // properties. Apply these properties on top of the extended
@@ -302,8 +304,7 @@ public class FileConfigurationProvider
   /**
    * Gets the name of the configuration file(s).
    */
-  protected String getConfigFilenames(GeminiApplication application,
-      ComponentLog log)
+  protected String getConfigFilenames(GeminiApplication application)
   {
     String filenames;
 
@@ -311,19 +312,19 @@ public class FileConfigurationProvider
     {
       // Use configuration file names specified in the servlet configuration.
       filenames = application.getServletConfigParameter(GeminiConstants.CONFIGURATION_FILE);
-      log.log("Using specified configuration file(s): " + filenames);
+      log.info("Using specified configuration file(s): {}", filenames);
     }
     else if (System.getProperty(GeminiConstants.CONFIGURATION_FILE) != null)
     {
       // Use configuration file names specified in a system property.
       filenames = System.getProperty(GeminiConstants.CONFIGURATION_FILE);
-      log.log("Using specified configuration file(s): " + filenames);
+      log.info("Using specified configuration file(s): {}", filenames);
     }
     else if (System.getenv(GeminiConstants.CONFIGURATION_FILE) != null)
     {
       // Use configuration file names specified in an environment variable
       filenames = System.getenv(GeminiConstants.CONFIGURATION_FILE);
-      log.log("Using specified configuration file(s): " + filenames);
+      log.info("Using specified configuration file(s): {}", filenames);
     }
     else
     {
@@ -338,7 +339,7 @@ public class FileConfigurationProvider
       // the machine-specific file to override a base configuration.
       filenames = GeminiConstants.BASE_CONFIGURATION_FILE + Configurator.CONFIGURATION_FILENAME_EXT
           + "," + machineName + Configurator.CONFIGURATION_FILENAME_EXT;
-      log.log("Using default configuration file(s): " + filenames);
+      log.info("Using default configuration file(s): {}", filenames);
     }
 
     return filenames;

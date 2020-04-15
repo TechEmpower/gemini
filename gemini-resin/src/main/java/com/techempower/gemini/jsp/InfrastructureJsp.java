@@ -36,7 +36,8 @@ import javax.servlet.jsp.*;
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Provides all JSP pages within the web site with a common foundation.
@@ -79,18 +80,12 @@ public abstract class InfrastructureJsp
 {
 
   //
-  // Constants.
-  //
-
-  public static final String COMPONENT_CODE = ".jsp";
-
-  //
   // Private variables.
   //
 
   private          ServletConfig     config;
   private volatile GeminiApplication application;
-  private          ComponentLog      log;
+  private          Logger            log = LoggerFactory.getLogger(getClass());
   private          ScriptsAndSheets  sas;
 
   //
@@ -108,7 +103,6 @@ public abstract class InfrastructureJsp
     if (this.application != application)
     {
       this.sas = new ScriptsAndSheets(application);
-      this.log = application.getLog(COMPONENT_CODE);
       this.application = application;
       initSas();
     }
@@ -384,40 +378,7 @@ public abstract class InfrastructureJsp
    */
   protected void debug(String debugString)
   {
-    final LegacyContext context = (LegacyContext) BasicContext.get();
-    if (context != null)
-    {
-      debug(context, debugString);
-    }
-    else
-    {
-      if (this.log != null)
-      {
-        this.log.log("[no Context] " + debugString);
-      }
-    }
-  }
-
-  /**
-   * Utility debugging method.
-   */
-  protected void debug(LegacyContext context, String debugString)
-  {
-    if (this.log != null)
-    {
-      this.log.log("[" + getCurrentPageName(context) + "] " + debugString);
-    }
-  }
-
-  /**
-   * Utility debugging method.
-   */
-  protected void debug(LegacyContext context, String debugString, int debugLevel)
-  {
-    if (this.log != null)
-    {
-      this.log.log("[" + getCurrentPageName(context) + "] " + debugString, debugLevel);
-    }
+    log.debug("{}{}", logPrefix(), debugString);
   }
   
   /**
@@ -443,5 +404,12 @@ public abstract class InfrastructureJsp
   abstract public void _jspService(HttpServletRequest request,
     HttpServletResponse response)
     throws ServletException, IOException;
+
+  private String logPrefix() {
+    final LegacyContext context = (LegacyContext) LegacyContext.get();
+    final String pageName = context != null
+        ? getCurrentPageName(context) : "no Context";
+    return "[" + pageName + "] ";
+  }
 
 }   // End InfrastructureJSP

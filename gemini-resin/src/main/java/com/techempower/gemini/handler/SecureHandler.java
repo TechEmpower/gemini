@@ -30,7 +30,8 @@ package com.techempower.gemini.handler;
 import com.techempower.gemini.*;
 import com.techempower.gemini.pyxis.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Subclasses of SecureHandler may easily disallow requests from 
@@ -38,21 +39,15 @@ import com.techempower.log.*;
  */
 public abstract class SecureHandler<D extends BasicDispatcher, C extends Context>
     implements Handler<D, C>
-{  
-  
-  //
-  // Constants.
-  //
-  
-  public static final String COMPONENT_CODE = "secH";
+{
   
   //
   // Member variables.
   //
 
-  private final GeminiApplication  application;
-  private final ComponentLog       log;
-  private final PyxisSecurity      security;
+  private final GeminiApplication application;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
+  private final PyxisSecurity     security;
 
   private String[] publicCommands = new String[0];
   
@@ -63,7 +58,6 @@ public abstract class SecureHandler<D extends BasicDispatcher, C extends Context
   {
     this.application = application;
     this.security = application.getSecurity();
-    this.log = application.getLog(COMPONENT_CODE);
   }
 
   @Override
@@ -112,14 +106,6 @@ public abstract class SecureHandler<D extends BasicDispatcher, C extends Context
   protected PyxisSecurity getSecurity()
   {
     return this.security;
-  }
-  
-  /**
-   * Gets the ComponentLog reference.
-   */
-  protected ComponentLog getLog()
-  {
-    return this.log;
   }
 
   /**

@@ -39,6 +39,8 @@ import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.*;
 import com.techempower.text.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Thread Dump Handler facilitates debugging of production servers through
@@ -87,7 +89,6 @@ public class ThreadDumpHandler<C extends Context>
   // Constants.
   //
 
-  public static final String COMPONENT_CODE       = "hThd";
   public static final String DEFAULT_PROPS_PREFIX = "ThreadDump.";
   public static final int    MEGABYTE             = 1024 * 1024;
   public static final String DEFAULT_ROLE         = "threaddump";
@@ -105,6 +106,7 @@ public class ThreadDumpHandler<C extends Context>
   private final SynchronizedSimpleDateFormat dateFormatter = new SynchronizedSimpleDateFormat();
   private String            dumpOnStopLocation = "";
   private boolean           useJmx       = true;
+  private final Logger      log          = LoggerFactory.getLogger(getClass());
 
   //
   // Member methods.
@@ -120,7 +122,7 @@ public class ThreadDumpHandler<C extends Context>
    */
   public ThreadDumpHandler(GeminiApplication application, String propsPrefix)
   {
-    super(application, COMPONENT_CODE);
+    super(application);
     
     if (propsPrefix != null)
     {
@@ -293,7 +295,7 @@ public class ThreadDumpHandler<C extends Context>
     final boolean jmx = isJmx(context);
     final long startTime = System.currentTimeMillis();
 
-    l("Thread dump requested.");
+    log.info("Thread dump requested.");
     
     context.setContentType("text/html");
 
@@ -394,7 +396,7 @@ public class ThreadDumpHandler<C extends Context>
     context.print("</td></tr></table>");
     
     final long msTaken = (System.currentTimeMillis() - startTime);
-    l("Thread dump complete, took " + msTaken + " ms.");
+    log.info("Thread dump complete, took {} ms.", msTaken);
     writeFooter(context, msTaken);
   
     return true;
@@ -409,7 +411,7 @@ public class ThreadDumpHandler<C extends Context>
     final boolean jmx = isJmx(context);
     final long startTime = System.currentTimeMillis();
 
-    l("Thread dump requested.");
+    log.info("Thread dump requested.");
     
     context.setContentType("text/plain");
     context.print("Gemini Thread Dump");
@@ -473,7 +475,7 @@ public class ThreadDumpHandler<C extends Context>
     }
     
     final long msTaken = (System.currentTimeMillis() - startTime);
-    l("Thread dump complete, took " + msTaken + " ms.");
+    log.info("Thread dump complete, took {} ms.", msTaken);
   
     return true;
   }
@@ -536,8 +538,8 @@ public class ThreadDumpHandler<C extends Context>
   protected void writeDumpFile(String location)
   {
     final String filename = location + "thddmp-" + DateHelper.STANDARD_FILENAME_FORMAT.format(new Date()) + ".txt";
-    
-    l("Thread dump: " + filename);
+
+    log.info("Thread dump: {}", filename);
 
     try (PrintWriter pw = new PrintWriter(filename))
     {
@@ -604,7 +606,7 @@ public class ThreadDumpHandler<C extends Context>
     }
     catch (Exception exc)
     {
-      l("Exception while writing thread dump file: " + exc);
+      log.info("Exception while writing thread dump file: ", exc);
     }
   }
   

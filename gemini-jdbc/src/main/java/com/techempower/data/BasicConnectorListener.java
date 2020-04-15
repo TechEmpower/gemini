@@ -36,8 +36,9 @@ import com.techempower.data.jdbc.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.notification.*;
 import com.techempower.helper.*;
-import com.techempower.log.*;
 import com.techempower.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple DatabaseConnectorListener for Gemini applications. Generates
@@ -64,7 +65,6 @@ public class BasicConnectorListener
   // Constants.
   //
 
-  public static final String        COMPONENT_CODE               = "dbcl";
   public static final String        DEFAULT_PROPERTY_PREFIX      = "ConnectorListener.";
   public static final int           DEFAULT_MAX_ALERTS_PER       = 10;
 
@@ -73,7 +73,7 @@ public class BasicConnectorListener
   //
 
   private final GeminiApplication application;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
   private final List<String>      currentAlerts;
   private final String            propertyPrefix;
   
@@ -95,7 +95,6 @@ public class BasicConnectorListener
       String propertyPrefix)
   {
     this.application = application;
-    this.log = application.getLog(COMPONENT_CODE);
     this.currentAlerts = new ArrayList<>();
 
     // Changed to use default prefix if an empty String is provided.
@@ -147,11 +146,11 @@ public class BasicConnectorListener
 
     if (StringHelper.isNonEmpty(this.alertLogFile))
     {
-      this.log.log("Alert file: " + this.alertLogFile);
+      this.log.info("Alert file: {}", this.alertLogFile);
     }
     else
     {
-      this.log.log("No dbconn listener alert log file specified.");
+      this.log.info("No dbconn listener alert log file specified.");
     }
   }
 
@@ -160,7 +159,7 @@ public class BasicConnectorListener
    */
   protected synchronized void processAlert(String alert)
   {
-    this.log.log("Processing: " + alert, LogLevel.DEBUG);
+    this.log.debug("Processing: {}", alert);
 
     logAlert(alert);
 
@@ -198,7 +197,7 @@ public class BasicConnectorListener
       }
       catch (IOException ioexc)
       {
-        this.log.log("IOException while writing alert: " + ioexc);
+        this.log.info("IOException while writing alert: ", ioexc);
       }
     }
   }

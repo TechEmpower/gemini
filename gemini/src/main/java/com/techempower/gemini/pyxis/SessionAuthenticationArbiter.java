@@ -31,7 +31,8 @@ import java.util.*;
 
 import com.techempower.gemini.*;
 import com.techempower.gemini.session.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TokenArbiter provides implementations for direct user actions within the
@@ -56,7 +57,7 @@ public class SessionAuthenticationArbiter
   private final GeminiApplication application;
   private final LoginTokenManager loginTokenManager;
   private final Map<Long,String>  userSessionIDs;
-  private final ComponentLog      log;
+  private final Logger            log = LoggerFactory.getLogger(getClass());
 
   //
   // CONSTRUCTOR
@@ -65,7 +66,6 @@ public class SessionAuthenticationArbiter
   public SessionAuthenticationArbiter(GeminiApplication application)
   {
     this.application = application;
-    this.log = this.application.getLog("SeAr");
     // Construct a login token manager for handling "remember me" and cookies.
     this.loginTokenManager = new LoginTokenManager(application);
     this.userSessionIDs = 
@@ -85,7 +85,8 @@ public class SessionAuthenticationArbiter
        && (isMasqueradePermitted(masqueradingUser, impersonatedUser))
        )
     {
-      log.log(masqueradingUser + " now masquerading as " + impersonatedUser);
+      log.info("{} now masquerading as {}",
+          masqueradingUser, impersonatedUser);
       storeUserInSession(context, impersonatedUser, 
           PyxisConstants.SESSION_IMPERSONATED_USER);
     }
@@ -97,7 +98,7 @@ public class SessionAuthenticationArbiter
     final PyxisUser masquerading = getMasqueradingUser(context);
     if (masquerading != null)
     {
-      log.log(masquerading + " ended masquerading.");
+      log.info("{} ended masquerading.", masquerading);
       context.session().remove(PyxisConstants.SESSION_IMPERSONATED_USER);
       return true;
     }
@@ -260,13 +261,12 @@ public class SessionAuthenticationArbiter
           // Don't log cookie login checks that are not actual attempts.
           if (validation.isAttempt())
           {
-            log.log("Cookie login attempt: " + validation, LogLevel.DEBUG);
+            log.debug("Cookie login attempt: {}", validation);
           }
         }
         catch (SQLException e)
         {
-          log.log("SQL exception while validating and updating token.",
-              LogLevel.ALERT, e);
+          log.warn("SQL exception while validating and updating token.", e);
           return false;
         }
         if (validation.isValid())
@@ -277,7 +277,8 @@ public class SessionAuthenticationArbiter
           // Attempt to login.
           if (this.application.getSecurity().login(context, user, false))
           {
-            log.log("Successful cookie login for user " + user.getUserUsername() + ".");
+            log.info("Successful cookie login for user {}.",
+                user.getUserUsername());
 
             // Save an indicator that the current user logged in using a cookie.
             // Applications may want to distinguish sessions that began this way
@@ -300,8 +301,8 @@ public class SessionAuthenticationArbiter
       }
       else
       {
-        log.log("Too many attempts from " + context.getClientId()
-            + "; cookie login blocked temporarily.", LogLevel.DEBUG);
+        log.debug("Too many attempts from {}; cookie login blocked temporarily.",
+            context.getClientId());
       }
     }
 

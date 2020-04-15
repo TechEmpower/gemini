@@ -35,7 +35,8 @@ import com.techempower.gemini.HttpRequest.*;
 import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.*;
 import com.techempower.js.*;
-import com.techempower.log.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static com.techempower.gemini.HttpRequest.HEADER_ACCESS_CONTROL_REQUEST_METHOD;
 import static com.techempower.gemini.HttpRequest.HttpMethod.*;
@@ -62,19 +63,18 @@ public class MethodSegmentHandler<C extends Context>
   private PathSegmentMethod                    defaultPostMethod;
   private PathSegmentMethod                    defaultPutMethod;
   private PathSegmentMethod                    defaultDeleteMethod;
+  private Logger                               log = LoggerFactory.getLogger(getClass());
   
   /**
    * Constructor.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
    * @param jsw A JavaScriptWriter to use when serializing objects as JSON; if
    *     null, the application's default JavaScriptWriter will be used.
    */
-  public MethodSegmentHandler(GeminiApplication app, String componentCode, 
-      JavaScriptWriter jsw)
+  public MethodSegmentHandler(GeminiApplication app, JavaScriptWriter jsw)
   {
-    super(app, componentCode, jsw);
+    super(app, jsw);
 
     getRequestHandleMethods = new HashMap<>();
     putRequestHandleMethods = new HashMap<>();
@@ -89,22 +89,10 @@ public class MethodSegmentHandler<C extends Context>
    * serialization.
    * 
    * @param app The GeminiApplication reference.
-   * @param componentCode a four-letter code for this handler's ComponentLog.
-   */
-  public MethodSegmentHandler(GeminiApplication app, String componentCode)
-  {
-    this(app, componentCode, null);
-  }
-  
-  /**
-   * Constructor.  Use the application's default JavaScriptWriter for JSON
-   * serialization and use a default component code of "hdlr".
-   * 
-   * @param app The GeminiApplication reference.
    */
   public MethodSegmentHandler(GeminiApplication app)
   {
-    this(app, "hdlr", null);
+    this(app, null);
   }
   
   /**
@@ -119,8 +107,8 @@ public class MethodSegmentHandler<C extends Context>
         + segment + "\" is assigned to multiple methods. "
         + "Each segment must map to a single method per HTTP verb.";
 
-    l(className + ": " + method.httpMethod + " " + segment  
-        + " -> #" + method.name, LogLevel.MINIMUM);
+    log.trace("{}: {} {} -> #{}", className, method.httpMethod, segment,
+        method.name);
     
     switch (method.httpMethod)
     {
@@ -466,7 +454,7 @@ public class MethodSegmentHandler<C extends Context>
       }
       catch (RequestBodyException e)
       {
-        log().log("Got RequestBodyException.", LogLevel.DEBUG, e);
+        log.debug("Got RequestBodyException.", e);
         return this.error(e.getStatusCode(), e.getMessage());
       }
     }

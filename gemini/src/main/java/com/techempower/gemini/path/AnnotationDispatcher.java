@@ -26,10 +26,7 @@
  *******************************************************************************/
 package com.techempower.gemini.path;
 
-import com.techempower.TechEmpowerApplication;
 import com.techempower.classloader.PackageClassLoader;
-import com.techempower.data.EntityGroup;
-import com.techempower.data.annotation.Entity;
 import com.techempower.gemini.*;
 import com.techempower.gemini.configuration.ConfigurationError;
 import com.techempower.gemini.exceptionhandler.ExceptionHandler;
@@ -37,8 +34,6 @@ import com.techempower.gemini.path.annotation.Path;
 import com.techempower.gemini.prehandler.Prehandler;
 import com.techempower.helper.NetworkHelper;
 import com.techempower.helper.StringHelper;
-import com.techempower.log.LogLevel;
-import com.techempower.util.Identifiable;
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
 
