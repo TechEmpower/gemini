@@ -32,6 +32,7 @@ import java.net.*;
 import java.util.*;
 import java.util.jar.*;
 
+import com.techempower.helper.*;
 import com.techempower.text.*;
 import com.techempower.util.*;
 
@@ -173,6 +174,7 @@ public final class GeminiConstants
     {
       final Enumeration<URL> resources = GeminiApplication.class
           .getClassLoader().getResources("META-INF/MANIFEST.MF");
+      String highestGeminiVersion = null;
 
       // Iterate through all of the returned manifest.mfs
       while (resources.hasMoreElements())
@@ -190,7 +192,18 @@ public final class GeminiConstants
               // grab it.
               if (o.toString().equalsIgnoreCase("geminiVersion"))
               {
-                return a.get(o).toString();
+                String v = a.get(o).toString();
+                if (StringHelper.containsIgnoreCaseTrim(url.toString(), "/com/techempower/gemini/")) {
+                  // This is exactly what we want. No need to look further.
+                  return v;
+                }
+                // If we can't find the exact Gemini package, then consider all the Gemini JARs.
+                // This is crude and inadequate (will improperly order 1.1.1 higher than 1.10.1)
+                // but will at least return a consistent answer instead of simply the first
+                // encountered.
+                if (StringHelper.compareToIgnoreCase(v, highestGeminiVersion) > 0) {
+                  highestGeminiVersion = v;
+                }
               }
             }
           }
@@ -202,6 +215,10 @@ public final class GeminiConstants
           // just dies with no stack trace.  We'll return "development" in
           // this case.
         }
+      }
+      if (highestGeminiVersion != null)
+      {
+        return highestGeminiVersion;
       }
     }
     catch (IOException ioexc)

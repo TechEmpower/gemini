@@ -48,11 +48,11 @@ public class   InitStartupNotification
       final String startupTime = GeminiConstants.GEMINI_DATE_FORMAT.format(new Date());
       
       final Notification n = new BasicNotification("Application",
-          version.getProductName() + " startup at " + startupTime,
+          version.getProductName() + " startup",
           version.getAbbreviatedProductName() 
             + " [" + version.getDeploymentDescription() + "]"
             + " application started at " + startupTime + ".",
-          Notification.Severity.HIGH);
+          Notification.Severity.MEDIUM);
       application.getNotifier().addNotification(n);
     }
   }

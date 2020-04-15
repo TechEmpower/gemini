@@ -394,33 +394,47 @@ public class MethodUriHandler<C extends Context>
             args[argsIndex] = 0;
           }
         }
-        // Enum type
-        else if (method.segments[i].type.isEnum())
+        // String, and technically Object too.
+        else if (method.segments[i].type.isAssignableFrom(String.class))
         {
-          try
-          {
-            args[argsIndex] = Enum.valueOf(
-                (Class<? extends Enum>)method.segments[i].type, 
-                segments().get(i));
-          }
-          catch (IllegalArgumentException iae)
-          {
-            // In the case where the developer has specified that only
-            // enumerated values should be accepted as input, either
-            // one of those values needs to exist in the URI, or this
-            // IllegalArgumentException will be thrown. We will limp
-            // on and pass a null in this case.
-            args[argsIndex] = null;
-          }
+          args[argsIndex] = segments().get(i);
         }
-        else // Object types
+        else
         {
-          // String
-          if (method.segments[i].type.isAssignableFrom(String.class))
+          int indexOfMethodToInvoke;
+          Class<?> type = method.segments[i].type;
+          MethodAccess methodAccess = method.segments[i].methodAccess;
+          if (hasStringInputMethod(type, methodAccess, "fromString"))
           {
-            args[argsIndex] = segments().get(i);
+            indexOfMethodToInvoke = methodAccess
+                .getIndex("fromString", String.class);
           }
-          // Default
+          else if (hasStringInputMethod(type, methodAccess, "valueOf"))
+          {
+            indexOfMethodToInvoke = methodAccess
+                .getIndex("valueOf", String.class);
+          }
+          else
+          {
+            indexOfMethodToInvoke = -1;
+          }
+          if (indexOfMethodToInvoke >= 0)
+          {
+            try
+            {
+              args[argsIndex] = methodAccess.invoke(null,
+                  indexOfMethodToInvoke, segments().get(i));
+            }
+            catch (IllegalArgumentException iae)
+            {
+              // In the case where the developer has specified that only
+              // enumerated values should be accepted as input, either
+              // one of those values needs to exist in the URI, or this
+              // IllegalArgumentException will be thrown. We will limp
+              // on and pass a null in this case.
+              args[argsIndex] = null;
+            }
+          }
           else
           {
             // We don't know the type, so we cannot create it.
@@ -440,6 +454,38 @@ public class MethodUriHandler<C extends Context>
     }
 
     return args;
+  }
+
+  private static boolean hasStringInputMethod(Class<?> type,
+                                              MethodAccess methodAccess,
+                                              String methodName) {
+    String[] methodNames = methodAccess.getMethodNames();
+    Class<?>[][] parameterTypes = methodAccess.getParameterTypes();
+    for (int index = 0; index < methodNames.length; index++)
+    {
+      String foundMethodName = methodNames[index];
+      Class<?>[] params = parameterTypes[index];
+      if (foundMethodName.equals(methodName)
+          && params.length == 1
+          && params[0].equals(String.class))
+      {
+        try
+        {
+          // Only bother with the slowness of normal reflection if
+          // the method passes all the other checks.
+          Method method = type.getMethod(methodName, String.class);
+          if (Modifier.isStatic(method.getModifiers()))
+          {
+            return true;
+          }
+        }
+        catch (NoSuchMethodException e)
+        {
+          // Should not happen
+        }
+      }
+    }
+    return false;
   }
   
   protected static class PathUriTree
@@ -647,6 +693,10 @@ public class MethodUriHandler<C extends Context>
           classes[variableCount] = 
               (Class<?>)method.getGenericParameterTypes()[variableCount];
           segment.type = classes[variableCount];
+          if (!segment.type.isPrimitive())
+          {
+            segment.methodAccess = MethodAccess.get(segment.type);
+          }
           // Bump variableCount
           variableCount ++;
         }
@@ -734,10 +784,11 @@ public class MethodUriHandler<C extends Context>
       public static final String VARIABLE_SUFFIX = "}";
       public static final String EMPTY = "";
       
-      public final boolean  isWildcard;
-      public final boolean  isVariable;
-      public final String   segment;
-      public Class<?>       type;
+      public final boolean      isWildcard;
+      public final boolean      isVariable;
+      public final String       segment;
+      public Class<?>           type;
+      public MethodAccess       methodAccess;
       
       public UriSegment(String segment)
       {

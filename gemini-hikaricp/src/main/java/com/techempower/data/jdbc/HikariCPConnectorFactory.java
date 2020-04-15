@@ -27,8 +27,12 @@
 
 package com.techempower.data.jdbc;
 
+import static com.techempower.gemini.Configurator.*;
+import static com.techempower.util.EnhancedProperties.*;
+
 import java.io.*;
 import java.sql.*;
+import java.util.*;
 import java.util.Map.*;
 
 import com.techempower.*;
@@ -41,7 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An implementation of ConnectorFactory that is a think wrapper around the
+ * An implementation of ConnectorFactory that is a thin wrapper around the
  * HikariCP connection pool.
  * <p>
  * The following attributes are read from the properties file for configuring
@@ -64,6 +68,7 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
   //
 
   public static final String DEFAULT_PROPERTY_PREFIX = "db.HikariCP.";
+  public static final String ENV_VAR_MACRO_START = MACRO_START + PROP_ENVIRONMENT_PREFIX;
 
   //
   // Member variables.
@@ -132,18 +137,52 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
       // Close existing DataSource, if exists.
       end();
 
-      hikariConfig = new HikariConfig(hikariPropsFile);
-      dataSource = new HikariDataSource(hikariConfig);
+      // To support specifying environment variables inside the hikari.properties
+      // file, we need to find environment variable references in the property values,
+      // do the lookup, and pass along the environment variable values to HikariCP.
+      final File propFile = new File(hikariPropsFile);
+      final Properties hikariPropsReady = new Properties();
 
-      try
-      {
-        // TODO: Hook this into slf4j
-        dataSource.setLogWriter(new PrintWriter(System.out));
+      // Specify System.out as the default logWriter.
+      hikariPropsReady.put("dataSource.logWriter", new PrintWriter(System.out));
+
+      try (final InputStream is = propFile.isFile() ? new FileInputStream(propFile)
+          : this.getClass().getResourceAsStream(hikariPropsFile)) {
+        if (is != null) {
+          Properties hikariPropsRaw = new Properties();
+          hikariPropsRaw.load(is);
+          hikariPropsRaw.forEach((key, value) -> {
+            String envVarName = extractEnvironmentVariableName(value.toString());
+            if (envVarName != null) {
+              // Read the environment variable.
+              String envVarValue = System.getenv(envVarName);
+              if (envVarValue != null) {
+                // We have an environment variable, so use that to replace the relevant portion
+                // of the string.
+                hikariPropsReady.setProperty(key.toString(), StringHelper.replaceSubstrings(value.toString(),
+                    ENV_VAR_MACRO_START + envVarName + MACRO_END, envVarValue));
+              } else {
+                // We do not have an environment variable, so use the original value.
+                hikariPropsReady.setProperty(key.toString(), value.toString());
+              }
+            } else {
+              // Pass along the property unchanged if not referencing an environment
+              // variable.
+              hikariPropsReady.setProperty(key.toString(), value.toString());
+            }
+          });
+        } else {
+          log.info("Cannot find property file: " + hikariPropsFile);
+        }
+      } catch (IOException io) {
+        log.info("Failed to read property file", io);
       }
-      catch (SQLException e)
-      {
-        log.debug("Unable to set log writer", e);
-      }
+
+      // Pass to HikariCP our prepared Properties object with any relevant environment
+      // variables in place.
+      hikariConfig = new HikariConfig(hikariPropsReady);
+      dataSource = new HikariDataSource(hikariConfig);
+      log.info("Connected: {}", dataSource.getJdbcUrl());
 
       log.debug("HikariDataSource: {}", dataSource);
       for (Entry<Object, Object> e : dataSource.getDataSourceProperties().entrySet())
@@ -166,6 +205,31 @@ public class HikariCPConnectorFactory implements ConnectorFactory, Configurable,
     {
       log.info("Database connector factory disabled.");
     }
+  }
+
+  /**
+   * If there is an environment variable declared, return its name. Otherwise
+   * return null.
+   *
+   * @param s A string like "${Environment.FOO}"
+   * @return If s is "${Environment.FOO}", returns "FOO"
+   */
+  private String extractEnvironmentVariableName(String s)
+  {
+    int endLocation;
+    String value = StringHelper.trim(s);
+
+    // Find the macro beginning marker, ${{Environment.
+    int markerLocation = s.indexOf(ENV_VAR_MACRO_START);
+    while (markerLocation >= 0) {
+      // Find the macro ending marker, }
+      endLocation = value.indexOf(MACRO_END, markerLocation);
+      if (endLocation >= 0) {
+        // Get the name to lookup.
+        return value.substring(markerLocation + ENV_VAR_MACRO_START.length(), endLocation);
+      }
+    }
+    return null;
   }
 
   @Override
