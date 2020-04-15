@@ -194,11 +194,8 @@ class AnnotationHandler<C extends Context> {
      * @return
      */
     public boolean handle(PathSegments segments, C context) {
-        dispatchToAnnotatedMethod(segments, getAnnotatedMethod(segments, context),
+        return dispatchToAnnotatedMethod(segments, getAnnotatedMethod(segments, context),
                 context);
-
-        // todo
-        return false;
     }
 
     protected String getAccessControlAllowMethods(PathSegments segments, C context)
