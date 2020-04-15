@@ -61,6 +61,11 @@ public abstract class LogListener extends AppenderSkeleton
     handle(message, level, throwable);
   }
 
+  /**
+   * @param message the formatted message
+   * @param logLevel the log level
+   * @param throwable the thrown exception. May be null.
+   */
   protected abstract void handle(String message,
                                  Level logLevel,
                                  Throwable throwable);

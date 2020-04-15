@@ -6,9 +6,16 @@ import org.apache.logging.log4j.core.StringLayout;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
 
+import java.util.UUID;
+
 public abstract class LogListener extends AbstractAppender
 {
   private Level level;
+
+  public LogListener(final StringLayout layout)
+  {
+    super(UUID.randomUUID().toString(), null, layout, false, Property.EMPTY_ARRAY);
+  }
 
   public LogListener(final String name, final StringLayout layout)
   {
@@ -62,6 +69,11 @@ public abstract class LogListener extends AbstractAppender
     handle(format(eventObject), eventObject.getLevel(), eventObject.getThrown());
   }
 
+  /**
+   * @param message   the formatted message
+   * @param logLevel  the log level
+   * @param throwable the thrown exception. May be null.
+   */
   protected abstract void handle(String message,
                                  Level logLevel,
                                  Throwable throwable);
