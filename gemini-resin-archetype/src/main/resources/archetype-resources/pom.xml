@@ -43,7 +43,7 @@
     </dependency>
     <dependency>
       <groupId>com.techempower</groupId>
-      <artifactId>gemini-log4j2</artifactId>
+      <artifactId>gemini-logback</artifactId>
       <version>${geminiVersion}</version>
     </dependency>
     <dependency>
