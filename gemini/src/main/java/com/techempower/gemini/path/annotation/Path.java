@@ -54,7 +54,7 @@ import java.lang.annotation.*;
  * the root URI of the handler. Example /api/users =&gt; UserHandler; {@code @Path}
  * will handle `GET /api/users`.
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Path
 {

@@ -374,26 +374,26 @@
             </archive>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <version>${maven-javadoc-plugin.version}</version>
-          <configuration>
-            <source>11</source>
-            <additionalOptions>
-              <additionalOption>-Xdoclint:none</additionalOption>
-            </additionalOptions>
-          </configuration>
-          <executions>
-            <execution>
-              <id>attach-javadocs</id>
-              <phase>post-integration-test</phase>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
+<!--        <plugin>-->
+<!--          <groupId>org.apache.maven.plugins</groupId>-->
+<!--          <artifactId>maven-javadoc-plugin</artifactId>-->
+<!--          <version>${maven-javadoc-plugin.version}</version>-->
+<!--          <configuration>-->
+<!--            <source>11</source>-->
+<!--            <additionalOptions>-->
+<!--              <additionalOption>-Xdoclint:none</additionalOption>-->
+<!--            </additionalOptions>-->
+<!--          </configuration>-->
+<!--          <executions>-->
+<!--            <execution>-->
+<!--              <id>attach-javadocs</id>-->
+<!--              <phase>post-integration-test</phase>-->
+<!--              <goals>-->
+<!--                <goal>jar</goal>-->
+<!--              </goals>-->
+<!--            </execution>-->
+<!--          </executions>-->
+<!--        </plugin>-->
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
@@ -409,20 +409,20 @@
             </execution>
           </executions>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-gpg-plugin</artifactId>
-          <version>${maven-gpg-plugin.version}</version>
-          <executions>
-            <execution>
-              <id>sign-artifacts</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>sign</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
+<!--        <plugin>-->
+<!--          <groupId>org.apache.maven.plugins</groupId>-->
+<!--          <artifactId>maven-gpg-plugin</artifactId>-->
+<!--          <version>${maven-gpg-plugin.version}</version>-->
+<!--          <executions>-->
+<!--            <execution>-->
+<!--              <id>sign-artifacts</id>-->
+<!--              <phase>verify</phase>-->
+<!--              <goals>-->
+<!--                <goal>sign</goal>-->
+<!--              </goals>-->
+<!--            </execution>-->
+<!--          </executions>-->
+<!--        </plugin>-->
       </plugins>
     </pluginManagement>
     <plugins>

@@ -128,7 +128,7 @@ public class ResinHttpRequest
       // Note: after this reader is opened and consumed, it cannot be reopened
       try (BufferedReader reader = this.request.getReader())
       {
-        // The entire paramter line (e.g. "test=value&test2=value2")
+        // The entire parameter line (e.g. "test=value&test2=value2")
         final String parameterLine = reader.readLine();
         if (parameterLine != null)
         {
@@ -142,7 +142,7 @@ public class ResinHttpRequest
             {
               // Note: The World Wide Web Consortium Recommendation states that 
               // UTF-8 should be used. Not doing so may introduce 
-              // incompatibilites. 
+              // incompatibilities.
               final String key = URLDecoder.decode(keyValue[0], 
                   StringHelper.emptyDefault(
                       this.request.getCharacterEncoding(),

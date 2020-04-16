@@ -1,6 +1,5 @@
 package com.techempower.gemini.lifecycle;
 
-import com.techempower.cache.EntityStore;
 import com.techempower.gemini.Dispatcher;
 import com.techempower.gemini.GeminiApplication;
 import com.techempower.gemini.path.AnnotationDispatcher;

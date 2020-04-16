@@ -1,3 +1,29 @@
+/*
+ * Copyright (c) 2020, TechEmpower, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name TechEmpower, Inc. nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL TECHEMPOWER, INC. BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.techempower.gemini.path;
 
 
@@ -27,20 +53,20 @@ class AnnotationHandler<C extends Context> {
     final String rootUri;
     final Object handler;
 
-    private final AnnotationHandler.PathUriTree getRequestHandleMethods;
-    private final AnnotationHandler.PathUriTree putRequestHandleMethods;
-    private final AnnotationHandler.PathUriTree postRequestHandleMethods;
-    private final AnnotationHandler.PathUriTree deleteRequestHandleMethods;
+    private final PathUriTree getRequestHandleMethods;
+    private final PathUriTree putRequestHandleMethods;
+    private final PathUriTree postRequestHandleMethods;
+    private final PathUriTree deleteRequestHandleMethods;
     protected final MethodAccess methodAccess;
 
     public AnnotationHandler(String rootUri, Object handler) {
         this.rootUri = rootUri;
         this.handler = handler;
 
-        getRequestHandleMethods = new AnnotationHandler.PathUriTree();
-        putRequestHandleMethods = new AnnotationHandler.PathUriTree();
-        postRequestHandleMethods = new AnnotationHandler.PathUriTree();
-        deleteRequestHandleMethods = new AnnotationHandler.PathUriTree();
+        getRequestHandleMethods = new PathUriTree();
+        putRequestHandleMethods = new PathUriTree();
+        postRequestHandleMethods = new PathUriTree();
+        deleteRequestHandleMethods = new PathUriTree();
 
         methodAccess = MethodAccess.get(handler.getClass());
         discoverAnnotatedMethods();
@@ -50,7 +76,7 @@ class AnnotationHandler<C extends Context> {
      * Adds the given PathUriMethod to the appropriate list given
      * the request method type.
      */
-    private void addAnnotatedHandleMethod(AnnotationHandler.PathUriMethod method)
+    private void addAnnotatedHandleMethod(PathUriMethod method)
     {
         switch (method.httpMethod)
         {
@@ -80,13 +106,13 @@ class AnnotationHandler<C extends Context> {
      * implies that all http methods are supported.
      * @return The PathSegmentMethod for the given handler method.
      */
-    protected AnnotationHandler.PathUriMethod analyzeAnnotatedMethod(Path path, Method method,
+    protected PathUriMethod analyzeAnnotatedMethod(Path path, Method method,
                                                                      HttpRequest.HttpMethod httpMethod)
     {
         // Only allow accessible (public) methods
         if (Modifier.isPublic(method.getModifiers()))
         {
-            return new AnnotationHandler.PathUriMethod(
+            return new PathUriMethod(
                     method,
                     path.value(),
                     httpMethod,
@@ -124,7 +150,7 @@ class AnnotationHandler<C extends Context> {
                             "Only one request method type is allowed per @PathSegment. See "
                                     + getClass().getName() + "#" + method.getName());
                 }
-                final AnnotationHandler.PathUriMethod psm;
+                final PathUriMethod psm;
                 // Those the @Get annotation is implied in the absence of other
                 // method type annotations, this is left here to directly analyze
                 // the annotated method in case the @Get annotation is updated in
@@ -160,10 +186,10 @@ class AnnotationHandler<C extends Context> {
     /**
      * Determine the annotated method that should process the request.
      */
-    protected AnnotationHandler.PathUriMethod getAnnotatedMethod(PathSegments segments,
+    protected PathUriMethod getAnnotatedMethod(PathSegments segments,
                                                                  C context)
     {
-        final AnnotationHandler.PathUriTree tree;
+        final PathUriTree tree;
         switch (((HttpRequest)context.getRequest()).getRequestMethod())
         {
             case PUT:
@@ -191,43 +217,51 @@ class AnnotationHandler<C extends Context> {
      * and context.
      * @param segments The URI segments to route
      * @param context The current context
-     * @return
+     * @return Whether this handler successfully handled the given request
      */
     public boolean handle(PathSegments segments, C context) {
         return dispatchToAnnotatedMethod(segments, getAnnotatedMethod(segments, context),
                 context);
     }
 
-    protected String getAccessControlAllowMethods(PathSegments segments, C context)
+    /**
+     * Gets the Header-appropriate string representation of the http method
+     * names that this handler supports for the given path segments.
+     * <p>
+     * For example, if this handler has two handle methods at "/" and
+     * one is GET and the other is POST, this method would return the string
+     * "GET, POST" for the PathSegments "/".
+     */
+    public String getAccessControlAllowMethods(PathSegments segments, C context)
     {
         final StringBuilder reqMethods = new StringBuilder();
         final List<PathUriMethod> methods = new ArrayList<>();
 
         if(context.headers().get(HEADER_ACCESS_CONTROL_REQUEST_METHOD) != null)
         {
-            final AnnotationHandler.PathUriMethod put = this.putRequestHandleMethods.search(segments);
+            final PathUriMethod put = putRequestHandleMethods.search(segments);
             if (put != null)
             {
                 methods.add(put);
             }
-            final AnnotationHandler.PathUriMethod post = this.postRequestHandleMethods.search(segments);
+            final PathUriMethod post = postRequestHandleMethods.search(segments);
             if (post != null)
             {
-                methods.add(this.postRequestHandleMethods.search(segments));
+                methods.add(postRequestHandleMethods.search(segments));
             }
-            final AnnotationHandler.PathUriMethod delete = this.deleteRequestHandleMethods.search(segments);
+            final PathUriMethod delete = deleteRequestHandleMethods.search(segments);
             if (delete != null)
             {
-                methods.add(this.deleteRequestHandleMethods.search(segments));
+                methods.add(deleteRequestHandleMethods.search(segments));
             }
-            final AnnotationHandler.PathUriMethod get = this.getRequestHandleMethods.search(segments);
+            final PathUriMethod get = getRequestHandleMethods.search(segments);
             if (get != null)
             {
-                methods.add(this.getRequestHandleMethods.search(segments));
+                methods.add(getRequestHandleMethods.search(segments));
             }
 
             boolean first = true;
-            for(AnnotationHandler.PathUriMethod method : methods)
+            for(PathUriMethod method : methods)
             {
                 if(!first)
                 {
@@ -248,7 +282,7 @@ class AnnotationHandler<C extends Context> {
      * Dispatch the request to the appropriately annotated methods in subclasses.
      */
     protected boolean dispatchToAnnotatedMethod(PathSegments segments,
-                                                AnnotationHandler.PathUriMethod method,
+                                                PathUriMethod method,
                                                 C context)
     {
         // If we didn't find an associated method and have no default, we'll
@@ -264,8 +298,15 @@ class AnnotationHandler<C extends Context> {
 
             if (method.method.getParameterTypes().length == 0)
             {
-                return (Boolean)methodAccess.invoke(this, method.index,
+                final Object handlerReturnVal = methodAccess.invoke(
+                        handler,
+                        method.index,
                         ReflectionHelper.NO_VALUES);
+                // todo: MethodUriHandler invoked methods would always return
+                //       a boolean to denote whether they properly handled the
+                //       request. Here, we need to determine the serialization
+                //       strategy, attempt to serialize, and handle errors.
+                return (Boolean)handlerReturnVal;
             }
             else
             {
@@ -275,8 +316,12 @@ class AnnotationHandler<C extends Context> {
                 // them via retrieving them as segments.
                 try
                 {
-                    return (Boolean)methodAccess.invoke(this, method.index,
+                    final Object handlerReturnVal = methodAccess.invoke(
+                            handler,
+                            method.index,
                             getVariableArguments(segments, method, context));
+                    // todo
+                    return (Boolean)handlerReturnVal;
                 }
                 catch (RequestBodyException e)
                 {
@@ -292,18 +337,22 @@ class AnnotationHandler<C extends Context> {
 
     /**
      * Private helper method for capturing the values of the variable annotated
-     * methods and returning them as an argument array (in order or appearance).
+     * methods and returning them as an argument array (in order of appearance).
      *   <p>
-     * Example: @Path("foo/{var1}/{var2}")
+     * Example:
+     *   <p>
+     * <pre>
+     * @Path("foo/{var1}/{var2}")
      * public boolean handleFoo(int var1, String var2)
+     * </pre>
      *
      * The array returned for `GET /foo/123/asd` would be: [123, "asd"]
      * @param method the annotated method.
      * @return Array of corresponding values.
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked"})
     private Object[] getVariableArguments(PathSegments segments,
-                                          AnnotationHandler.PathUriMethod method,
+                                          PathUriMethod method,
                                           C context)
             throws RequestBodyException
     {
@@ -315,7 +364,7 @@ class AnnotationHandler<C extends Context> {
             {
                 if (argsIndex >= args.length)
                 {
-                    // No reason to continue - we found all are variables.
+                    // No reason to continue - we found all variables.
                     break;
                 }
                 // Try to read it from the context.
@@ -453,354 +502,5 @@ class AnnotationHandler<C extends Context> {
             }
         }
         return false;
-    }
-
-
-    protected static class PathUriTree
-    {
-        private final AnnotationHandler.PathUriTree.Node root;
-
-        public PathUriTree()
-        {
-            root = new AnnotationHandler.PathUriTree.Node(null);
-        }
-
-        /**
-         * Searches the tree for a node that best handles the given segments.
-         */
-        public final AnnotationHandler.PathUriMethod search(PathSegments segments)
-        {
-            return search(root, segments, 0);
-        }
-
-        /**
-         * Searches the given segments at the given offset with the given node
-         * in the tree. If this node is a leaf node and matches the segment
-         * stack perfectly, it is returned. If this node is a leaf node and
-         * either a variable or a wildcard node and the segment stack has run
-         * out of segments to check, return that if we have not found a true
-         * match.
-         */
-        private AnnotationHandler.PathUriMethod search(AnnotationHandler.PathUriTree.Node node, PathSegments segments, int offset)
-        {
-            if (node != root &&
-                    offset >= segments.getCount())
-            {
-                // Last possible depth; must be a leaf node
-                if (node.method != null)
-                {
-                    return node.method;
-                }
-                return null;
-            }
-            else
-            {
-                // Not yet at a leaf node
-                AnnotationHandler.PathUriMethod bestVariable = null; // Best at this depth
-                AnnotationHandler.PathUriMethod bestWildcard = null; // Best at this depth
-                AnnotationHandler.PathUriMethod toReturn     = null;
-                for (AnnotationHandler.PathUriTree.Node child : node.children)
-                {
-                    // Only walk the path that can handle the new segment.
-                    if (child.segment.segment.equals(segments.get(offset,"")))
-                    {
-                        // Direct hits only happen here.
-                        toReturn = search(child, segments, offset + 1);
-                    }
-                    else if (child.segment.isVariable)
-                    {
-                        // Variables are not necessarily leaf nodes.
-                        AnnotationHandler.PathUriMethod temp = search(child, segments, offset + 1);
-                        // We may be at a variable node, but not the variable
-                        // path segment handler method. Don't set it in this case.
-                        if (temp != null)
-                        {
-                            bestVariable = temp;
-                        }
-                    }
-                    else if (child.segment.isWildcard)
-                    {
-                        // Wildcards are leaf nodes by design.
-                        bestWildcard = child.method;
-                    }
-                }
-                // By here, we are as deep as we can be.
-                if (toReturn == null && bestVariable != null)
-                {
-                    // Could not find a direct route
-                    toReturn = bestVariable;
-                }
-                else if (toReturn == null && bestWildcard != null)
-                {
-                    toReturn = bestWildcard;
-                }
-                return toReturn;
-            }
-        }
-
-        /**
-         * Adds the given PathUriMethod to this tree at the
-         * appropriate depth.
-         */
-        public final void addMethod(AnnotationHandler.PathUriMethod method)
-        {
-            root.addChild(root, method, 0);
-        }
-
-        /**
-         * A node in the tree of PathUriMethod.
-         */
-        public static class Node
-        {
-            private AnnotationHandler.PathUriMethod method;
-            private final AnnotationHandler.PathUriMethod.UriSegment segment;
-            private final List<AnnotationHandler.PathUriTree.Node> children;
-
-            public Node(AnnotationHandler.PathUriMethod.UriSegment segment)
-            {
-                this.segment = segment;
-                this.children = new ArrayList<>();
-            }
-
-            @Override
-            public String toString()
-            {
-                final StringBuilder sb = new StringBuilder()
-                        .append("{")
-                        .append("method: ")
-                        .append(method)
-                        .append(", segment: ")
-                        .append(segment)
-                        .append(", childrenCount: ")
-                        .append(this.children.size())
-                        .append("}");
-
-                return sb.toString();
-            }
-
-            /**
-             * Returns the immediate child node for the given segment and creates
-             * if it does not exist.
-             */
-            private AnnotationHandler.PathUriTree.Node getChildForSegment(AnnotationHandler.PathUriTree.Node node, AnnotationHandler.PathUriMethod.UriSegment[] segments, int offset)
-            {
-                AnnotationHandler.PathUriTree.Node toRet = null;
-                for(AnnotationHandler.PathUriTree.Node child : node.children)
-                {
-                    if (child.segment.segment.equals(segments[offset].segment))
-                    {
-                        toRet = child;
-                        break;
-                    }
-                }
-                if (toRet == null)
-                {
-                    // Add a new node at this segment to return.
-                    toRet = new AnnotationHandler.PathUriTree.Node(segments[offset]);
-                    node.children.add(toRet);
-                }
-                return toRet;
-            }
-
-            /**
-             * Recursively adds the given PathUriMethod to this tree at the
-             * appropriate depth.
-             */
-            private void addChild(AnnotationHandler.PathUriTree.Node node, AnnotationHandler.PathUriMethod uriMethod, int offset)
-            {
-                if (uriMethod.segments.length > offset)
-                {
-                    final AnnotationHandler.PathUriTree.Node child = getChildForSegment(node, uriMethod.segments, offset);
-                    if (uriMethod.segments.length == offset + 1)
-                    {
-                        child.method = uriMethod;
-                    }
-                    else
-                    {
-                        this.addChild(child, uriMethod, offset + 1);
-                    }
-                }
-            }
-
-            /**
-             * Returns the PathUriMethod for this node.
-             * May be null.
-             */
-            public final AnnotationHandler.PathUriMethod getMethod()
-            {
-                return this.method;
-            }
-        }
-    }
-
-    /**
-     * Details of an annotated path segment method.
-     */
-    protected static class PathUriMethod extends BasicPathHandler.BasicPathHandlerMethod
-    {
-        public final Method method;
-        public final String uri;
-        public final AnnotationHandler.PathUriMethod.UriSegment[] segments;
-        public final int index;
-
-        public PathUriMethod(Method method, String uri, HttpRequest.HttpMethod httpMethod,
-                             MethodAccess methodAccess)
-        {
-            super(method, httpMethod);
-
-            this.method = method;
-            this.uri = uri;
-            this.segments = this.parseSegments(this.uri);
-            int variableCount = 0;
-            final Class<?>[] classes =
-                    new Class[method.getGenericParameterTypes().length];
-            for (AnnotationHandler.PathUriMethod.UriSegment segment : segments)
-            {
-                if (segment.isVariable)
-                {
-                    classes[variableCount] =
-                            (Class<?>)method.getGenericParameterTypes()[variableCount];
-                    segment.type = classes[variableCount];
-                    if (!segment.type.isPrimitive())
-                    {
-                        segment.methodAccess = MethodAccess.get(segment.type);
-                    }
-                    // Bump variableCount
-                    variableCount ++;
-                }
-            }
-
-            // Check for and configure the method to receive a parameter for the
-            // request body. If desired, it's expected that the body parameter is
-            // the last one. So it's only worth checking if variableCount indicates
-            // that there's room left in the classes array. If there is a mismatch
-            // where there is another parameter and no @Body annotation, or there is
-            // a @Body annotation and no extra parameter for it, the below checks
-            // will find that and throw accordingly.
-            if (variableCount < classes.length && this.bodyParameter != null)
-            {
-                classes[variableCount] = method.getParameterTypes()[variableCount];
-                variableCount++;
-            }
-
-            if (variableCount == 0)
-            {
-                try
-                {
-                    this.index = methodAccess.getIndex(method.getName(),
-                            ReflectionHelper.NO_PARAMETERS);
-                }
-                catch(IllegalArgumentException e)
-                {
-                    throw new IllegalArgumentException("Methods with argument "
-                            + "variables must have @Path annotations with matching "
-                            + "variable capture(s) (ex: @Path(\"{var}\"). See "
-                            + getClass().getName() + "#" + method.getName());
-                }
-            }
-            else
-            {
-                if (classes.length == variableCount)
-                {
-                    this.index = methodAccess.getIndex(method.getName(), classes);
-                }
-                else
-                {
-                    throw new IllegalAccessError("@Path annotations with variable "
-                            + "notations must have method parameters to match. See "
-                            + getClass().getName() + "#" + method.getName());
-                }
-            }
-        }
-
-        private AnnotationHandler.PathUriMethod.UriSegment[] parseSegments(String uriToParse)
-        {
-            String[] segmentStrings = uriToParse.split("/");
-            final AnnotationHandler.PathUriMethod.UriSegment[] uriSegments = new AnnotationHandler.PathUriMethod.UriSegment[segmentStrings.length];
-
-            for (int i = 0; i < segmentStrings.length; i++)
-            {
-                uriSegments[i] = new AnnotationHandler.PathUriMethod.UriSegment(segmentStrings[i]);
-            }
-
-            return uriSegments;
-        }
-
-        @Override
-        public String toString()
-        {
-            final StringBuilder sb = new StringBuilder();
-            boolean empty = true;
-            for (AnnotationHandler.PathUriMethod.UriSegment segment : segments)
-            {
-                if (!empty)
-                {
-                    sb.append(",");
-                }
-                sb.append(segment.toString());
-                empty = false;
-            }
-
-            return "PSM [" + method.getName() + "; " + httpMethod + "; " +
-                    index + "; " + sb.toString() + "]";
-        }
-
-        protected static class UriSegment
-        {
-            public static final String WILDCARD = "*";
-            public static final String VARIABLE_PREFIX = "{";
-            public static final String VARIABLE_SUFFIX = "}";
-            public static final String EMPTY = "";
-
-            public final boolean      isWildcard;
-            public final boolean      isVariable;
-            public final String       segment;
-            public Class<?>           type;
-            public MethodAccess       methodAccess;
-
-            public UriSegment(String segment)
-            {
-                this.isWildcard = segment.equals(WILDCARD);
-                this.isVariable = segment.startsWith(VARIABLE_PREFIX)
-                        && segment.endsWith(VARIABLE_SUFFIX);
-                if (this.isVariable)
-                {
-                    // Minor optimization - no reason to potentially create multiple
-                    // nodes all of which are variables since the inside of the variable
-                    // is ignored in the end. Treating the segment of all variable nodes
-                    // as "{}" regardless of whether the actual segment is "{var}" or
-                    // "{foo}" forces all branches with variables at a given depth to
-                    // traverse the same sub-tree. That is, "{var}/foo" and "{var}/bar"
-                    // as the only two annotated methods in a handler will result in a
-                    // maximum of 3 comparisons instead of 4. Mode variables at same
-                    // depths would make this optimization felt more strongly.
-                    this.segment = VARIABLE_PREFIX + VARIABLE_SUFFIX;
-                }
-                else
-                {
-                    this.segment = segment;
-                }
-            }
-
-            public final String getVariableName()
-            {
-                if (this.isVariable)
-                {
-                    return this.segment
-                            .replace(AnnotationHandler.PathUriMethod.UriSegment.VARIABLE_PREFIX, AnnotationHandler.PathUriMethod.UriSegment.EMPTY)
-                            .replace(AnnotationHandler.PathUriMethod.UriSegment.VARIABLE_SUFFIX, AnnotationHandler.PathUriMethod.UriSegment.EMPTY);
-                }
-
-                return null;
-            }
-
-            @Override
-            public String toString()
-            {
-                return "{segment: '" + segment +
-                        "', isVariable: " + isVariable +
-                        ", isWildcard: " + isWildcard + "}";
-            }
-        }
     }
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2020, TechEmpower, Inc.
  * All rights reserved.
  *
@@ -23,7 +23,7 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *******************************************************************************/
+ */
 package com.techempower.gemini.path;
 
 import com.techempower.classloader.PackageClassLoader;
@@ -55,12 +55,12 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
     //
 
     private final GeminiApplication               app;
-    private final Map<String, AnnotationHandler>  handlers;
+    private final Map<String, AnnotationHandler<C>>  handlers;
     private final ExceptionHandler[]              exceptionHandlers;
     private final Prehandler[]                    prehandlers;
     private final DispatchListener[]              listeners;
 
-    private ExecutorService  preinitializationTasks = Executors.newSingleThreadExecutor();
+    private final ExecutorService  preinitializationTasks = Executors.newSingleThreadExecutor();
     private Reflections      reflections            = null;
 
     public AnnotationDispatcher(GeminiApplication application)
@@ -71,34 +71,17 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
         prehandlers       = new Prehandler[]{};
         listeners         = new DispatchListener[]{};
 
-        if (exceptionHandlers.length == 0)
-        {
-            throw new IllegalArgumentException("PathDispatcher must be configured with at least one ExceptionHandler.");
-        }
+//        if (exceptionHandlers.length == 0)
+//        {
+//            throw new IllegalArgumentException("PathDispatcher must be configured with at least one ExceptionHandler.");
+//        }
 
         startReflectionsThread();
     }
 
-    private void startReflectionsThread()
-    {
-        // Start constructing Reflections on a new thread since it takes a
-        // bit of time.
-        preinitializationTasks.submit(new Runnable() {
-            @Override
-            public void run() {
-                try
-                {
-                    reflections = PackageClassLoader.getReflectionClassLoader(app);
-                }
-                catch (Exception exc)
-                {
-                    // todo
-//                    log.log("Exception while instantiating Reflections component.", exc);
-                }
-            }
-        });
-    }
-
+    /**
+     * Initializes the dispatcher.
+     */
     public void initialize() {
         // Wait for pre-initialization tasks to complete.
         try
@@ -121,51 +104,33 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
             throw new ConfigurationError("Reflections not ready; application cannot start.");
         }
 
-        register();
+        beginRegistration();
     }
 
-    private void register() {
+    /**
+     * Starts a thread to register handlers for all `@Path`-annotated classes.
+     */
+    private void beginRegistration() {
 //        log.log("Registering annotated entities, relations, and type adapters.");
         try {
             final ExecutorService service = Executors.newFixedThreadPool(1);
-
-            // @Path-annotated classes.
-            service.submit(new Runnable() {
-                @Override
-                public void run() {
-                    for (Class<?> clazz : reflections.getTypesAnnotatedWith(Path.class)) {
-                        final Path annotation = clazz.getAnnotation(Path.class);
-
-                        try {
-                            handlers.put(annotation.value(),
-                                    new AnnotationHandler(annotation.value(),
-                                            clazz.getDeclaredConstructor().newInstance()));
-                        }
-                        catch (NoSuchMethodException nsme) {
-                            // todo
-                        }
-                        catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                            // todo
-                        }
-                    }
-                }
-            });
+            service.submit(this::registerHandlersForPaths);
 
             try
             {
                 service.shutdown();
-                service.awaitTermination(1L, TimeUnit.HOURS);
+                service.awaitTermination(1L, TimeUnit.MINUTES);
             }
-            catch (InterruptedException iexc)
+            catch (InterruptedException exception)
             {
-//                log.log("Unable to register all entities in 1 hour!", LogLevel.CRITICAL);
+//                log.log("Unable to register all handlers in 1 minute!", LogLevel.CRITICAL);
             }
 
 //            log.log("Done registering annotated items.");
         }
         catch (ReflectionsException e)
         {
-            throw new RuntimeException("Warn: problem registering class with reflection", e);
+            throw new RuntimeException("Warn: problem registering handler with reflection", e);
         }
     }
 
@@ -174,8 +139,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
      */
     protected void notifyListenersDispatchStarting(Context context, String command)
     {
-        final DispatchListener[] theListeners = listeners;
-        for (DispatchListener listener : theListeners)
+        for (DispatchListener listener : listeners)
         {
             listener.dispatchStarting(this, context, command);
         }
@@ -186,8 +150,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
      */
     protected boolean prehandle(C context)
     {
-        final Prehandler[] thePrehandlers = prehandlers;
-        for (Prehandler p : thePrehandlers)
+        for (Prehandler p : prehandlers)
         {
             if (p.prehandle(context))
             {
@@ -215,22 +178,6 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
             // Convert the request URI into path segments.
             final PathSegments segments = new PathSegments(context.getRequestUri());
 
-            // Any request with an Origin header will be handled by the app directly,
-            // however there are some headers we need to set up to add support for
-            // cross-origin requests.
-            if(context.headers().get(HEADER_ORIGIN) != null)
-            {
-                addCorsHeaders(context);
-
-                if(((HttpRequest)context.getRequest()).getRequestMethod() == OPTIONS)
-                {
-                    addPreflightCorsHeaders(segments, context);
-                    // Returning true indicates we did fully handle this request and
-                    // processing should not continue.
-                    return true;
-                }
-            }
-
             // Make these references available thread-locally.
             RequestReferences.set(context, segments);
 
@@ -238,20 +185,13 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
             notifyListenersDispatchStarting(plainContext, segments.getUriFromRoot());
 
             // Find the associated Handler.
-            AnnotationHandler<C> handler = null;
-
-            if (segments.getCount() > 0)
-            {
-                handler = this.handlers.get(segments.get(0));
-
-                // If we've found a Handler to use, we have consumed the first path
-                // segment.
-                if (handler != null)
-                {
-                    segments.increaseOffset();
-                }
+            String segment = "";
+            if (segments.get(0) != null) {
+                segment = segments.get(0);
             }
-            /**
+            final AnnotationHandler<C> handler = this.handlers.get(segment);
+
+            /*
              * todo: We no longer have the notion of a 'rootHandler'.
              *       This can be accomplished by having a POJO annotated with
              *       `@Path("/")` to denote the root uri and a single method
@@ -263,7 +203,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
 //                handler = rootHandler;
 //            }
 
-            /**
+            /*
              * todo: We no longer have the notion of a 'defaultHandler'.
              *       This can be accomplished by having a POJO annotated with
              *       `@Path("*")` to denote the wildcard uri and a single
@@ -286,16 +226,37 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
 //            }
 
             // TODO: I don't know how I want to handle `prehandle` yet.
-            success = false; // this means we didn't prehandle
+//            success = false; // this means we didn't prehandle
             // Send the request to all Prehandlers.
 //            success = prehandle(context);
 
             // Proceed to normal Handlers if the Prehandlers did not fully handle
             // the request.
-            if (!success)
+//            if (!success && handler != null)
+            if (handler != null)
             {
+                // If we've found a Handler to use, we have consumed the first path
+                // segment.
+                segments.increaseOffset();
+
                 try
                 {
+                    // Any request with an Origin header will be handled by the app directly,
+                    // however there are some headers we need to set up to add support for
+                    // cross-origin requests.
+                    if(context.headers().get(HEADER_ORIGIN) != null)
+                    {
+                        addCorsHeaders(context);
+
+                        if(((HttpRequest)context.getRequest()).getRequestMethod() == OPTIONS)
+                        {
+                            addPreflightCorsHeaders(handler, segments, context);
+                            // Returning true indicates we did fully handle this request and
+                            // processing should not continue.
+                            return true;
+                        }
+                    }
+
                     // Proceed to the handle method if the prehandle method did not fully
                     // handle the request on its own.
                     success = handler.handle(segments, context);
@@ -308,7 +269,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
                 }
             }
 
-            /**
+            /*
              * TODO: again, we don't have a `defaultHandler` anymore except by
              *       routing to a POJO annotated with `@Path("*")` and a method
              *       annotated with `@Path("*")`.
@@ -355,8 +316,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
      */
     protected void notifyListenersDispatchComplete(Context context)
     {
-        final DispatchListener[] theListeners = listeners;
-        for (DispatchListener listener : theListeners)
+        for (DispatchListener listener : listeners)
         {
             listener.dispatchComplete(this, context);
         }
@@ -388,8 +348,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
 
         try
         {
-            final ExceptionHandler[] theHandlers = exceptionHandlers;
-            for (ExceptionHandler handler : theHandlers)
+            for (ExceptionHandler handler : exceptionHandlers)
             {
                 if (description != null)
                 {
@@ -409,27 +368,6 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
 //            log.log("Exception encountered while processing earlier " + exception,
 //                    LogLevel.ALERT, exc);
         }
-    }
-
-    /**
-     * Gets the Header-appropriate string representation of the http method
-     * names that this handler supports for the given path segments.
-     * <p>
-     * For example, if this handler has two handle methods at "/" and
-     * one is GET and the other is POST, this method would return the string
-     * "GET, POST" for the PathSegments "/".
-     * <p>
-     * By default, this method returns "GET, POST", but subclasses should
-     * override for more accurate return values.
-     */
-    protected String getAccessControlAllowMethods(PathSegments segments,
-                                                  C context)
-    {
-        // todo: map of routes-to-handler-tuples that expresses something like
-        //       /foo/bar -> { class, method, HttpMethod }
-        //       for lookup here.
-        // todo: this is also probably wrong in BasicPathHandler
-        return HttpMethod.GET + ", " + HttpMethod.POST;
     }
 
 
@@ -500,7 +438,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
      * https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS#Preflighted_requests">
      * Preflighted requests</a>
      */
-    private void addPreflightCorsHeaders(PathSegments segments, C context)
+    private void addPreflightCorsHeaders(AnnotationHandler<C> handler, PathSegments segments, C context)
     {
         // Applications may configure whitelisted headers which may be sent to
         // the application on cross origin requests.
@@ -530,7 +468,7 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
                     allowed.toString());
         }
 
-        final String methods = getAccessControlAllowMethods(segments, context);
+        final String methods = handler.getAccessControlAllowMethods(segments, context);
         if(StringHelper.isNonEmpty(methods))
         {
             context.headers().put(HEADER_ACCESS_CONTROL_ALLOW_METHOD, methods);
@@ -540,6 +478,48 @@ public class AnnotationDispatcher<C extends Context> implements Dispatcher {
         {
             context.headers().put(HEADER_ACCESS_CONTROL_MAX_AGE,
                     app.getSecurity().getSettings().getAccessControlMaxAge() + "");
+        }
+    }
+
+    /**
+     * Starts a thread, because this can be a costly creation, to get a
+     * reflections instance.
+     */
+    private void startReflectionsThread()
+    {
+        // Start constructing Reflections on a new thread since it takes a
+        // bit of time.
+        preinitializationTasks.submit(() -> {
+            try
+            {
+                reflections = PackageClassLoader.getReflectionClassLoader(app);
+            }
+            catch (Exception exc)
+            {
+                // todo
+//                    log.log("Exception while instantiating Reflections component.", exc);
+            }
+        });
+    }
+
+    /**
+     * Helper method to find `@Path`-annotated classes and create implicit
+     * AnnotationHandler instances for each.
+     */
+    private void registerHandlersForPaths() {
+        // @Path-annotated classes.
+        for (Class<?> clazz : reflections.getTypesAnnotatedWith(Path.class)) {
+            final Path annotation = clazz.getAnnotation(Path.class);
+
+            try {
+                handlers.put(annotation.value(),
+                        new AnnotationHandler<>(annotation.value(),
+                                clazz.getDeclaredConstructor().newInstance()));
+            } catch (NoSuchMethodException nsme) {
+                // todo
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                // todo
+            }
         }
     }
 }

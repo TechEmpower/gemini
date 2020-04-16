@@ -156,7 +156,7 @@ public abstract class InfrastructureServlet
    */
   @Override
   public void service(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException
+    throws IOException
   {
     final ResinHttpRequest httpRequest = new ResinHttpRequest(request, response,
         this.getServletContext(), this.application);
@@ -168,9 +168,7 @@ public abstract class InfrastructureServlet
    * @see #service(HttpServletRequest, HttpServletResponse)
    */
   @Override
-  protected final void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException
-  {
+  protected final void doGet(HttpServletRequest request, HttpServletResponse response) {
     // Intentionally left empty.
   }
 
@@ -180,7 +178,6 @@ public abstract class InfrastructureServlet
    */
   @Override
   protected final void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException
   {
     // Intentionally left empty.
   }
@@ -191,7 +188,6 @@ public abstract class InfrastructureServlet
    */
   @Override
   protected final void doPut(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException
   {
     // Intentionally left empty.
   }
@@ -202,7 +198,6 @@ public abstract class InfrastructureServlet
    */
   @Override
   protected final void doDelete(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException
   {
     // Intentionally left empty.
   }
@@ -213,7 +208,6 @@ public abstract class InfrastructureServlet
    */
   @Override
   protected final void doOptions(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException
   {
     // Intentionally left empty.
   }
@@ -224,7 +218,6 @@ public abstract class InfrastructureServlet
    */
   @Override
   protected final void doHead(HttpServletRequest req, HttpServletResponse res)
-      throws ServletException, IOException
   {
     // Intentionally left empty.
   }
@@ -235,7 +228,6 @@ public abstract class InfrastructureServlet
    */
   @Override
   protected final void doTrace(HttpServletRequest arg0, HttpServletResponse arg1)
-      throws ServletException, IOException
   {
     // Intentionally left empty.
   }

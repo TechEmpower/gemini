@@ -134,7 +134,7 @@ public class HttpSessionManager
   @Override
   public Session getSession(Request request, boolean create)
   {
-    return getSession((HttpRequest)request, create);
+    return getHttpSession((ResinHttpRequest)request, create);
   }
 
   /**
@@ -145,7 +145,7 @@ public class HttpSessionManager
    * application starts) and the current time.
    * @param create Force the creation of a new session.
    */
-  private HttpSession getSession(ResinHttpRequest request, boolean create)
+  private HttpSession getHttpSession(ResinHttpRequest request, boolean create)
   {
     HttpSession session = HttpSession.createSession(request.getRawRequest().getSession(create));
 
