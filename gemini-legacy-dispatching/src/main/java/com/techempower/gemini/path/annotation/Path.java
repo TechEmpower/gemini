@@ -54,7 +54,9 @@ import java.lang.annotation.*;
  * the root URI of the handler. Example /api/users =&gt; UserHandler; {@code @Path}
  * will handle `GET /api/users`.
  */
-@Target(ElementType.METHOD)
+// TODO: Roll back the addition of ElementType.TYPE. Only added for testing
+//  kain's stuff.
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Path
 {
