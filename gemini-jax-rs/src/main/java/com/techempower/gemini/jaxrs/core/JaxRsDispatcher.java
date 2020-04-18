@@ -96,6 +96,11 @@ public class JaxRsDispatcher
     }
   }
 
+  static class SlashToken
+  {
+    // Basically just a flag.
+  }
+
   private void registerEndpoint(String path, Endpoint endpoint)
   {
     // TODO: Might want to gracefully handle the case where a resource could
@@ -117,9 +122,10 @@ public class JaxRsDispatcher
     Pattern wordBlockToken = Pattern.compile("^[^/{]+");
     Pattern variableBlockToken = Pattern.compile("^\\{[ \t]*(?<name>\\w[\\w.-]*)[ \t]*(:[ \t]*(?<regex>([^{}]|\\{[^{}]*})*)[ \t]*)?}");
     DispatchBlock currentBlock = rootBlock;
+    List<Object> tokensSinceLastSlash = new ArrayList<>();
+    boolean regexBlockMode = false;
     while (!remainingPath.isEmpty())
     {
-      List<Object> tokensSinceLastSlash = new ArrayList<>();
       while (remainingPath.length() > 0 && remainingPath.charAt(0) != '/')
       {
         {
@@ -202,14 +208,12 @@ public class JaxRsDispatcher
         }
         else
         {
-          // TODO: Form a regex block
-          throw new UnsupportedOperationException("TODO");
+          regexBlockMode = true;
         }
       }
       else
       {
-        // TODO: Form a regex block
-        throw new UnsupportedOperationException("TODO");
+        regexBlockMode = true;
       }
       if (!remainingPath.isEmpty())
       {
@@ -223,8 +227,30 @@ public class JaxRsDispatcher
         {
           parsedPath.append('/');
           remainingPath = remainingPath.substring(1);
+          if (regexBlockMode)
+          {
+            tokensSinceLastSlash.add(new SlashToken());
+          }
         }
       }
+      if (!regexBlockMode)
+      {
+        tokensSinceLastSlash.clear();
+      }
+    }
+    if (regexBlockMode)
+    {
+      RegexVariableDispatchBlock block = new RegexVariableDispatchBlock(
+          tokensSinceLastSlash);
+      if (currentBlock.regexChildren.stream()
+          .map(RegexVariableDispatchBlock::getPatternString)
+          .anyMatch(block.getPatternString()::equals))
+      {
+        throw new RuntimeException("Duplicate regex block found: "
+            + block.getPatternString());
+      }
+      currentBlock.regexChildren.add(block);
+      currentBlock = block;
     }
     Set<String> httpMethods = new HashSet<>();
     for (Annotation annotation : endpoint.method.getAnnotations())
@@ -265,17 +291,17 @@ public class JaxRsDispatcher
   {
     private final DispatchBlock       block;
     private final Endpoint            endpoint;
-    final         String              value;
+    final         Map<String, String> values;
     final         List<DispatchMatch> matchChildren;
 
     public DispatchMatch(DispatchBlock block,
                          Endpoint endpoint,
-                         String value,
+                         Map<String, String> values,
                          List<DispatchMatch> matchChildren)
     {
       this.block = block;
       this.endpoint = endpoint;
-      this.value = value;
+      this.values = values;
       this.matchChildren = matchChildren;
     }
 
@@ -294,9 +320,9 @@ public class JaxRsDispatcher
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
       }
-      if (value != null)
+      if (values != null)
       {
-        return List.of(value);
+        return List.copyOf(values.values());
       }
       return null;
     }
@@ -317,16 +343,9 @@ public class JaxRsDispatcher
 
     void getBestMatch(DispatchBestMatchInfo info)
     {
-      if (block instanceof FullSegmentPureVariableDispatchBlock)
+      if (values != null)
       {
-        String name = ((FullSegmentPureVariableDispatchBlock) block).name;
-        info.values.put(name, value);
-      }
-      else if (block instanceof RegexVariableDispatchBlock)
-      {
-        // TODO: Need to do some refactoring b/c the regex variable dispatch
-        //  blocks will be capable of having multiple name/value entries.
-        throw new UnsupportedOperationException("TODO");
+        info.values.putAll(values);
       }
       if (matchChildren != null)
       {
@@ -513,7 +532,8 @@ public class JaxRsDispatcher
         Endpoint endpoint = getMatchingEndpoint(httpMethod);
         if (endpoint != null)
         {
-          return new DispatchMatch(this, endpoint, segments[index], null);
+          return new DispatchMatch(this, endpoint,
+              Map.of(name, segments[index]), null);
         }
         return null;
       }
@@ -526,7 +546,8 @@ public class JaxRsDispatcher
             segments, index + 1);
         if (childMatches != null)
         {
-          return new DispatchMatch(this, null, segments[index], childMatches);
+          return new DispatchMatch(this, null,
+              Map.of(name, segments[index]), childMatches);
         }
         else
         {
@@ -538,13 +559,88 @@ public class JaxRsDispatcher
 
   static class RegexVariableDispatchBlock extends DispatchBlock
   {
+    private final Pattern             pattern;
+    private final Map<String, String> variableNameToGroupName = new HashMap<>();
+
+    static String generateGroupName()
+    {
+      return "g" + UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    public RegexVariableDispatchBlock(List<Object> tokens)
+    {
+      StringBuilder patternString = new StringBuilder();
+      for (Object token : tokens)
+      {
+        if (token instanceof WordBlockToken)
+        {
+          // TODO: Encode and escape stuff.
+          patternString.append(((WordBlockToken) token).word);
+        }
+        else if (token instanceof PureVariableBlockToken)
+        {
+          String groupName = generateGroupName();
+          // TODO: Encode and escape stuff.
+          String pattern = String.format("(?<%s>[^/]+?)", groupName);
+          String name = ((PureVariableBlockToken) token).name;
+          patternString.append(pattern);
+          variableNameToGroupName.put(name, groupName);
+        }
+        else if (token instanceof RegexVariableBlockToken)
+        {
+          String groupName = generateGroupName();
+          String name = ((RegexVariableBlockToken) token).name;
+          String regex = ((RegexVariableBlockToken) token).regex;
+          // TODO: Encode and escape stuff.
+          String pattern = String.format("(?<%s>%s)", groupName, regex);
+          patternString.append(pattern);
+          variableNameToGroupName.put(name, groupName);
+        }
+        else if (token instanceof SlashToken)
+        {
+          patternString.append("/");
+        }
+        else
+        {
+          throw new RuntimeException("Unexpected token type.");
+        }
+      }
+      if (!patternString.toString().endsWith("/")) {
+        patternString.append("/");
+      }
+      pattern = Pattern.compile(patternString.toString());
+    }
+
+    String getPatternString()
+    {
+      return pattern.pattern();
+    }
+
     @Override
     DispatchMatch getDispatchMatch(String httpMethod,
                                    String[] segments,
                                    int index)
     {
-      // TODO
-      throw new UnsupportedOperationException();
+      String uri = String.join("/", segments);
+      if (!uri.endsWith("/")) {
+        uri += "/";
+      }
+      Matcher matcher = pattern.matcher(uri);
+      if (matcher.find())
+      {
+        Map<String, String> values = new HashMap<>();
+        for (var entry : variableNameToGroupName.entrySet())
+        {
+          values.put(entry.getKey(), matcher.group(entry.getValue()));
+        }
+        // If this has a matching endpoint, consider it a dispatch candidate
+        Endpoint endpoint = getMatchingEndpoint(httpMethod);
+        if (endpoint != null)
+        {
+          return new DispatchMatch(this, endpoint, values, null);
+        }
+      }
+      return null;
     }
   }
 

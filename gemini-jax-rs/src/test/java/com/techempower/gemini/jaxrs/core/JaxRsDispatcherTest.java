@@ -72,6 +72,19 @@ public class JaxRsDispatcherTest
     }
   }
 
+  @Path("/foo")
+  public static class TestCase5B
+  {
+    @GET
+    @Path("/{test1}-dog-{test2}")
+    public String doIt(@PathParam("test1") String test1,
+                       @PathParam("test2") String test2)
+    {
+      return "did-it-test-case-5B"
+          + String.format("{test1:%s,test2:%s}", test1, test2);
+    }
+  }
+
   @Path("foo")
   public static class FooResource
   {
@@ -174,6 +187,33 @@ public class JaxRsDispatcherTest
     dispatcher.register(new TestCase2());
     assertEquals("did-it-test-case-2dog",
         dispatcher.dispatch(HttpMethod.GET, "/dog/bar"));
+  }
+
+  @Test
+  public void pathParamRegexesShouldBeSupported1()
+  {
+    var dispatcher = new JaxRsDispatcher();
+    dispatcher.register(new TestCase4());
+    assertEquals("did-it-test-case-449cat",
+        dispatcher.dispatch(HttpMethod.GET, "/49-dog-cat/bar"));
+  }
+
+  @Test
+  public void pathParamRegexesShouldBeSupported2()
+  {
+    var dispatcher = new JaxRsDispatcher();
+    dispatcher.register(new TestCase5());
+    assertEquals("did-it-test-case-549cat",
+        dispatcher.dispatch(HttpMethod.GET, "/49/-dog-cat/bar"));
+  }
+
+  @Test
+  public void pathParamRegexesShouldBeSupported3()
+  {
+    var dispatcher = new JaxRsDispatcher();
+    dispatcher.register(new TestCase5B());
+    assertEquals("did-it-test-case-5B{test1:-dog-,test2:-dog--dog-}",
+        dispatcher.dispatch(HttpMethod.GET, "/foo/-dog--dog--dog--dog-"));
   }
 
   @Test
@@ -353,6 +393,67 @@ public class JaxRsDispatcherTest
           uriNoTrailingSlash);
     }
     System.out.println("Total time dispatchBlocks: "
+        + (System.currentTimeMillis() - start) + "ms");
+  }
+
+  @Test
+  public void perfTestMaps()
+  {
+    Map<String, Map<String, Map<String, Object>>> foo = Map.of("foo",
+        Map.of("bar", Map.of(HttpMethod.GET, new Object())));
+    String uriNoTrailingSlash = "foo/bar";
+    long start;
+    for (int i = 0; i < ITERATIONS; i++)
+    {
+      String[] uriSegments = uriNoTrailingSlash.split("/");
+      if (foo.containsKey(uriSegments[0]))
+      {
+        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
+        if (inner.containsKey(uriSegments[1]))
+        {
+          Map<String, Object> endpointsByHttpMethod = inner.get(
+              uriSegments[1]);
+          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
+        }
+      }
+    }
+    start = System.currentTimeMillis();
+    for (int i = 0; i < ITERATIONS; i++)
+    {
+      String[] uriSegments = uriNoTrailingSlash.split("/");
+      if (foo.containsKey(uriSegments[0]))
+      {
+        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
+        if (inner.containsKey(uriSegments[1]))
+        {
+          Map<String, Object> endpointsByHttpMethod = inner.get(
+              uriSegments[1]);
+          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
+        }
+      }
+    }
+    System.out.println("Total time map a: "
+        + (System.currentTimeMillis() - start) + "ms");
+    Map<String, Map<String, Object>> fooB = Map.of("foo/bar",
+        Map.of(HttpMethod.GET, new Object()));
+    for (int i = 0; i < ITERATIONS; i++)
+    {
+      if (fooB.containsKey(uriNoTrailingSlash))
+      {
+        Map<String, Object> endpointsByHttpMethod = fooB.get(uriNoTrailingSlash);
+        Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
+      }
+    }
+    start = System.currentTimeMillis();
+    for (int i = 0; i < ITERATIONS; i++)
+    {
+      if (fooB.containsKey(uriNoTrailingSlash))
+      {
+        Map<String, Object> endpointsByHttpMethod = fooB.get(uriNoTrailingSlash);
+        Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
+      }
+    }
+    System.out.println("Total time map b: "
         + (System.currentTimeMillis() - start) + "ms");
   }
 
