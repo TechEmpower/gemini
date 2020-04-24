@@ -1,10 +1,13 @@
 package com.techempower.gemini;
 
+import com.firenio.Options;
 import com.firenio.codec.http11.HttpCodec;
 import com.firenio.codec.http11.HttpConnection;
 import com.firenio.codec.http11.HttpContentType;
 import com.firenio.codec.http11.HttpFrame;
+import com.firenio.common.Util;
 import com.firenio.component.*;
+import com.firenio.log.DebugUtil;
 import com.techempower.data.ConnectionMonitor;
 import com.techempower.data.ConnectorFactory;
 import com.techempower.data.DatabaseAffinity;
@@ -100,6 +103,37 @@ public abstract class FirenioGeminiApplication
      * @throws Exception
      */
     public final void start() throws Exception {
+        boolean lite      = Util.getBooleanProperty("lite");
+        boolean read      = Util.getBooleanProperty("read");
+        boolean pool      = Util.getBooleanProperty("pool");
+        boolean epoll     = Util.getBooleanProperty("epoll");
+        boolean direct    = Util.getBooleanProperty("direct");
+        boolean inline    = Util.getBooleanProperty("inline");
+        boolean nodelay   = Util.getBooleanProperty("nodelay");
+        boolean cachedurl = Util.getBooleanProperty("cachedurl");
+        boolean unsafeBuf = Util.getBooleanProperty("unsafeBuf");
+        int     core      = Util.getIntProperty("core", 1);
+        int     frame     = Util.getIntProperty("frame", 16);
+        int     level     = Util.getIntProperty("level", 1);
+        int     readBuf   = Util.getIntProperty("readBuf", 16);
+        Options.setBufAutoExpansion(false);
+        Options.setChannelReadFirst(read);
+        Options.setEnableEpoll(epoll);
+        Options.setEnableUnsafeBuf(unsafeBuf);
+        DebugUtil.info("lite: {}", lite);
+        DebugUtil.info("read: {}", read);
+        DebugUtil.info("pool: {}", pool);
+        DebugUtil.info("core: {}", core);
+        DebugUtil.info("epoll: {}", epoll);
+        DebugUtil.info("frame: {}", frame);
+        DebugUtil.info("level: {}", level);
+        DebugUtil.info("direct: {}", direct);
+        DebugUtil.info("inline: {}", inline);
+        DebugUtil.info("readBuf: {}", readBuf);
+        DebugUtil.info("nodelay: {}", nodelay);
+        DebugUtil.info("cachedurl: {}", cachedurl);
+        DebugUtil.info("unsafeBuf: {}", unsafeBuf);
+
         final FirenioGeminiApplication thiss = this;
         this.getLifecycle().addInitializationTask(new InitAnnotationDispatcher());
         // Initialize the application.
@@ -133,10 +167,36 @@ public abstract class FirenioGeminiApplication
                 channel.release(httpFrame);
             }
         };
-        ChannelAcceptor context = new ChannelAcceptor(8300);
+
+        int pool_cap  = 1024 * 128;
+        int pool_unit = 256;
+        if (inline) {
+            pool_cap = 1024 * 8;
+            pool_unit = 256 * 16;
+        }
+        NioEventLoopGroup group   = new NioEventLoopGroup();
+        ChannelAcceptor   context = new ChannelAcceptor(group, 8080);
+        group.setMemoryPoolCapacity(pool_cap);
+        group.setEnableMemoryPoolDirect(direct);
+        group.setEnableMemoryPool(pool);
+        group.setMemoryPoolUnit(pool_unit);
+        group.setWriteBuffers(32);
+        group.setChannelReadBuffer(1024 * readBuf);
+        group.setEventLoopSize(Util.availableProcessors() * core);
+        group.setConcurrentFrameStack(false);
+        if (nodelay) {
+            context.addChannelEventListener(new ChannelEventListenerAdapter() {
+
+                @Override
+                public void channelOpened(Channel ch) throws Exception {
+                    ch.setOption(SocketOptions.TCP_NODELAY, 1);
+                    ch.setOption(SocketOptions.SO_KEEPALIVE, 0);
+                }
+            });
+        }
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandleAdaptor);
         context.addProtocolCodec(new HttpCodec());
-        context.bind();
+        context.bind(1024 * 8);
     }
 }
