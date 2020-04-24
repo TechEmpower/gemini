@@ -10,6 +10,8 @@ import com.techempower.gemini.path.annotation.*;
 import com.techempower.helper.NumberHelper;
 import com.techempower.helper.ReflectionHelper;
 import com.techempower.helper.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -29,6 +31,7 @@ class AnnotationHandler<C extends Context> {
     final String rootUri;
     final Object handler;
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
     private final AnnotationHandler.PathUriTree getRequestHandleMethods;
     private final AnnotationHandler.PathUriTree putRequestHandleMethods;
     private final AnnotationHandler.PathUriTree postRequestHandleMethods;
@@ -294,8 +297,8 @@ class AnnotationHandler<C extends Context> {
                 }
                 catch (RequestBodyException | IOException e)
                 {
+                    log.error("Got RequestBodyException.", e);
                     // todo
-//                    log().log("Got RequestBodyException.", LogLevel.DEBUG, e);
 //                    return this.error(e.getStatusCode(), e.getMessage());
                 }
             }

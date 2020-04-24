@@ -37,6 +37,8 @@ import com.techempower.helper.NetworkHelper;
 import com.techempower.helper.StringHelper;
 import org.reflections.Reflections;
 import org.reflections.ReflectionsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -53,13 +55,13 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
     //
     // Member variables.
     //
-
     private final GeminiApplication               app;
     private final Map<String, AnnotationHandler>  handlers;
     private final ExceptionHandler[]              exceptionHandlers;
     private final Prehandler[]                    prehandlers;
     private final DispatchListener[]              listeners;
 
+    private final Logger     log                    = LoggerFactory.getLogger(getClass());
     private ExecutorService  preinitializationTasks = Executors.newSingleThreadExecutor();
     private Reflections      reflections            = null;
 
@@ -93,8 +95,7 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
                 }
                 catch (Exception exc)
                 {
-                    // todo
-//                    log.log("Exception while instantiating Reflections component.", exc);
+                    log.error("Exception while instantiating Reflections component.", exc);
                 }
             }
         });
@@ -104,16 +105,16 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
         // Wait for pre-initialization tasks to complete.
         try
         {
-//            log.log("Completing preinitialization tasks.");
+            log.info("Completing preinitialization tasks.");
             preinitializationTasks.shutdown();
-//            log.log("Awaiting termination of preinitialization tasks.");
+            log.info("Awaiting termination of preinitialization tasks.");
             preinitializationTasks.awaitTermination(5L, TimeUnit.MINUTES);
-//            log.log("Preinitialization tasks complete.");
-//            log.log("Reflections component: " + reflections);
+            log.info("Preinitialization tasks complete.");
+            log.info("Reflections component: " + reflections);
         }
         catch (InterruptedException iexc)
         {
-//            log.log("Preinitialization interrupted.", iexc);
+            log.error("Preinitialization interrupted.", iexc);
         }
 
         // Throw an exception if Reflections is not ready.
@@ -126,7 +127,7 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
     }
 
     private void register() {
-//        log.log("Registering annotated entities, relations, and type adapters.");
+        log.info("Registering annotated entities, relations, and type adapters.");
         try {
             final ExecutorService service = Executors.newFixedThreadPool(1);
 
@@ -155,14 +156,14 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
             try
             {
                 service.shutdown();
-                service.awaitTermination(1L, TimeUnit.HOURS);
+                service.awaitTermination(1L, TimeUnit.MINUTES);
             }
             catch (InterruptedException iexc)
             {
-//                log.log("Unable to register all entities in 1 hour!", LogLevel.CRITICAL);
+                log.error("Unable to register all annotated handlers in 1 minute!");
             }
 
-//            log.log("Done registering annotated items.");
+            log.info("Done registering annotated items.");
         }
         catch (ReflectionsException e)
         {
@@ -384,8 +385,7 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
     public void dispatchException(Context context, Throwable exception, String description) {
         if (exception == null)
         {
-//            log.log("dispatchException called with a null reference.",
-//                    LogLevel.ALERT);
+            log.warn("dispatchException called with a null reference.");
             return;
         }
 
@@ -409,8 +409,7 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
             // In the especially worrisome case that we've encountered an exception
             // while attempting to handle another exception, we'll give up on the
             // request at this point and just write the exception to the log.
-//            log.log("Exception encountered while processing earlier " + exception,
-//                    LogLevel.ALERT, exc);
+            log.error("Exception encountered while processing earlier " + exception, exc);
         }
     }
 

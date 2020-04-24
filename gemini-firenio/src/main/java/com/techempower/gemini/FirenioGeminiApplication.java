@@ -16,11 +16,15 @@ import com.techempower.gemini.path.AnnotationDispatcher;
 import com.techempower.gemini.session.HttpSessionManager;
 import com.techempower.gemini.session.SessionManager;
 import com.techempower.util.EnhancedProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 
 public abstract class FirenioGeminiApplication
         extends GeminiApplication {
+
+    protected Logger log = LoggerFactory.getLogger(getClass());
 
     /**
      * Overload: Constructs an instance of a subclass of Context, provided the
@@ -103,14 +107,18 @@ public abstract class FirenioGeminiApplication
 
         int slept = 0;
         int maxSleep = 10_000;
-        while (!this.isRunning()) {
+        while (slept < maxSleep && !this.isRunning()) {
             // Wait until the application is initialized and configured.
             slept += 1000;
             Thread.sleep(1000);
         }
 
-        // TODO: this is the dispatcher
-        IoEventHandle eventHandleAdaptor = new IoEventHandle() {
+        if (slept > maxSleep && !this.isRunning()) {
+            log.error("Failed to start Gemini application after {} seconds", slept);
+            return;
+        }
+
+        final IoEventHandle eventHandleAdaptor = new IoEventHandle() {
 
             @Override
             public void accept(Channel channel, Frame frame) throws Exception {
@@ -118,8 +126,6 @@ public abstract class FirenioGeminiApplication
                 final HttpRequest request = new HttpRequest(channel, httpFrame, thiss);
                 final FirenioContext context = new FirenioContext(request, thiss);
                 getDispatcher().dispatch(context);
-//                HttpFrame f      = (HttpFrame) frame;
-//                f.setContent("Hello, World!".getBytes());
                 // fixme - content type shouldn't be set here
                 httpFrame.setContentType(HttpContentType.text_plain);
                 httpFrame.setConnection(HttpConnection.NONE);
