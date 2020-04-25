@@ -1,6 +1,11 @@
 package com.techempower.gemini.jaxrs.core;
 
+import com.caucho.util.LruCache;
 import com.esotericsoftware.reflectasm.MethodAccess;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
@@ -10,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -17,7 +23,51 @@ import java.util.stream.Collectors;
 public class JaxRsDispatcher
 {
   private List<Endpoint> endpoints;
+  private LoadingCache<DispatchMatchSource, DispatchBestMatchInfo> bestMatches = CacheBuilder.newBuilder()
+      .maximumSize(100)
+      .build(new CacheLoader<>() {
+        @Override public DispatchBestMatchInfo load(DispatchMatchSource dispatchMatchSource) throws Exception {
+          return getBestMatchInfo(dispatchMatchSource);
+        }
+      });
   DispatchBlock rootBlock = new RootDispatchBlock();
+  LruCache<DispatchMatchSource, DispatchBestMatchInfo> bestMatchesResinCache = new LruCache<>(100);
+  com.github.benmanes.caffeine.cache.LoadingCache<DispatchMatchSource, DispatchBestMatchInfo> bestMatchesCaff = Caffeine.newBuilder()
+      .maximumSize(100)
+      .build(this::getBestMatchInfo);
+  private boolean cacheEnabled;
+  private boolean useResinCache;
+  private boolean useCaffCache;
+
+  public boolean isCacheEnabled()
+  {
+    return cacheEnabled;
+  }
+
+  public void setCacheEnabled(boolean cacheEnabled)
+  {
+    this.cacheEnabled = cacheEnabled;
+  }
+
+  public boolean isUseResinCache()
+  {
+    return useResinCache;
+  }
+
+  public void setUseResinCache(boolean useResinCache)
+  {
+    this.useResinCache = useResinCache;
+  }
+
+  public boolean isUseCaffCache()
+  {
+    return useCaffCache;
+  }
+
+  public void setUseCaffCache(boolean useCaffCache)
+  {
+    this.useCaffCache = useCaffCache;
+  }
 
   public void register(Object instance)
   {
@@ -362,6 +412,11 @@ public class JaxRsDispatcher
   {
     private Endpoint            endpoint;
     private Map<String, String> values = new HashMap<>();
+
+    public Map<String, String> getValues()
+    {
+      return values;
+    }
   }
 
   abstract static class DispatchBlock
@@ -644,6 +699,32 @@ public class JaxRsDispatcher
     }
   }
 
+  static class DispatchMatchSource {
+    private final String uri;
+    private final String httpMethod;
+
+    public DispatchMatchSource(String httpMethod, String uri)
+    {
+      this.uri = uri;
+      this.httpMethod = httpMethod;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      DispatchMatchSource that = (DispatchMatchSource) o;
+      return uri.equals(that.uri) &&
+          httpMethod.equals(that.httpMethod);
+    }
+
+    @Override
+    public int hashCode()
+    {
+      return Objects.hash(uri, httpMethod);
+    }
+  }
 
   interface Resource
   {
@@ -732,6 +813,49 @@ public class JaxRsDispatcher
     return rootBlock.getDispatchMatch(httpMethod, segments, 0);
   }
 
+  public DispatchBestMatchInfo getBestMatchInfo(DispatchMatchSource dispatchMatchSource) {
+    String uri = dispatchMatchSource.uri;
+    String httpMethod = dispatchMatchSource.httpMethod;
+    int uriStart = uri.startsWith("/") ? 1 : 0;
+    int uriEnd = uri.length() - (uri.endsWith("/") ? 1 : 0);
+    String normalizedUri = uri.substring(uriStart, uriEnd);
+    DispatchMatch dispatchMatch = getDispatchMatches(httpMethod, normalizedUri);
+    DispatchBestMatchInfo matchInfo = new DispatchBestMatchInfo();
+    // TODO: Need to filter the dispatch match down to only the correct one so
+    //  the path params can be extracted. There's a TO-DO...somewhere in this
+    //  file (or maybe the test) for how to do that naturally and only come out
+    //  with the right match per the sorting rules, and not have to deal with
+    //  the tree of matches.
+    dispatchMatch.getBestMatch(matchInfo);
+    return matchInfo;
+  }
+
+  public DispatchBestMatchInfo getBestMatchInfo(String httpMethod, String uri) {
+    DispatchMatchSource matchSource = new DispatchMatchSource(httpMethod, uri);
+    if (cacheEnabled) {
+      if (useResinCache) {
+        DispatchBestMatchInfo matchInfo = bestMatchesResinCache.get(matchSource);
+        if (matchInfo == null) {
+          matchInfo = getBestMatchInfo(matchSource);
+          bestMatchesResinCache.put(matchSource, matchInfo);
+        }
+        return matchInfo;
+      } else if (useCaffCache) {
+        return bestMatchesCaff.get(matchSource);
+      } else {
+        try
+        {
+          return bestMatches.get(matchSource);
+        }
+        catch (ExecutionException e)
+        {
+          throw new RuntimeException(e);
+        }
+      }
+    }
+    return getBestMatchInfo(matchSource);
+  }
+
   // TODO: Not use Gemini's Context eventually, probably.
   //public void dispatch(Context context)
   public Object dispatch(String httpMethod, String uri)
@@ -741,19 +865,8 @@ public class JaxRsDispatcher
     //       `getServletPath` is a method of HttpServletRequest. For
     //       non-servlet containers this can just default to "" or "/". Find
     //       out what the default is for Resin and use that.
-    int uriStart = uri.startsWith("/") ? 1 : 0;
-    int uriEnd = uri.length() - (uri.endsWith("/") ? 1 : 0);
-    String normalizedUri = uri.substring(uriStart, uriEnd);
-    DispatchMatch dispatchMatch = getDispatchMatches(httpMethod, normalizedUri);
+    DispatchBestMatchInfo matchInfo = getBestMatchInfo(httpMethod, uri);
 
-    // TODO: Need to filter the dispatch match down to only the correct one so
-    //  the path params can be extracted. There's a TO-DO...somewhere in this
-    //  file (or maybe the test) for how to do that naturally and only come out
-    //  with the right match per the sorting rules, and not have to deal with
-    //  the tree of matches.
-
-    DispatchBestMatchInfo matchInfo = new DispatchBestMatchInfo();
-    dispatchMatch.getBestMatch(matchInfo);
     Method method = matchInfo.endpoint.method;
     // TODO: For now I'm just gonna support valueOf for simplicity,
     //  and assume it's static.

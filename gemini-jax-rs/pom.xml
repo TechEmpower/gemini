@@ -48,6 +48,19 @@
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <!--
+        TODO: Remove this once performance testing is done, or can be done from the unit tests
+              where this can be a test dependency
+      -->
+      <groupId>com.caucho</groupId>
+      <artifactId>resin</artifactId>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
