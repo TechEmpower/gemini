@@ -22,7 +22,7 @@
   <url>https://github.com/TechEmpower/gemini</url>
   <groupId>com.techempower</groupId>
   <artifactId>gemini-parent</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <version>4.0.1-SNAPSHOT</version>
   <developers>
     <developer>
       <id>msmith</id>
