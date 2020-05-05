@@ -4,6 +4,7 @@ import com.firenio.codec.http11.HttpFrame;
 import com.firenio.codec.http11.HttpHeader;
 import com.firenio.codec.http11.HttpStatus;
 import com.firenio.component.Channel;
+import com.firenio.component.Frame;
 import com.techempower.gemini.Cookie;
 import com.techempower.gemini.GeminiApplication;
 import com.techempower.gemini.Infrastructure;
@@ -209,10 +210,28 @@ public class HttpRequest implements Request {
     @Override
     @Deprecated
     /**
-     * @deprecated
+     * @deprecated Output stream was how blocking servers handled IO, but
+     * Firenio uses the NIO message model, so by the time an HttpRequest is
+     * constructed and available, the entire HttpMessage has been read.
+     * @see #getChannel()
+     * @see #getFrame()
      */
     public OutputStream getOutputStream() throws IOException {
         return null;
+    }
+
+    /**
+     * Returns the underlying reference to HttpChannel
+     */
+    public Channel getChannel() {
+        return channel;
+    }
+
+    /**
+     * Returns the underlying reference to the HttpFrame
+     */
+    public Frame getFrame() {
+        return frame;
     }
 
     @Override

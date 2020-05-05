@@ -1,10 +1,8 @@
 package com.techempower.gemini.firenio;
 
 import com.firenio.Options;
-import com.firenio.codec.http11.HttpCodec;
-import com.firenio.codec.http11.HttpConnection;
-import com.firenio.codec.http11.HttpContentType;
-import com.firenio.codec.http11.HttpFrame;
+import com.firenio.codec.http11.*;
+import com.firenio.collection.ByteTree;
 import com.firenio.common.Util;
 import com.firenio.component.*;
 import com.firenio.log.DebugUtil;
@@ -100,10 +98,6 @@ public abstract class FirenioGeminiApplication
         return new FirenioMonitor(this);
     }
 
-    public final void start() throws Exception {
-        start("Gemini", 8080, 1024 * 8);
-    }
-
     /**
      * Starts the FirenioGeminiApplication
      * todo
@@ -128,19 +122,19 @@ public abstract class FirenioGeminiApplication
         Options.setChannelReadFirst(read);
         Options.setEnableEpoll(epoll);
         Options.setEnableUnsafeBuf(unsafeBuf);
-        DebugUtil.info("lite: {}", lite);
-        DebugUtil.info("read: {}", read);
-        DebugUtil.info("pool: {}", pool);
-        DebugUtil.info("core: {}", core);
-        DebugUtil.info("epoll: {}", epoll);
-        DebugUtil.info("frame: {}", frame);
-        DebugUtil.info("level: {}", level);
-        DebugUtil.info("direct: {}", direct);
-        DebugUtil.info("inline: {}", inline);
-        DebugUtil.info("readBuf: {}", readBuf);
-        DebugUtil.info("nodelay: {}", nodelay);
-        DebugUtil.info("cachedurl: {}", cachedurl);
-        DebugUtil.info("unsafeBuf: {}", unsafeBuf);
+        log.info("lite: {}", lite);
+        log.info("read: {}", read);
+        log.info("pool: {}", pool);
+        log.info("core: {}", core);
+        log.info("epoll: {}", epoll);
+        log.info("frame: {}", frame);
+        log.info("level: {}", level);
+        log.info("direct: {}", direct);
+        log.info("inline: {}", inline);
+        log.info("readBuf: {}", readBuf);
+        log.info("nodelay: {}", nodelay);
+        log.info("cachedurl: {}", cachedurl);
+        log.info("unsafeBuf: {}", unsafeBuf);
 
         final FirenioGeminiApplication thiss = this;
         this.getLifecycle().addInitializationTask(new InitAnnotationDispatcher());
@@ -168,9 +162,11 @@ public abstract class FirenioGeminiApplication
                 final HttpRequest request = new HttpRequest(channel, httpFrame, thiss);
                 final FirenioContext context = new FirenioContext(request, thiss);
                 getDispatcher().dispatch(context);
+
                 // fixme - content type shouldn't be set here
-                httpFrame.setContentType(HttpContentType.text_plain);
+//                httpFrame.setContentType(HttpContentType.text_plain);
                 httpFrame.setConnection(HttpConnection.NONE);
+                httpFrame.setDate(HttpDateUtil.getDateLine());
                 channel.writeAndFlush(httpFrame);
                 channel.release(httpFrame);
             }
@@ -183,6 +179,7 @@ public abstract class FirenioGeminiApplication
             pool_cap = 1024 * 8;
             pool_unit = 256 * 16;
         }
+        HttpDateUtil.start();
         NioEventLoopGroup group   = new NioEventLoopGroup();
         ChannelAcceptor   context = new ChannelAcceptor(group, port);
         group.setMemoryPoolCapacity(pool_cap);
@@ -203,9 +200,16 @@ public abstract class FirenioGeminiApplication
                 }
             });
         }
+        ByteTree cachedUrls = null;
+        if (cachedurl) {
+            cachedUrls = new ByteTree();
+            for (String route : getDispatcher().getRoutes()) {
+                cachedUrls.add(route);
+            }
+        }
         context.addChannelEventListener(new LoggerChannelOpenListener());
         context.setIoEventHandle(eventHandleAdaptor);
-        context.addProtocolCodec(new HttpCodec(serverName, fcache, lite, inline));
+        context.addProtocolCodec(new HttpCodec(serverName, fcache, lite, inline, cachedUrls));
         context.bind(backlog);
     }
 }

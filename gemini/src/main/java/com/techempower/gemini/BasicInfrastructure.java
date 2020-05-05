@@ -235,7 +235,7 @@ public class BasicInfrastructure
       this.log.warn("JSPDirectory should end with a trailing slash.");
       this.jspFileDirectory = this.jspFileDirectory + '/';
     }
-    if (!this.jspPhysicalDirectory.endsWith(File.separator))
+    if (!this.jspPhysicalDirectory.endsWith("/"))
     {
       this.log.warn("JSPPhysicalDirectory should end with a trailing slash or backslash.");
       this.jspPhysicalDirectory = this.jspPhysicalDirectory + File.separator;

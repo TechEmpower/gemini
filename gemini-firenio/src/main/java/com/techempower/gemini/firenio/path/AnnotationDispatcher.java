@@ -165,23 +165,18 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
                             // Set up references to methods annotated as Paths.
                             final Path path = method.getAnnotation(Path.class);
                             if (path != null) {
-                                final String url = "/" + annotation.value() + "/" + path.value();
-                                log.info("url: {}", url);
+                                final String url = annotation.value().replaceAll("/", "").equals("")
+                                        ? "/" + path.value()
+                                        : "/" + annotation.value() + "/" + path.value();
                                 final MethodAccess methodAccess = MethodAccess.get(clazz);
-                                log.info("methodAccess: {}", methodAccess);
-                                final PathUriMethod pathUriMethod;
                                 try {
-                                    pathUriMethod = new PathUriMethod(clazz, method, methodAccess);
-                                    log.info("pathUriMethod: {}", pathUriMethod);
-                                    testHandlers.put(url, pathUriMethod);
+                                    testHandlers.put(url, new PathUriMethod(clazz, method, methodAccess));
                                 } catch (NoSuchMethodException e) {
-                                    e.printStackTrace();
+                                    log.error("This error should be impossible", e);
                                 } catch (IllegalAccessException e) {
-                                    e.printStackTrace();
-                                } catch (InvocationTargetException e) {
-                                    e.printStackTrace();
-                                } catch (InstantiationException e) {
-                                    e.printStackTrace();
+                                    log.error("Handler methods must be public", e);
+                                } catch (InvocationTargetException | InstantiationException e) {
+                                    log.error("Handler constructor must be default and public", e);
                                 }
                             }
                         }
@@ -340,6 +335,7 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
                     // Proceed to the handle method if the prehandle method did not fully
                     // handle the request on its own.
 //                    success = handler.handle(segments, context);
+
 
                     final Object value;
                     if (handler.paramCount == 0) {
@@ -609,7 +605,11 @@ public class AnnotationDispatcher<C extends FirenioContext> implements Dispatche
         public final int index;
         public final int paramCount;
 
-        public PathUriMethod(Class<?> clazz, Method method, MethodAccess methodAccess) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        public PathUriMethod(Class<?> clazz, Method method, MethodAccess methodAccess) throws
+                NoSuchMethodException,
+                IllegalAccessException,
+                InvocationTargetException,
+                InstantiationException {
             this.handler = clazz.getDeclaredConstructor().newInstance();
             this.method = method;
             this.methodAccess = methodAccess;
