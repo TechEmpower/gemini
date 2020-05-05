@@ -22,7 +22,7 @@
   <url>https://github.com/TechEmpower/gemini</url>
   <groupId>com.techempower</groupId>
   <artifactId>gemini-parent</artifactId>
-  <version>3.2.0-SNAPSHOT</version>
+  <version>4.0.1-SNAPSHOT</version>
   <developers>
     <developer>
       <id>msmith</id>
@@ -48,6 +48,7 @@
     <module>gemini-log4j2</module>
     <module>gemini-logback</module>
     <module>gemini-log4j12</module>
+    <module>gemini-firenio</module>
   </modules>
 
   <properties>
@@ -135,6 +136,11 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>gemini-hikaricp</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>gemini-firenio</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

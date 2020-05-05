@@ -105,7 +105,7 @@ public abstract class MustacheManager
   public void configure(EnhancedProperties props)
   {
     final EnhancedProperties.Focus focus = props.focus("Mustache.");
-    this.enabled = focus.getBoolean("Enabled", true);
+    this.enabled = focus.getBoolean("Enabled", false);
     this.useTemplateCache = focus.getBoolean("TemplateCacheEnabled", !application.getVersion().isDevelopment());
     log.info("Mustache {}using template cache.",
         this.useTemplateCache ? "" : "not ");

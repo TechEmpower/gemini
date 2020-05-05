@@ -38,6 +38,13 @@ package com.techempower.gemini;
  */
 public interface Dispatcher
 {
+  /**
+   * Returns all the registered routes associated with this dispatcher.
+   * By default, returns an empty String[].
+   */
+  default String[] getRoutes() {
+    return new String[]{};
+  }
 
   /**
    * Dispatch a request (represented as a Context) and ensure that it is 
