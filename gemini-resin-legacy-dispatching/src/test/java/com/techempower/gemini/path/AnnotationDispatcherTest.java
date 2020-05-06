@@ -69,16 +69,18 @@ public class AnnotationDispatcherTest
   // I know these are identical, but it's easier to distinguish the warm up
   // from the "real" in the profiler this way.
   public void warmUpBlah(AnnotationDispatcher<Context> dispatcher) {
+    String uri = "foo/bar";
     for (int i = 0; i < ITERATIONS; i++)
     {
-      dispatcher.dispatch(Request.HttpMethod.GET, "foo/bar");
+      dispatcher.dispatch(Request.HttpMethod.GET, uri);
     }
   }
 
   public void doBlah(AnnotationDispatcher<Context> dispatcher) {
+    String uri = "foo/bar";
     for (int i = 0; i < ITERATIONS; i++)
     {
-      dispatcher.dispatch(Request.HttpMethod.GET, "foo/bar");
+      dispatcher.dispatch(Request.HttpMethod.GET, uri);
     }
   }
 
@@ -86,9 +88,10 @@ public class AnnotationDispatcherTest
   public void blah() {
     AnnotationDispatcher<Context> dispatcher = new AnnotationDispatcher<>();
     dispatcher.register(new FooResource());
+    String uri = "foo/bar";
     for (int i = 0; i < ITERATIONS; i++)
     {
-      dispatcher.dispatch(Request.HttpMethod.GET, "foo/bar");
+      dispatcher.dispatch(Request.HttpMethod.GET, uri);
     }
     long start;
     /*Context context = mock(Context.class);
@@ -96,7 +99,7 @@ public class AnnotationDispatcherTest
     start = System.currentTimeMillis();
     for (int i = 0; i < ITERATIONS; i++)
     {
-      dispatcher.dispatch(Request.HttpMethod.GET, "foo/bar");
+      dispatcher.dispatch(Request.HttpMethod.GET, uri);
     }
     System.out.println("Total time kain-approach: "
         + (System.currentTimeMillis() - start) + "ms");

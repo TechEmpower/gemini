@@ -1,5 +1,6 @@
 package com.techempower.gemini.jaxrs.core;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import org.junit.Test;
 
 import javax.ws.rs.GET;
@@ -7,11 +8,13 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class JaxRsDispatcherTest
 {
@@ -115,7 +118,18 @@ public class JaxRsDispatcherTest
     String doIt();
   }
 
+  @Path("/foo")
   public static class TestCase6Impl
+      implements TestCase6
+  {
+    @Override
+    public String doIt()
+    {
+      return "did-it-test-case-6";
+    }
+  }
+
+  public static class TestCase6Impl2
       implements TestCase6
   {
     @Override
@@ -236,7 +250,7 @@ public class JaxRsDispatcherTest
   }
 
   @Test
-  public void inheritanceShouldBeCaptured()
+  public void methodAnnotationInheritanceShouldBeCaptured()
   {
     // TODO: Not yet implemented
     var dispatcher = new JaxRsDispatcher();
@@ -245,762 +259,465 @@ public class JaxRsDispatcherTest
         dispatcher.dispatch(HttpMethod.GET, "/foo/bar"));
   }
 
-  static final int ITERATIONS = 2_700_000;
-
   @Test
-  public void perfTestRegexSlow()
+  public void classAnnotationInheritanceShouldNotBeCaptured()
   {
-    long start;
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      Pattern pattern = Pattern.compile("/foo/bar");
-      Matcher matcher = pattern.matcher("/foo/bar");
-      boolean found = matcher.find();
-    }
-    start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      Pattern pattern = Pattern.compile("/foo/bar");
-      Matcher matcher = pattern.matcher("/foo/bar");
-      boolean found = matcher.find();
-    }
-    System.out.println("Total time regex slow: "
-        + (System.currentTimeMillis() - start) + "ms");
+    // TODO: Not yet implemented
+    var dispatcher = new JaxRsDispatcher();
+    dispatcher.register(new TestCase6Impl2());
+    // TODO: Null isn't really a great indicator here, since a given
+    //  method could very well have returned null.
+    assertNull(dispatcher.dispatch(HttpMethod.GET, "/foo/bar"));
   }
 
-  @Test
-  public void perfTestRegexFast()
+  static class SimpleUriPerformanceTest
   {
-    long start;
-    Pattern pattern = Pattern.compile("/foo/bar");
-    for (int i = 0; i < ITERATIONS; i++)
+    public static class Runner
     {
-      Matcher matcher = pattern.matcher("/foo/bar");
-      boolean found = matcher.find();
+      public static void main(String... args)
+      {
+        Performance.test(SimpleUriPerformanceTest.class,
+            ITERATIONS,
+            List.of(
+                List.of(REGEX_SLOW),
+                List.of(REGEX_FAST),
+                List.of(MAP_TREE),
+                List.of(MAP_FLAT),
+                List.of(MAP_FLAT_WITH_URI_SPLIT),
+                // TODO: Make a builder for generating these combinations.
+                //   Something like:
+                //     Performance.combinations()
+                //         .next(JAX_RS)
+                //         .next(GUAVA_LOADING_CACHE, RESIN_LRU_CACHE,
+                //             CAFFEINE_LOADING_CACHE)
+                //         .next(/* etc */)
+                //         .build()
+                List.of(JAX_RS, NO_CACHE),
+                List.of(JAX_RS, GUAVA_LOADING_CACHE),
+                List.of(JAX_RS, RESIN_LRU_CACHE),
+                List.of(JAX_RS, CAFFEINE_LOADING_CACHE)
+            ));
+      }
     }
-    start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      Matcher matcher = pattern.matcher("/foo/bar");
-      boolean found = matcher.find();
-    }
-    System.out.println("Total time regex fast: "
-        + (System.currentTimeMillis() - start) + "ms");
-  }
 
-  @Test
-  public void perfTestMap()
-  {
-    Map<String, Map<String, Map<String, Object>>> foo = Map.of("foo",
-        Map.of("bar", Map.of(HttpMethod.GET, new Object())));
-    String uriNoTrailingSlash = "foo/bar";
-    long start;
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      String[] uriSegments = uriNoTrailingSlash.split("/");
-      if (foo.containsKey(uriSegments[0]))
-      {
-        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-        if (inner.containsKey(uriSegments[1]))
-        {
-          Map<String, Object> endpointsByHttpMethod = inner.get(
-              uriSegments[1]);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-    }
-    start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      String[] uriSegments = uriNoTrailingSlash.split("/");
-      if (foo.containsKey(uriSegments[0]))
-      {
-        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-        if (inner.containsKey(uriSegments[1]))
-        {
-          Map<String, Object> endpointsByHttpMethod = inner.get(
-              uriSegments[1]);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-    }
-    System.out.println("Total time map: "
-        + (System.currentTimeMillis() - start) + "ms");
-  }
+    static final int    ITERATIONS              = 2_700_000;
+    // approaches
+    static final String REGEX_SLOW              = "regex slow";
+    static final String REGEX_FAST              = "regex fast";
+    static final String MAP_TREE                = "tree of maps";
+    static final String MAP_FLAT                = "single flat map";
+    static final String MAP_FLAT_WITH_URI_SPLIT = "single flat map with URI split";
+    static final String JAX_RS                  = "jax-rs";
+    // jax-rs customizations
+    static final String NO_CACHE                = "no cache";
+    static final String GUAVA_LOADING_CACHE     = "Guava LoadingCache";
+    static final String RESIN_LRU_CACHE         = "Resin LruCache";
+    static final String CAFFEINE_LOADING_CACHE  = "Caffeine LoadingCache";
 
-  static class Foo {
-    public static void main(String... args) {
-      JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-      jaxRsDispatcher.register(new FooResource());
-      JaxRsDispatcher jaxRsDispatcherCached = new JaxRsDispatcher();
-      jaxRsDispatcherCached.setCacheEnabled(true);
-      jaxRsDispatcherCached.register(new FooResource());
-      JaxRsDispatcher jaxRsDispatcherResinCached = new JaxRsDispatcher();
-      jaxRsDispatcherResinCached.setCacheEnabled(true);
-      jaxRsDispatcherResinCached.setUseResinCache(true);
-      jaxRsDispatcherResinCached.register(new FooResource());
-      JaxRsDispatcher jaxRsDispatcherCaffCached = new JaxRsDispatcher();
-      jaxRsDispatcherCaffCached.setCacheEnabled(true);
-      jaxRsDispatcherCaffCached.setUseCaffCache(true);
-      jaxRsDispatcherCaffCached.register(new FooResource());
-      JaxRsDispatcherTest test = new JaxRsDispatcherTest();
-      test.warmUpJaxRs(jaxRsDispatcher);
-      test.warmUpJaxRs(jaxRsDispatcherCached);
-      test.warmUpJaxRs(jaxRsDispatcherResinCached);
-      test.warmUpJaxRs(jaxRsDispatcherCaffCached);
-      long start;
-      start = System.currentTimeMillis();
-      test.justJaxRs(jaxRsDispatcher);
-      System.out.println("Total time dispatchBlocks w/o cache: "
-          + (System.currentTimeMillis() - start) + "ms");
-      start = System.currentTimeMillis();
-      test.justJaxRsCached(jaxRsDispatcherCached);
-      System.out.println("Total time dispatchBlocks w/ google cache: "
-          + (System.currentTimeMillis() - start) + "ms");
-      start = System.currentTimeMillis();
-      test.justJaxRsResinCached(jaxRsDispatcherResinCached);
-      System.out.println("Total time dispatchBlocks w/ resin cache: "
-          + (System.currentTimeMillis() - start) + "ms");
-      start = System.currentTimeMillis();
-      test.justJaxRsCaffCached(jaxRsDispatcherCaffCached);
-      System.out.println("Total time dispatchBlocks w/ caffeine cache: "
-          + (System.currentTimeMillis() - start) + "ms");
-    }
-  }
-
-  public void warmUpJaxRs(JaxRsDispatcher jaxRsDispatcher)
-  {
-    String uriNoTrailingSlash = "foo/bar";
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-      if (i == 0)
-      {
-        JaxRsDispatcher.DispatchBestMatchInfo match = jaxRsDispatcher
-            .getBestMatchInfo(HttpMethod.GET, uriNoTrailingSlash);
-        System.out.println("Found " + match.getValues());
-      }
-    }
-  }
-
-  public void justJaxRs(JaxRsDispatcher jaxRsDispatcher)
-  {
-    String uriNoTrailingSlash = "foo/bar";
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-    }
-  }
-
-  public void justJaxRsCached(JaxRsDispatcher jaxRsDispatcher)
-  {
-    String uriNoTrailingSlash = "foo/bar";
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-    }
-  }
-
-  public void justJaxRsResinCached(JaxRsDispatcher jaxRsDispatcher)
-  {
-    String uriNoTrailingSlash = "foo/bar";
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-    }
-  }
-
-  public void justJaxRsCaffCached(JaxRsDispatcher jaxRsDispatcher)
-  {
-    String uriNoTrailingSlash = "foo/bar";
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-    }
-  }
-
-  @Test
-  public void perfTestJaxRs()
-  {
-    String uriNoTrailingSlash = "foo/bar";
-    JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-    jaxRsDispatcher.register(new FooResource());
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-      if (i == 0)
-      {
-        JaxRsDispatcher.DispatchBestMatchInfo match = jaxRsDispatcher
-            .getBestMatchInfo(HttpMethod.GET, uriNoTrailingSlash);
-        System.out.println("Found " + match.getValues());
-      }
-    }
-    long start;
-    start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-    }
-    System.out.println("Total time dispatchBlocks: "
-        + (System.currentTimeMillis() - start) + "ms");
-  }
-
-  @Test
-  public void perfTestMaps()
-  {
-    Map<String, Map<String, Map<String, Object>>> foo = Map.of("foo",
-        Map.of("bar", Map.of(HttpMethod.GET, new Object())));
-    String uriNoTrailingSlash = "foo/bar";
-    long start;
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      String[] uriSegments = uriNoTrailingSlash.split("/");
-      if (foo.containsKey(uriSegments[0]))
-      {
-        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-        if (inner.containsKey(uriSegments[1]))
-        {
-          Map<String, Object> endpointsByHttpMethod = inner.get(
-              uriSegments[1]);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-    }
-    start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      String[] uriSegments = uriNoTrailingSlash.split("/");
-      if (foo.containsKey(uriSegments[0]))
-      {
-        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-        if (inner.containsKey(uriSegments[1]))
-        {
-          Map<String, Object> endpointsByHttpMethod = inner.get(
-              uriSegments[1]);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-    }
-    System.out.println("Total time map a: "
-        + (System.currentTimeMillis() - start) + "ms");
-    Map<String, Map<String, Object>> fooB = Map.of("foo/bar",
-        Map.of(HttpMethod.GET, new Object()));
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      if (fooB.containsKey(uriNoTrailingSlash))
-      {
-        Map<String, Object> endpointsByHttpMethod = fooB.get(uriNoTrailingSlash);
-        Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-      }
-    }
-    start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      if (fooB.containsKey(uriNoTrailingSlash))
-      {
-        Map<String, Object> endpointsByHttpMethod = fooB.get(uriNoTrailingSlash);
-        Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-      }
-    }
-    System.out.println("Total time map b: "
-        + (System.currentTimeMillis() - start) + "ms");
-  }
-
-  @Test
-  public void perfTestAll()
-  {
-    // Warm-up
-    {
-      long start;
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Pattern pattern = Pattern.compile("/foo/bar");
-        Matcher matcher = pattern.matcher("/foo/bar");
-        boolean found = matcher.find();
-      }
-      start = System.currentTimeMillis();
-      Pattern pattern = Pattern.compile("/foo/bar");
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Matcher matcher = pattern.matcher("/foo/bar");
-        boolean found = matcher.find();
-      }
-      Map<String, Map<String, Map<String, Object>>> foo = Map.of("foo",
-          Map.of("bar", Map.of(HttpMethod.GET, new Object())));
-      // This is better for the map approach
-      String uriNoTrailingSlash = "foo/bar";
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        String[] uriSegments = uriNoTrailingSlash.split("/");
-        if (foo.containsKey(uriSegments[0]))
-        {
-          Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-          if (inner.containsKey(uriSegments[1]))
-          {
-            Map<String, Object> endpointsByHttpMethod = inner.get(
-                uriSegments[1]);
-            Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-          }
-        }
-      }
-      {
-        String uri = "foo/bar/";
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.register(new FooResource());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-          if (i == 0)
-          {
-            JaxRsDispatcher.DispatchBestMatchInfo match = jaxRsDispatcher
-                .getBestMatchInfo(HttpMethod.GET, uri);
-            System.out.println("Found " + match.getValues());
-          }
-        }
-        System.out.println("Total time dispatchBlocks: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-    }
-    {
-      long start;
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Pattern pattern = Pattern.compile("/foo/bar");
-        Matcher matcher = pattern.matcher("/foo/bar");
-        boolean found = matcher.find();
-      }
-      System.out.println("Total time regex slow: "
-          + (System.currentTimeMillis() - start) + "ms");
-      start = System.currentTimeMillis();
-      Pattern pattern = Pattern.compile("/foo/bar");
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Matcher matcher = pattern.matcher("/foo/bar");
-        boolean found = matcher.find();
-      }
-      System.out.println("Total time regex fast: "
-          + (System.currentTimeMillis() - start) + "ms");
-      String path = "foo/bar";
-      Map<String, Map<String, Map<String, Object>>> foo = Map.of("foo",
-          Map.of("bar", Map.of(HttpMethod.GET, new Object())));
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        String[] uriSegments = path.split("/");
-        if (foo.containsKey(uriSegments[0]))
-        {
-          Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-          if (inner.containsKey(uriSegments[1]))
-          {
-            Map<String, Object> endpointsByHttpMethod = inner.get(
-                uriSegments[1]);
-            Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-          }
-        }
-      }
-      System.out.println("Total time tree-map approach (w/ URI split): "
-          + (System.currentTimeMillis() - start) + "ms");
-      Map<String, Map<String, Object>> foo2 = Map.of("foo/bar", Map.of(HttpMethod.GET, new Object()));
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        String[] uriSegments = path.split("/");
-        if (foo2.containsKey(path))
-        {
-          Map<String, Object> endpointsByHttpMethod = foo2.get(path);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-      System.out.println("Total time flat-map approach w/ URI split: "
-          + (System.currentTimeMillis() - start) + "ms");
-      Map<String, Map<String, Object>> foo3 = Map.of("foo/bar", Map.of(HttpMethod.GET, new Object()));
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        //String[] uriSegments = path.split("/");
-        if (foo3.containsKey(path))
-        {
-          Map<String, Object> endpointsByHttpMethod = foo3.get(path);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-      System.out.println("Total time flat-map approach w/o URI split: "
-          + (System.currentTimeMillis() - start) + "ms");
-      {
-        String uri = "foo/bar/";
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.register(new FooResource());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/o LRU cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      {
-        String uri = "foo/bar/";
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.setCacheEnabled(true);
-        jaxRsDispatcher.register(new FooResource());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/ LRU cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      {
-        String uri = "foo/bar/";
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.setCacheEnabled(true);
-        jaxRsDispatcher.setUseResinCache(true);
-        jaxRsDispatcher.register(new FooResource());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/ resin LRU cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      {
-        String uri = "foo/bar/";
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.setCacheEnabled(true);
-        jaxRsDispatcher.setUseCaffCache(true);
-        jaxRsDispatcher.register(new FooResource());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/ caffeine cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-    }
-  }
-
-  public static class Bar {
     public static void main(String... args)
+        throws Exception
     {
-      JaxRsDispatcherTest test = new JaxRsDispatcherTest();
-      //test.perfTestAllComplicated();
+      if (args.length > 0)
+      {
+        switch (args[0])
+        {
+          case REGEX_SLOW:
+            perfTestRegexSlow();
+            break;
+          case REGEX_FAST:
+            perfTestRegexFast();
+            break;
+          case MAP_TREE:
+            perfTestMapTree();
+            break;
+          case MAP_FLAT:
+            perfTestMapFlat();
+            break;
+          case MAP_FLAT_WITH_URI_SPLIT:
+            perfTestMapFlatWithUriSplit();
+            break;
+          case JAX_RS:
+          {
+            JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
+            jaxRsDispatcher.register(new FooResource());
+            switch (args[1])
+            {
+              case NO_CACHE:
+                break;
+              case GUAVA_LOADING_CACHE:
+                jaxRsDispatcher.setCacheEnabled(true);
+                break;
+              case RESIN_LRU_CACHE:
+                jaxRsDispatcher.setCacheEnabled(true);
+                jaxRsDispatcher.setUseResinCache(true);
+                break;
+              case CAFFEINE_LOADING_CACHE:
+                jaxRsDispatcher.setCacheEnabled(true);
+                jaxRsDispatcher.setUseCaffCache(true);
+                break;
+              default:
+                throw new RuntimeException();
+            }
+            perfTestJaxRs(jaxRsDispatcher);
+            break;
+          }
+          default:
+            throw new RuntimeException();
+        }
+      }
+    }
+
+    public static void perfTestRegexSlow()
+    {
+      String uriNoTrailingSlash = "foo/bar";
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          Pattern pattern = Pattern.compile("foo/bar");
+          Matcher matcher = pattern.matcher(uriNoTrailingSlash);
+          boolean found = matcher.find();
+        }
+      });
+    }
+
+    public static void perfTestRegexFast()
+    {
+      String uriNoTrailingSlash = "foo/bar";
+      Pattern pattern = Pattern.compile("foo/bar");
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          Matcher matcher = pattern.matcher(uriNoTrailingSlash);
+          boolean found = matcher.find();
+        }
+      });
+    }
+
+    public static void perfTestMapTree()
+    {
       Map<String, Map<String, Map<String, Object>>> foo = Map.of("foo",
           Map.of("bar", Map.of(HttpMethod.GET, new Object())));
-      JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-      jaxRsDispatcher.register(new FooResource());
-      JaxRsDispatcher jaxRsDispatcherCached = new JaxRsDispatcher();
-      jaxRsDispatcherCached.setCacheEnabled(true);
-      jaxRsDispatcherCached.register(new FooResource());
-      test.combinedWarmUp(foo, jaxRsDispatcher, jaxRsDispatcherCached);
-      test.mapApproach(foo);
-      test.dispatcherBlocksApproach(jaxRsDispatcher);
-      test.dispatcherBlocksCachedApproach(jaxRsDispatcherCached);
-    }
-  }
-
-  public void combinedWarmUp(Map<String, Map<String, Map<String, Object>>> foo,
-                             JaxRsDispatcher jaxRsDispatcher,
-                             JaxRsDispatcher jaxRsDispatcherCached)
-  {
-    String uriNoTrailingSlash = "foo/bar";
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      String[] uriSegments = uriNoTrailingSlash.split("/");
-      if (foo.containsKey(uriSegments[0]))
-      {
-        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-        if (inner.containsKey(uriSegments[1]))
-        {
-          Map<String, Object> endpointsByHttpMethod = inner.get(uriSegments[1]);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-    }
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uriNoTrailingSlash);
-    }
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcherCached.getBestMatchInfo(HttpMethod.GET,
-          uriNoTrailingSlash);
-    }
-  }
-
-  public void mapApproach(Map<String, Map<String, Map<String, Object>>> foo)
-  {
-    long start = System.currentTimeMillis();
-    String uriNoTrailingSlash = "foo/bar";
-    String httpMethod = HttpMethod.GET;
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      String[] uriSegments = uriNoTrailingSlash.split("/");
-      if (foo.containsKey(uriSegments[0]))
-      {
-        Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
-        if (inner.containsKey(uriSegments[1]))
-        {
-          Map<String, Object> endpointsByHttpMethod = inner.get(uriSegments[1]);
-          Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
-        }
-      }
-    }
-    System.out.println("Total time map: "
-        + (System.currentTimeMillis() - start) + "ms");
-  }
-
-  public void dispatcherBlocksApproach(JaxRsDispatcher jaxRsDispatcher)
-  {
-    // This is better for the blocks approach
-    String uriNoTrailingSlash = "foo/bar";
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uriNoTrailingSlash);
-    }
-    System.out.println("Total time dispatchBlocks w/o cache: "
-        + (System.currentTimeMillis() - start) + "ms");
-  }
-
-  public void dispatcherBlocksCachedApproach(JaxRsDispatcher jaxRsDispatcher)
-  {
-    // This is better for the blocks approach
-    String uriNoTrailingSlash = "foo/bar";
-    long start = System.currentTimeMillis();
-    for (int i = 0; i < ITERATIONS; i++)
-    {
-      jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uriNoTrailingSlash);
-    }
-    System.out.println("Total time dispatchBlocks w/ cache: "
-        + (System.currentTimeMillis() - start) + "ms");
-  }
-
-  @Test
-  public void perfTestAllComplicated()
-  {
-    // Warm-up
-    {
-      var uuidGroupNameStr = "g" + UUID.randomUUID().toString().replaceAll("-", "");
-      var uuidStr = UUID.randomUUID().toString();
-      String uri = "foo/" + uuidStr + "/";
-      long start;
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Pattern pattern = Pattern.compile("foo/(?<" + uuidGroupNameStr + ">[^/]+?)/.*");
-        Matcher matcher = pattern.matcher(uri);
-        boolean found = matcher.find();
-        String matchFound = matcher.group(uuidGroupNameStr);
-        if (i == 0)
-        {
-          System.out.println("Found " + matchFound);
-        }
-      }
-      start = System.currentTimeMillis();
-      Pattern pattern = Pattern.compile("foo/(?<" + uuidGroupNameStr + ">[^/]+?)/.*");
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Matcher matcher = pattern.matcher(uri);
-        boolean found = matcher.find();
-        String matchFound = matcher.group(uuidGroupNameStr);
-        if (i == 0)
-        {
-          System.out.println("Found " + matchFound);
-        }
-      }
-      JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-      jaxRsDispatcher.register(new FooResourceVar());
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        if (i == 0)
-        {
-          JaxRsDispatcher.DispatchBestMatchInfo match = jaxRsDispatcher
-              .getBestMatchInfo(HttpMethod.GET, uri);
-          System.out.println("Found " + match.getValues());
-        }
-      }
-      JaxRsDispatcher jaxRsDispatcherCached = new JaxRsDispatcher();
-      jaxRsDispatcherCached.setCacheEnabled(true);
-      jaxRsDispatcherCached.register(new FooResourceVar());
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        jaxRsDispatcherCached.getBestMatchInfo(HttpMethod.GET, uri);
-        if (i == 5)
-        {
-          JaxRsDispatcher.DispatchBestMatchInfo match = jaxRsDispatcherCached
-              .getBestMatchInfo(HttpMethod.GET, uri);
-          System.out.println("Found " + match.getValues());
-        }
-      }
-      JaxRsDispatcher jaxRsDispatcherCachedResin = new JaxRsDispatcher();
-      jaxRsDispatcherCachedResin.setCacheEnabled(true);
-      jaxRsDispatcherCachedResin.setUseResinCache(true);
-      jaxRsDispatcherCachedResin.register(new FooResourceVar());
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        jaxRsDispatcherCachedResin.getBestMatchInfo(HttpMethod.GET, uri);
-        if (i == 5)
-        {
-          JaxRsDispatcher.DispatchBestMatchInfo match = jaxRsDispatcherCachedResin
-              .getBestMatchInfo(HttpMethod.GET, uri);
-          System.out.println("Found " + match.getValues());
-        }
-      }
-      JaxRsDispatcher jaxRsDispatcherCachedCaff = new JaxRsDispatcher();
-      jaxRsDispatcherCachedCaff.setCacheEnabled(true);
-      jaxRsDispatcherCachedCaff.setUseCaffCache(true);
-      jaxRsDispatcherCachedCaff.register(new FooResourceVar());
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        jaxRsDispatcherCachedCaff.getBestMatchInfo(HttpMethod.GET, uri);
-        if (i == 5)
-        {
-          JaxRsDispatcher.DispatchBestMatchInfo match = jaxRsDispatcherCachedCaff
-              .getBestMatchInfo(HttpMethod.GET, uri);
-          System.out.println("Found " + match.getValues());
-        }
-      }
-    }
-    {
-      var uuidGroupNameStr = "g" + UUID.randomUUID().toString().replaceAll("-", "");
-      var uuidStr = UUID.randomUUID().toString();
-      String uri = "foo/" + uuidStr + "/";
-      // This is better for the map approach
-      long start;
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Pattern pattern = Pattern.compile("foo/(?<" + uuidGroupNameStr + ">[^/]+?)/.*");
-        Matcher matcher = pattern.matcher(uri);
-        boolean found = matcher.find();
-        String matchFound = matcher.group(uuidGroupNameStr);
-      }
-      System.out.println("Total time regex slow: "
-          + (System.currentTimeMillis() - start) + "ms");
-      start = System.currentTimeMillis();
-      Pattern pattern = Pattern.compile("foo/(?<" + uuidGroupNameStr + ">[^/]+?)/.*");
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        Matcher matcher = pattern.matcher(uri);
-        boolean found = matcher.find();
-        String matchFound = matcher.group(uuidGroupNameStr);
-      }
-      System.out.println("Total time regex fast: "
-          + (System.currentTimeMillis() - start) + "ms");
-      {
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.register(new FooResourceVar());
-        start = System.currentTimeMillis();
+      String uriNoTrailingSlash = "foo/bar";
+      Performance.time(() -> {
         for (int i = 0; i < ITERATIONS; i++)
         {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/o LRU cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      {
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.setCacheEnabled(true);
-        jaxRsDispatcher.register(new FooResourceVar());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/ LRU cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      {
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.setCacheEnabled(true);
-        jaxRsDispatcher.setUseResinCache(true);
-        jaxRsDispatcher.register(new FooResourceVar());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/ resin LRU cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      {
-        JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
-        jaxRsDispatcher.setCacheEnabled(true);
-        jaxRsDispatcher.setUseCaffCache(true);
-        jaxRsDispatcher.register(new FooResourceVar());
-
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
-        }
-        System.out.println("Total time dispatchBlocks w/ caffeine cache: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      {
-        start = System.currentTimeMillis();
-        for (int i = 0; i < ITERATIONS; i++)
-        {
-          List<JaxRsDispatcher.DispatchMatch> matches = new ArrayList<>(1);
-          matches.add(
-              new JaxRsDispatcher.DispatchMatch(null, null, null, null));
-          List<JaxRsDispatcher.DispatchMatch> matches2 = new ArrayList<>(1);
-          matches2.add(
-              new JaxRsDispatcher.DispatchMatch(null, null, null, null));
-        }
-        System.out.println("Total time create objects: "
-            + (System.currentTimeMillis() - start) + "ms");
-      }
-      /*JaxRsDispatcher.DispatchBlock top = new JaxRsDispatcher.DispatchBlock(null);
-      top.fullSegmentChildren = new JaxRsDispatcher.ChildDispatchBlockGroup();
-      JaxRsDispatcher.DispatchBlock foo = new JaxRsDispatcher.DispatchBlock(null);
-      top.fullSegmentChildren.addChildWordBlock("foo", foo);
-
-      foo.fullSegmentChildren = new JaxRsDispatcher.ChildDispatchBlockGroup();
-      JaxRsDispatcher.DispatchBlock variableBlock = new JaxRsDispatcher.DispatchBlock(null);
-      foo.fullSegmentChildren.setChildPureVariableBlock(variableBlock);
-
-      start = System.currentTimeMillis();
-      for (int i = 0; i < ITERATIONS; i++)
-      {
-        String[] uriSegments = uriNoTrailingSlash.split("/");
-        if (top.fullSegmentChildren != null) {
-          JaxRsDispatcher.DispatchBlock fooInner = top.fullSegmentChildren.getChildWordBlock(uriSegments[0]);
-          if (fooInner.fullSegmentChildren != null) {
-            JaxRsDispatcher.DispatchBlock pureVariableBlock = fooInner.fullSegmentChildren.getChildPureVariableBlock();
-            if (pureVariableBlock != null) {
-              Map<String, JaxRsDispatcher.Endpoint> endpointsByHttpMethod = pureVariableBlock.endpointsByHttpMethod;
+          String[] uriSegments = uriNoTrailingSlash.split("/");
+          if (foo.containsKey(uriSegments[0]))
+          {
+            Map<String, Map<String, Object>> inner = foo.get(uriSegments[0]);
+            if (inner.containsKey(uriSegments[1]))
+            {
+              Map<String, Object> endpointsByHttpMethod = inner.get(
+                  uriSegments[1]);
+              Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
             }
           }
         }
+      });
+    }
+
+    public static void perfTestMapFlat()
+    {
+      Map<String, Map<String, Object>> fooB = Map.of("foo/bar",
+          Map.of(HttpMethod.GET, new Object()));
+      String uriNoTrailingSlash = "foo/bar";
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          if (fooB.containsKey(uriNoTrailingSlash))
+          {
+            Map<String, Object> endpointsByHttpMethod = fooB.get(uriNoTrailingSlash);
+            Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
+          }
+        }
+      });
+    }
+
+    public static void perfTestMapFlatWithUriSplit()
+    {
+      Map<String, Map<String, Object>> fooB = Map.of("foo/bar",
+          Map.of(HttpMethod.GET, new Object()));
+      String uriNoTrailingSlash = "foo/bar";
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          String[] uriSegments = uriNoTrailingSlash.split("/");
+          if (fooB.containsKey(uriNoTrailingSlash))
+          {
+            Map<String, Object> endpointsByHttpMethod = fooB.get(uriNoTrailingSlash);
+            Object resource = endpointsByHttpMethod.get(HttpMethod.GET);
+          }
+        }
+      });
+    }
+
+    public static void perfTestJaxRs(JaxRsDispatcher jaxRsDispatcher)
+    {
+      String uriNoTrailingSlash = "foo/bar";
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET,
+              uriNoTrailingSlash);
+        }
+      });
+    }
+  }
+
+  static class ComplexUriPerformanceTest
+  {
+    public static class Runner
+    {
+      public static void main(String... args)
+      {
+        Performance.test(ComplexUriPerformanceTest.class,
+            ITERATIONS,
+            List.of(
+                List.of(REGEX_SLOW),
+                List.of(REGEX_FAST),
+                List.of(JAX_RS, NO_CACHE),
+                List.of(JAX_RS, GUAVA_LOADING_CACHE),
+                List.of(JAX_RS, RESIN_LRU_CACHE),
+                List.of(JAX_RS, CAFFEINE_LOADING_CACHE),
+                List.of(CREATE_OBJECTS)
+            ));
       }
-      System.out.println("Total time dispatchBlocks: " + (System.currentTimeMillis() - start) + "ms");*/
+    }
+
+    static final int    ITERATIONS             = 2_700_000;
+    // approaches
+    static final String REGEX_SLOW             = "regex slow";
+    static final String REGEX_FAST             = "regex fast";
+    static final String JAX_RS                 = "jax-rs";
+    static final String CREATE_OBJECTS         = "create objects (subset of jax-rs)";
+    // jax-rs customizations
+    static final String NO_CACHE               = "no cache";
+    static final String GUAVA_LOADING_CACHE    = "Guava LoadingCache";
+    static final String RESIN_LRU_CACHE        = "Resin LruCache";
+    static final String CAFFEINE_LOADING_CACHE = "Caffeine LoadingCache";
+
+    public static void main(String... args)
+        throws Exception
+    {
+      if (args.length > 0)
+      {
+        switch (args[0])
+        {
+          case REGEX_SLOW:
+            perfTestRegexSlow();
+            break;
+          case REGEX_FAST:
+            perfTestRegexFast();
+            break;
+          case JAX_RS:
+          {
+            JaxRsDispatcher jaxRsDispatcher = new JaxRsDispatcher();
+            jaxRsDispatcher.register(new FooResourceVar());
+            switch (args[1])
+            {
+              case NO_CACHE:
+                break;
+              case GUAVA_LOADING_CACHE:
+                jaxRsDispatcher.setCacheEnabled(true);
+                break;
+              case RESIN_LRU_CACHE:
+                jaxRsDispatcher.setCacheEnabled(true);
+                jaxRsDispatcher.setUseResinCache(true);
+                break;
+              case CAFFEINE_LOADING_CACHE:
+                jaxRsDispatcher.setCacheEnabled(true);
+                jaxRsDispatcher.setUseCaffCache(true);
+                break;
+              default:
+                throw new RuntimeException();
+            }
+            perfTestJaxRs(jaxRsDispatcher);
+            break;
+          }
+          case CREATE_OBJECTS:
+            perfTestCreateObjects();
+            break;
+          default:
+            throw new RuntimeException();
+        }
+      }
+    }
+
+    public static void perfTestRegexSlow()
+    {
+      var uuidGroupNameStr = "g" + UUID.randomUUID().toString().replaceAll("-", "");
+      var uuidStr = UUID.randomUUID().toString();
+      String uri = "foo/" + uuidStr + "/";
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          Pattern pattern = Pattern.compile("foo/(?<" + uuidGroupNameStr + ">[^/]+?)/.*");
+          Matcher matcher = pattern.matcher(uri);
+          boolean found = matcher.find();
+          String matchFound = matcher.group(uuidGroupNameStr);
+        }
+      });
+    }
+
+    public static void perfTestRegexFast()
+    {
+      var uuidGroupNameStr = "g" + UUID.randomUUID().toString().replaceAll("-", "");
+      var uuidStr = UUID.randomUUID().toString();
+      String uri = "foo/" + uuidStr + "/";
+      Pattern pattern = Pattern.compile("foo/(?<" + uuidGroupNameStr + ">[^/]+?)/.*");
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          Matcher matcher = pattern.matcher(uri);
+          boolean found = matcher.find();
+          String matchFound = matcher.group(uuidGroupNameStr);
+        }
+      });
+    }
+
+    public static void perfTestJaxRs(JaxRsDispatcher jaxRsDispatcher)
+    {
+      var uuidStr = UUID.randomUUID().toString();
+      String uri = "foo/" + uuidStr + "/";
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          jaxRsDispatcher.getBestMatchInfo(HttpMethod.GET, uri);
+        }
+      });
+    }
+
+    public static void perfTestCreateObjects()
+    {
+      Performance.time(() -> {
+        for (int i = 0; i < ITERATIONS; i++)
+        {
+          //noinspection MismatchedQueryAndUpdateOfCollection
+          List<JaxRsDispatcher.DispatchMatch> matches = new ArrayList<>(1);
+          matches.add(
+              new JaxRsDispatcher.DispatchMatch(null, null, null, null));
+        }
+      });
+    }
+  }
+
+  static class MethodCallPerformanceTest
+  {
+    public static class Runner
+    {
+      public static void main(String... args)
+      {
+        Performance.test(MethodCallPerformanceTest.class,
+            ITERATIONS,
+            List.of(
+                List.of(DIRECT_METHOD_CALL),
+                List.of(REFLECTION_LIBRARY),
+                List.of(METHOD_REFERENCE),
+                List.of(STANDARD_REFLECTION)
+            ));
+      }
+    }
+
+    static final int    ITERATIONS          = 1_000_000_000;
+    static final String DIRECT_METHOD_CALL  = "direct method call";
+    static final String REFLECTION_LIBRARY  = "reflection library";
+    static final String METHOD_REFERENCE    = "method reference";
+    static final String STANDARD_REFLECTION = "standard reflection";
+
+    static class Cow
+    {
+      public void moo()
+      {
+      }
+    }
+
+    public static void main(String... args)
+        throws Exception
+    {
+      if (args.length > 0)
+      {
+        switch (args[0])
+        {
+          case DIRECT_METHOD_CALL:
+            perfTestDirect();
+            break;
+          case REFLECTION_LIBRARY:
+            perfTestMethodAccess();
+            break;
+          case METHOD_REFERENCE:
+            perfTestReference();
+            break;
+          case STANDARD_REFLECTION:
+            perfTestReflection();
+            break;
+        }
+      }
+    }
+
+    public static void perfTestDirect()
+    {
+      Cow cow = new Cow();
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        cow.moo();
+      }
+      long start = System.nanoTime();
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        cow.moo();
+      }
+      System.out.print(System.nanoTime() - start);
+    }
+
+    public static void perfTestReference()
+    {
+      Cow cow = new Cow();
+      Runnable moo = cow::moo;
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        moo.run();
+      }
+      long start = System.nanoTime();
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        moo.run();
+      }
+      System.out.print(System.nanoTime() - start);
+    }
+
+    public static void perfTestReflection()
+        throws Exception
+    {
+      Cow cow = new Cow();
+      Method method = cow.getClass().getMethod("moo");
+      method.setAccessible(true);
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        method.invoke(cow);
+      }
+      long start = System.nanoTime();
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        method.invoke(cow);
+      }
+      System.out.print(System.nanoTime() - start);
+    }
+
+    public static void perfTestMethodAccess()
+    {
+      Cow cow = new Cow();
+      MethodAccess methodAccess = MethodAccess.get(Cow.class);
+      int index = methodAccess.getIndex("moo");
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        methodAccess.invoke(cow, index);
+      }
+      long start = System.nanoTime();
+      for (int i = 0; i < ITERATIONS; i++)
+      {
+        methodAccess.invoke(cow, index);
+      }
+      System.out.print(System.nanoTime() - start);
     }
   }
 }
