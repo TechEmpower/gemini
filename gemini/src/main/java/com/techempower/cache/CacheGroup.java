@@ -208,30 +208,6 @@ public class CacheGroup<T extends Identifiable>
     return this.objects.get(id);
   }
 
-  /**
-   * Returns an array of objects specified by the identities provided in
-   * an long array parameter.  This formerly provided a performance advantage
-   * over multiple calls to getObject, but that is no longer the case.  It
-   * remains as a convenience method.
-   *   <p>
-   * The array will contain null in any indexes for which an object was not
-   * found for the associated identity.
-   * 
-   * @param identities an long[] of object identities
-   */
-  public Identifiable[] select(long[] identities)
-  {
-    final Identifiable[] toReturn = new Identifiable[identities.length];
-    initializeIfNecessary();
-
-    for (int i = 0; i < identities.length; i++)
-    {
-      toReturn[i] = this.objects.get(identities[i]);
-    }
-    
-    return toReturn;
-  }
-
   @Override
   public List<T> list()
   {

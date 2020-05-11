@@ -388,6 +388,14 @@ public class EntityGroup<T extends Identifiable>
    */
   public T get(long idToGet)
   {
+    return rawGet(idToGet);
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected T rawGet(long idToGet)
+  {
     try (
         ConnectionMonitor monitor = this.cf.getConnectionMonitor();
         PreparedStatement statement = monitor.getConnection().prepareStatement(
@@ -600,6 +608,14 @@ public class EntityGroup<T extends Identifiable>
    */
   public int size()
   {
+    return rawSize();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected int rawSize()
+  {
     try (
         ConnectionMonitor monitor = this.cf.getConnectionMonitor();
         PreparedStatement statement = monitor.getConnection().prepareStatement(
@@ -629,6 +645,14 @@ public class EntityGroup<T extends Identifiable>
    * applicable).
    */
   public List<T> list()
+  {
+    return rawList();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected List<T> rawList()
   {
     final List<T> objects = new ArrayList<>();
     try (
@@ -667,6 +691,14 @@ public class EntityGroup<T extends Identifiable>
    */
   public List<T> list(Collection<Long> ids)
   {
+    return rawList(ids);
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected List<T> rawList(Collection<Long> ids)
+  {
     final TLongObjectMap<T> map = map(ids);
     final List<T> list = new ArrayList<>(ids.size());
     for (long idToList : ids)
@@ -685,6 +717,14 @@ public class EntityGroup<T extends Identifiable>
    * mapped by id.
    */
   public TLongObjectMap<T> map()
+  {
+    return rawMap();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected TLongObjectMap<T> rawMap()
   {
     final TLongObjectMap<T> objects = new TLongObjectHashMap<>();
     try (
@@ -719,6 +759,14 @@ public class EntityGroup<T extends Identifiable>
    * Returns a map of objects with the given ids.
    */
   public TLongObjectMap<T> map(Collection<Long> ids)
+  {
+    return rawMap(ids);
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected TLongObjectMap<T> rawMap(Collection<Long> ids)
   {
     if (ids.isEmpty())
     {
@@ -767,6 +815,14 @@ public class EntityGroup<T extends Identifiable>
    */
   public long lowest()
   {
+    return rawLowest();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected long rawLowest()
+  {
     return identityAggregate("MIN");
   }
 
@@ -775,6 +831,15 @@ public class EntityGroup<T extends Identifiable>
    * result can be computed.
    */
   public long highest()
+  {
+    return rawHighest();
+
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected long rawHighest()
   {
     return identityAggregate("MAX");
   }
