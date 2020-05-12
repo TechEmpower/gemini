@@ -26,6 +26,8 @@ import gnu.trove.map.*;
  * <li>contains() is not overridden as it doesn't exist in EntityGroup. You are
  * testing whether the *cache* contains it.
  * <li>size() uses CacheGroup's implementation, and so returns the cached size.
+ * <li>Outside of initialization, nothing automatically adds entities to the
+ * cache or removes them from the cache. You must manage that yourself.
  * </ul>
  */
 public class SubsetCacheGroup<T extends Identifiable> extends CacheGroup<T>
