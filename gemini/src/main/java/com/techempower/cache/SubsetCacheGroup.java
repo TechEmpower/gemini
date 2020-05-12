@@ -172,6 +172,31 @@ public class SubsetCacheGroup<T extends Identifiable> extends CacheGroup<T>
   }
 
   /**
+   * We override this to ensure that we only ask superclass to remove from cache
+   * objects that are already in there. We want this call to be as inexpensive as
+   * possible in case it is called often.
+   */
+  @Override
+  public boolean removeFromCache(long... ids)
+  {
+    List<Long> toRemove = new ArrayList<>();
+    // Build list of IDs that are cached, and should be removed.
+    for (long id : ids) {
+      if (this.contains(id)) {
+        toRemove.add(id);
+      }
+    }
+
+    // Only call super if we have IDs that need to be removed.
+    if (!toRemove.isEmpty()) {
+      return super.removeFromCache(CollectionHelper.toLongArray(toRemove));
+    } else {
+      // Indicating whether the cache was modified.
+      return false;
+    }
+  }
+
+  /**
    * Use EntityGroup's implementation to include both cached and un-cached.
    */
   @Override
