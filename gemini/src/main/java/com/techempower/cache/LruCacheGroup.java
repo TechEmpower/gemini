@@ -61,10 +61,11 @@ public class LruCacheGroup<T extends Identifiable>
       String where, 
       String[] whereArguments, 
       int size,
-      boolean readOnly) 
+      boolean readOnly,
+      boolean distribute) 
   {
     super(controller, type, table, id, maker, comparator, where, 
-        whereArguments, readOnly);
+        whereArguments, readOnly, distribute);
     
     objects = CacheBuilder.newBuilder()
         .maximumSize(size)
@@ -249,7 +250,8 @@ public class LruCacheGroup<T extends Identifiable>
           this.where,
           this.whereArguments,
           this.size,
-          this.readOnly);
+          this.readOnly,
+          this.distribute);
     }
 
     @Override

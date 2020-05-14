@@ -40,9 +40,9 @@ public class SubsetCacheGroup<T extends Identifiable> extends CacheGroup<T>
    * in.
    */
   protected SubsetCacheGroup(EntityStore controller, Class<T> type, String table, String id, EntityMaker<T> maker,
-      Comparator<? super T> comparator, String where, String[] whereArguments, boolean readOnly)
+      Comparator<? super T> comparator, String where, String[] whereArguments, boolean readOnly, boolean distribute)
   {
-    super(controller, type, table, id, maker, comparator, where, whereArguments, readOnly);
+    super(controller, type, table, id, maker, comparator, where, whereArguments, readOnly, distribute);
   }
 
   /**
@@ -233,7 +233,7 @@ public class SubsetCacheGroup<T extends Identifiable> extends CacheGroup<T>
         throw new NullPointerException();
       }
       return new SubsetCacheGroup<>(controller, this.type, this.table, this.id, this.maker, this.comparator, this.where,
-          this.whereArguments, this.readOnly);
+          this.whereArguments, this.readOnly, this.distribute);
     }
   }
 }
