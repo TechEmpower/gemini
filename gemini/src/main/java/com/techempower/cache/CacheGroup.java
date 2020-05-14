@@ -89,10 +89,11 @@ public class CacheGroup<T extends Identifiable>
       Comparator<? super T> comparator,
       String where, 
       String[] whereArguments,
-      boolean readOnly)
+      boolean readOnly,
+      boolean distribute)
   {
     super(controller, type, table, id, maker, comparator,
-        where, whereArguments, readOnly);
+        where, whereArguments, readOnly, distribute);
   }
 
   /**
@@ -906,6 +907,12 @@ public class CacheGroup<T extends Identifiable>
     protected Builder(Class<T> type)
     {
       super(type);
+
+      // CacheGroups default to true, since it is assumed that other instances are
+      // also using CacheGroups for this entity and will therefore need to notify
+      // DistributionListeners. However, if only a single instance uses a CacheGroup,
+      // this could be set to false to reduce noise on the message queue.
+      this.distribute = true;
     }
     
     @Override
@@ -925,7 +932,8 @@ public class CacheGroup<T extends Identifiable>
           this.comparator,
           this.where,
           this.whereArguments,
-          this.readOnly);
+          this.readOnly,
+          this.distribute);
     }
 
     @Override
@@ -946,6 +954,13 @@ public class CacheGroup<T extends Identifiable>
     public Builder<T> readOnly()
     {
       super.readOnly();
+      return this;
+    }
+
+    @Override
+    public Builder<T> distribute(boolean distribute)
+    {
+      super.distribute(distribute);
       return this;
     }
 

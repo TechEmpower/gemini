@@ -187,9 +187,9 @@ public class CacheMessageManager
   public <T extends Identifiable> void cacheTypeReset(Class<T> type)
   {
     final EntityGroup<T> group = this.store.getGroup(type);
-    if (!(group instanceof CacheGroup))
+    if (!group.distribute())
     {
-      return; // Don't distribute notifications for un-cached objects.
+      return; // Don't distribute notifications.
     }
     log.info("Sending 'cache type reset': {}", type.getSimpleName());
 
@@ -204,9 +204,9 @@ public class CacheMessageManager
       long identifier)
   {
     final EntityGroup<T> group = this.store.getGroup(type);
-    if (!(group instanceof CacheGroup))
+    if (!group.distribute())
     {
-      return; // Don't distribute notifications for un-cached objects.
+      return; // Don't distribute notifications.
     }
     log.info("Sending 'cache object expired': {}/{}",
         type.getSimpleName(), identifier);
@@ -233,9 +233,9 @@ public class CacheMessageManager
       long identifier)
   {
     final EntityGroup<T> group = this.store.getGroup(type);
-    if (!(group instanceof CacheGroup))
+    if (!group.distribute())
     {
-      return; // Don't distribute notifications for un-cached objects.
+      return; // Don't distribute notifications.
     }
     log.info("Sending 'remove from cache': {}/{}",
         type.getSimpleName(), identifier);

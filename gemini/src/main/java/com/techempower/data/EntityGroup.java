@@ -168,6 +168,7 @@ public class EntityGroup<T extends Identifiable>
   private final String getSingleQuery;
   private final String deleteSingleQuery;
   private final boolean readOnly;
+  private final boolean distribute;
   
   private DataFieldToMethodMap[] setMethods = null;
   private DataFieldToMethodMap[] getMethods = null;
@@ -219,7 +220,8 @@ public class EntityGroup<T extends Identifiable>
       Comparator<? super T> comparator,
       String where, 
       String[] whereArguments,
-      boolean readOnly)
+      boolean readOnly,
+      boolean distribute)
   {
     Objects.requireNonNull(entityStore, "EntityStore cannot be null.");
     
@@ -232,6 +234,7 @@ public class EntityGroup<T extends Identifiable>
     this.entityStore = entityStore;
     this.cf = entityStore.getConnectorFactory();
     this.readOnly = readOnly;
+    this.distribute = distribute;
 
     // 
     // Optional fields.
@@ -315,6 +318,14 @@ public class EntityGroup<T extends Identifiable>
   public boolean readOnly()
   {
     return this.readOnly;
+  }
+
+  /**
+   * Returns whether updates should be sent to DistributionListeners.
+   */
+  public boolean distribute()
+  {
+    return this.distribute;
   }
 
   /**
@@ -2195,6 +2206,13 @@ public class EntityGroup<T extends Identifiable>
     protected String where;
     protected String[] whereArguments;
     protected boolean readOnly = false;
+    /**
+     * EntityGroups default to false since if there is nothing cached, there is no
+     * need to notify DistributionListeners. However, if some instances use a
+     * CacheGroup for this entity, then it may be useful to set this to true so
+     * those instances can update their cache.
+     */
+    protected boolean distribute = false;
 
     /**
      * Returns a new builder of {@link EntityGroup} instances.
@@ -2225,7 +2243,8 @@ public class EntityGroup<T extends Identifiable>
           this.comparator,
           this.where,
           this.whereArguments,
-          this.readOnly);
+          this.readOnly,
+          this.distribute);
     }
 
     /**
@@ -2281,6 +2300,16 @@ public class EntityGroup<T extends Identifiable>
     public Builder<T> readOnly()
     {
       this.readOnly = true;
+      return this;
+    }
+
+    /**
+     * Specifies updates to the resulting EntityGroup should be passed to
+     * DistributionListeners.
+     */
+    public Builder<T> distribute(boolean distribute)
+    {
+      this.distribute = distribute;
       return this;
     }
 
