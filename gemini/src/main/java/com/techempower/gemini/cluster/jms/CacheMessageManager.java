@@ -389,6 +389,11 @@ public class CacheMessageManager
     @Override
     public void onMessage(javax.jms.Message message)
     {
+      if (!store.isInitialized())
+      {
+        log.debug("EntityStore is not yet initialized. Ignoring message.");
+        return;
+      }
       BroadcastMessage broadcastMessage = null;
       // cast object to BroadcastMessage
       if (message instanceof ObjectMessage)

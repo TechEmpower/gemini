@@ -1759,6 +1759,14 @@ public class EntityStore
     return Collections.unmodifiableList(typeAdapters);
   }
 
+  /**
+   * Returns whether this EntityStore has completed initialization.
+   */
+  public boolean isInitialized()
+  {
+    return initialized;
+  }
+
   @Override
   public String toString()
   {
