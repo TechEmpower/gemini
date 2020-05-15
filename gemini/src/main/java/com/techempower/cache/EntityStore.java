@@ -1021,14 +1021,32 @@ public class EntityStore
     }
 
     // Notify the listeners.
+    notifyListenersCacheObjectExpired(true, type, ids);
+  }
+
+  /**
+   * CacheMessageManager needs this in order to notify listeners about specific
+   * objects expiring.
+   * 
+   * @param notifyDistributionListeners Whether to notify distribution listeners.
+   *                                    CacheMessageManager would pass false to
+   *                                    this.
+   * @param type
+   * @param ids
+   */
+  public void notifyListenersCacheObjectExpired(boolean notifyDistributionListeners, Class<? extends Identifiable> type,
+      long... ids)
+  {
     final CacheListener[] toNotify = listeners;
     for (CacheListener listener : toNotify) {
-      for (long id : ids) {
-        listener.cacheObjectExpired(type, id);
+      if (!(listener instanceof DistributionListener) || notifyDistributionListeners) {
+        for (long id : ids) {
+          listener.cacheObjectExpired(type, id);
+        }
       }
     }
   }
-  
+
   /**
    * Puts a data entity into the database/data-store.  This will also cache
    * the entity if a cache is in use.  If the entity is new and is assigned

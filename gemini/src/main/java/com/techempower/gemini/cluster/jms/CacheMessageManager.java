@@ -459,6 +459,7 @@ public class CacheMessageManager
                 // This is a new entity, so create it and put it into the cache.
                 entity = cg.newObjectFromMap(cacheMessage.getObjectProperties());
                 cg.addToCache(entity);
+                store.notifyListenersCacheObjectExpired(false, cg.getType(), entity.getId());
                 log.info("Received 'cache object expired':{}", cacheMessage);
               }
               else
@@ -466,6 +467,7 @@ public class CacheMessageManager
                 // This is an existing entity, so update it.
                 cg.updateObjectFromMap(entity, cacheMessage.getObjectProperties());
                 cg.reorder(entity.getId());
+                store.notifyListenersCacheObjectExpired(false, cg.getType(), entity.getId());
                 log.info(
                     "Received 'cache object expired': {}, existing entity: {}",
                     cacheMessage, entity);
