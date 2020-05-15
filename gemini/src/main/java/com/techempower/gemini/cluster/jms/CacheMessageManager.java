@@ -187,9 +187,9 @@ public class CacheMessageManager
   public <T extends Identifiable> void cacheTypeReset(Class<T> type)
   {
     final EntityGroup<T> group = this.store.getGroup(type);
-    if (!(group instanceof CacheGroup))
+    if (!group.distribute())
     {
-      return; // Don't distribute notifications for un-cached objects.
+      return; // Don't distribute notifications.
     }
     log.info("Sending 'cache type reset': {}", type.getSimpleName());
 
@@ -204,9 +204,9 @@ public class CacheMessageManager
       long identifier)
   {
     final EntityGroup<T> group = this.store.getGroup(type);
-    if (!(group instanceof CacheGroup))
+    if (!group.distribute())
     {
-      return; // Don't distribute notifications for un-cached objects.
+      return; // Don't distribute notifications.
     }
     log.info("Sending 'cache object expired': {}/{}",
         type.getSimpleName(), identifier);
@@ -233,9 +233,9 @@ public class CacheMessageManager
       long identifier)
   {
     final EntityGroup<T> group = this.store.getGroup(type);
-    if (!(group instanceof CacheGroup))
+    if (!group.distribute())
     {
-      return; // Don't distribute notifications for un-cached objects.
+      return; // Don't distribute notifications.
     }
     log.info("Sending 'remove from cache': {}/{}",
         type.getSimpleName(), identifier);
@@ -389,6 +389,11 @@ public class CacheMessageManager
     @Override
     public void onMessage(javax.jms.Message message)
     {
+      if (!store.isInitialized())
+      {
+        log.debug("EntityStore is not yet initialized. Ignoring message.");
+        return;
+      }
       BroadcastMessage broadcastMessage = null;
       // cast object to BroadcastMessage
       if (message instanceof ObjectMessage)
@@ -454,6 +459,7 @@ public class CacheMessageManager
                 // This is a new entity, so create it and put it into the cache.
                 entity = cg.newObjectFromMap(cacheMessage.getObjectProperties());
                 cg.addToCache(entity);
+                store.notifyListenersCacheObjectExpired(false, cg.getType(), entity.getId());
                 log.info("Received 'cache object expired':{}", cacheMessage);
               }
               else
@@ -461,6 +467,7 @@ public class CacheMessageManager
                 // This is an existing entity, so update it.
                 cg.updateObjectFromMap(entity, cacheMessage.getObjectProperties());
                 cg.reorder(entity.getId());
+                store.notifyListenersCacheObjectExpired(false, cg.getType(), entity.getId());
                 log.info(
                     "Received 'cache object expired': {}, existing entity: {}",
                     cacheMessage, entity);

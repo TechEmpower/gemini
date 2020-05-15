@@ -63,10 +63,11 @@ public class PureMemoryGroup<T extends Identifiable>
       EntityMaker<T> maker, 
       Comparator<? super T> comparator, 
       GroupInitializer<T> initializer,
-      boolean readOnly)
+      boolean readOnly,
+      boolean distribute)
   {
     super(entityStore, type, null, null, maker, comparator, null, null, 
-        readOnly);
+        readOnly, distribute);
     this.initializer = initializer;
   }
   
@@ -177,6 +178,12 @@ public class PureMemoryGroup<T extends Identifiable>
     return containsRaw(entity);
   }
 
+  @Override
+  public String toString()
+  {
+    return "PureMemoryGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
+  }
+
   //
   // Inner classes.
   //
@@ -205,7 +212,8 @@ public class PureMemoryGroup<T extends Identifiable>
           this.maker,
           this.comparator,
           this.initializer,
-          this.readOnly);
+          this.readOnly,
+          this.distribute);
     }
 
     /**

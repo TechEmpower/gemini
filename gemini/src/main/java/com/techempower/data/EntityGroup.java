@@ -168,6 +168,7 @@ public class EntityGroup<T extends Identifiable>
   private final String getSingleQuery;
   private final String deleteSingleQuery;
   private final boolean readOnly;
+  private final boolean distribute;
   
   private DataFieldToMethodMap[] setMethods = null;
   private DataFieldToMethodMap[] getMethods = null;
@@ -219,7 +220,8 @@ public class EntityGroup<T extends Identifiable>
       Comparator<? super T> comparator,
       String where, 
       String[] whereArguments,
-      boolean readOnly)
+      boolean readOnly,
+      boolean distribute)
   {
     Objects.requireNonNull(entityStore, "EntityStore cannot be null.");
     
@@ -232,6 +234,7 @@ public class EntityGroup<T extends Identifiable>
     this.entityStore = entityStore;
     this.cf = entityStore.getConnectorFactory();
     this.readOnly = readOnly;
+    this.distribute = distribute;
 
     // 
     // Optional fields.
@@ -318,6 +321,14 @@ public class EntityGroup<T extends Identifiable>
   }
 
   /**
+   * Returns whether updates should be sent to DistributionListeners.
+   */
+  public boolean distribute()
+  {
+    return this.distribute;
+  }
+
+  /**
    * Returns the name of the database column that holds the identities of the
    * entities.
    */
@@ -387,6 +398,14 @@ public class EntityGroup<T extends Identifiable>
    * Returns the object with the given id, or null if there is no such object.
    */
   public T get(long idToGet)
+  {
+    return rawGet(idToGet);
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected T rawGet(long idToGet)
   {
     try (
         ConnectionMonitor monitor = this.cf.getConnectionMonitor();
@@ -600,6 +619,14 @@ public class EntityGroup<T extends Identifiable>
    */
   public int size()
   {
+    return rawSize();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected int rawSize()
+  {
     try (
         ConnectionMonitor monitor = this.cf.getConnectionMonitor();
         PreparedStatement statement = monitor.getConnection().prepareStatement(
@@ -629,6 +656,14 @@ public class EntityGroup<T extends Identifiable>
    * applicable).
    */
   public List<T> list()
+  {
+    return rawList();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected List<T> rawList()
   {
     final List<T> objects = new ArrayList<>();
     try (
@@ -667,6 +702,14 @@ public class EntityGroup<T extends Identifiable>
    */
   public List<T> list(Collection<Long> ids)
   {
+    return rawList(ids);
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected List<T> rawList(Collection<Long> ids)
+  {
     final TLongObjectMap<T> map = map(ids);
     final List<T> list = new ArrayList<>(ids.size());
     for (long idToList : ids)
@@ -685,6 +728,14 @@ public class EntityGroup<T extends Identifiable>
    * mapped by id.
    */
   public TLongObjectMap<T> map()
+  {
+    return rawMap();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected TLongObjectMap<T> rawMap()
   {
     final TLongObjectMap<T> objects = new TLongObjectHashMap<>();
     try (
@@ -719,6 +770,14 @@ public class EntityGroup<T extends Identifiable>
    * Returns a map of objects with the given ids.
    */
   public TLongObjectMap<T> map(Collection<Long> ids)
+  {
+    return rawMap(ids);
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected TLongObjectMap<T> rawMap(Collection<Long> ids)
   {
     if (ids.isEmpty())
     {
@@ -767,6 +826,14 @@ public class EntityGroup<T extends Identifiable>
    */
   public long lowest()
   {
+    return rawLowest();
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected long rawLowest()
+  {
     return identityAggregate("MIN");
   }
 
@@ -775,6 +842,15 @@ public class EntityGroup<T extends Identifiable>
    * result can be computed.
    */
   public long highest()
+  {
+    return rawHighest();
+
+  }
+
+  /**
+   * For use by subclasses. Not intended for use by client code.
+   */
+  protected long rawHighest()
   {
     return identityAggregate("MAX");
   }
@@ -2022,7 +2098,7 @@ public class EntityGroup<T extends Identifiable>
   @Override
   public String toString()
   {
-    return "EntityGroup [" + name() + "]";
+    return "EntityGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
   }
 
   //
@@ -2130,6 +2206,13 @@ public class EntityGroup<T extends Identifiable>
     protected String where;
     protected String[] whereArguments;
     protected boolean readOnly = false;
+    /**
+     * EntityGroups default to false since if there is nothing cached, there is no
+     * need to notify DistributionListeners. However, if some instances use a
+     * CacheGroup for this entity, then it may be useful to set this to true so
+     * those instances can update their cache.
+     */
+    protected boolean distribute = false;
 
     /**
      * Returns a new builder of {@link EntityGroup} instances.
@@ -2160,7 +2243,8 @@ public class EntityGroup<T extends Identifiable>
           this.comparator,
           this.where,
           this.whereArguments,
-          this.readOnly);
+          this.readOnly,
+          this.distribute);
     }
 
     /**
@@ -2216,6 +2300,16 @@ public class EntityGroup<T extends Identifiable>
     public Builder<T> readOnly()
     {
       this.readOnly = true;
+      return this;
+    }
+
+    /**
+     * Specifies updates to the resulting EntityGroup should be passed to
+     * DistributionListeners.
+     */
+    public Builder<T> distribute(boolean distribute)
+    {
+      this.distribute = distribute;
       return this;
     }
 

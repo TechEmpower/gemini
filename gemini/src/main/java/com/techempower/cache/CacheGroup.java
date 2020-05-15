@@ -89,10 +89,11 @@ public class CacheGroup<T extends Identifiable>
       Comparator<? super T> comparator,
       String where, 
       String[] whereArguments,
-      boolean readOnly)
+      boolean readOnly,
+      boolean distribute)
   {
     super(controller, type, table, id, maker, comparator,
-        where, whereArguments, readOnly);
+        where, whereArguments, readOnly, distribute);
   }
 
   /**
@@ -206,30 +207,6 @@ public class CacheGroup<T extends Identifiable>
   protected T getRaw(long id)
   {
     return this.objects.get(id);
-  }
-
-  /**
-   * Returns an array of objects specified by the identities provided in
-   * an long array parameter.  This formerly provided a performance advantage
-   * over multiple calls to getObject, but that is no longer the case.  It
-   * remains as a convenience method.
-   *   <p>
-   * The array will contain null in any indexes for which an object was not
-   * found for the associated identity.
-   * 
-   * @param identities an long[] of object identities
-   */
-  public Identifiable[] select(long[] identities)
-  {
-    final Identifiable[] toReturn = new Identifiable[identities.length];
-    initializeIfNecessary();
-
-    for (int i = 0; i < identities.length; i++)
-    {
-      toReturn[i] = this.objects.get(identities[i]);
-    }
-    
-    return toReturn;
   }
 
   @Override
@@ -849,7 +826,7 @@ public class CacheGroup<T extends Identifiable>
   @Override
   public String toString()
   {
-    return "CacheGroup [" + name() + "]";
+    return "CacheGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
   }
 
   @Override
@@ -930,6 +907,12 @@ public class CacheGroup<T extends Identifiable>
     protected Builder(Class<T> type)
     {
       super(type);
+
+      // CacheGroups default to true, since it is assumed that other instances are
+      // also using CacheGroups for this entity and will therefore need to notify
+      // DistributionListeners. However, if only a single instance uses a CacheGroup,
+      // this could be set to false to reduce noise on the message queue.
+      this.distribute = true;
     }
     
     @Override
@@ -949,7 +932,8 @@ public class CacheGroup<T extends Identifiable>
           this.comparator,
           this.where,
           this.whereArguments,
-          this.readOnly);
+          this.readOnly,
+          this.distribute);
     }
 
     @Override
@@ -970,6 +954,13 @@ public class CacheGroup<T extends Identifiable>
     public Builder<T> readOnly()
     {
       super.readOnly();
+      return this;
+    }
+
+    @Override
+    public Builder<T> distribute(boolean distribute)
+    {
+      super.distribute(distribute);
       return this;
     }
 
