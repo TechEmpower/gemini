@@ -524,7 +524,7 @@ public class EntityStore
     methodValueCaches.put(group.type(), 
         new MethodValueCache<>(this, group.type()));
     
-    log.debug("Registered {} with id {}", group, group.getGroupNumber());
+    log.info("Registered {} with id {}", group, group.getGroupNumber());
     return group;
   }
 
