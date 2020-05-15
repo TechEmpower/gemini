@@ -216,6 +216,12 @@ public class SubsetCacheGroup<T extends Identifiable> extends CacheGroup<T>
     return rawHighest();
   }
 
+  @Override
+  public String toString()
+  {
+    return "SubsetCacheGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
+  }
+
   /**
    * Creates new instances of {@code SubsetCacheGroup}.
    */

@@ -208,7 +208,7 @@ public class LruCacheGroup<T extends Identifiable>
   @Override
   public String toString()
   {
-    return "LruCacheGroup [" + getType().getSimpleName() + "]";
+    return "LruCacheGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
   }
 
   // 

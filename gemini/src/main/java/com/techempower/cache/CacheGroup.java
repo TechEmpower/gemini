@@ -826,7 +826,7 @@ public class CacheGroup<T extends Identifiable>
   @Override
   public String toString()
   {
-    return "CacheGroup [" + name() + "]";
+    return "CacheGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
   }
 
   @Override

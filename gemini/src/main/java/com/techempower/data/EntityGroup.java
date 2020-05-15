@@ -2098,7 +2098,7 @@ public class EntityGroup<T extends Identifiable>
   @Override
   public String toString()
   {
-    return "EntityGroup [" + name() + "]";
+    return "EntityGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
   }
 
   //

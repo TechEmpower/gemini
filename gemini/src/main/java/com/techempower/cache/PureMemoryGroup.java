@@ -178,6 +178,12 @@ public class PureMemoryGroup<T extends Identifiable>
     return containsRaw(entity);
   }
 
+  @Override
+  public String toString()
+  {
+    return "PureMemoryGroup [" + name() + "; ro: " + this.readOnly() + "; distribute: " + this.distribute() + "]";
+  }
+
   //
   // Inner classes.
   //
