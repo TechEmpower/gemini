@@ -794,11 +794,20 @@ public class JaxRsDispatcher
   {
     private final Resource resource;
     private final Method   method;
+    private final MediaTypeDataGroup mediaTypeConsumes;
+    private final MediaTypeDataGroup mediaTypeProduces;
 
+    // TODO: Change method to "callable" or some such.
     Endpoint(Resource resource, Method method)
     {
       this.resource = resource;
       this.method = method;
+      // TODO: Obtain from the method, likely outside then passed in so that
+      //  Method can become "callable" instead. Also, the media type can come
+      //  from the class.
+      // TODO: Look up "entity provider", section 4.2.3
+      mediaTypeConsumes = null;
+      mediaTypeProduces = null;
     }
   }
 
@@ -809,6 +818,10 @@ public class JaxRsDispatcher
     /*int uriStart = uri.startsWith("/") ? 1 : 0;
     int uriEnd = uri.length() - (uri.endsWith("/") ? 1 : 0);
     String normalizedUri = uri.substring(uriStart, uriEnd);*/
+    // TODO: Switch to CharSpan. Can also use a modified CharSpan to avoid the
+    //  need to create a normalized uri, since the split can just be told to
+    //  ignore the unnecessary characters (leading/trailing slash, though a
+    //  trailing slash is already ignored by String.split).
     String[] segments = uri.split("/");
     return rootBlock.getDispatchMatch(httpMethod, segments, 0);
   }
