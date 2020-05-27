@@ -27,11 +27,7 @@
 
 package com.techempower.gemini.cluster.jms;
 
-import com.techempower.gemini.GeminiApplication;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Session;
+import javax.jms.*;
 
 /**
  * JMS Publisher implementation for a publisher-subscriber message queue.
@@ -50,13 +46,6 @@ public class GeminiProducer
   public GeminiProducer(Connection connection, String topic)
   {
     super(connection, topic);
-  }
-
-  @Deprecated(forRemoval = true)
-  public GeminiProducer(GeminiApplication application, Connection connection,
-      String topic)
-  {
-    this(connection, topic);
   }
 
   /**

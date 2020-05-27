@@ -27,14 +27,14 @@
 
 package com.techempower.gemini.cluster.jms;
 
-import com.techempower.gemini.GeminiApplication;
-import com.techempower.gemini.cluster.message.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
+import java.util.Map.*;
 
 import javax.jms.*;
-import java.util.Map;
-import java.util.Map.Entry;
+
+import org.slf4j.*;
+
+import com.techempower.gemini.cluster.message.Message;
 
 /**
  * GeminiSender abstract base class for sending Gemini's message type with
@@ -61,13 +61,6 @@ public abstract class GeminiSender
   {
     this.connection = connection;
     this.destination = destination;
-  }
-
-  @Deprecated(forRemoval = true)
-  public GeminiSender(final GeminiApplication application,
-      final Connection connection, final String destination)
-  {
-    this(connection, destination);
   }
 
   /**

@@ -27,11 +27,9 @@
 
 package com.techempower.gemini.cluster.jms;
 
-import com.techempower.gemini.GeminiApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.jms.*;
+
+import org.slf4j.*;
 
 /**
  * BlockingConsumer wrapper/helper/base-class for a JMS Consumer
@@ -58,13 +56,6 @@ public abstract class BlockingReceiver
   {
     this.connection = connection;
     this.destination = destination;
-  }
-
-  @Deprecated(forRemoval = true)
-  public BlockingReceiver(GeminiApplication application,
-      Connection connection, String destination)
-  {
-    this(connection, destination);
   }
 
   /**
