@@ -10,7 +10,7 @@ class MediaTypeParserImpl
 {
   private final String qValueKey;
 
-  private static final String WILDCARD = "*";
+  private static final String  WILDCARD = "*";
   private static final Pattern mediaTypePattern;
   private static final Pattern parametersPattern;
 
@@ -67,7 +67,8 @@ class MediaTypeParserImpl
       mediaTypeEnd = mediaTypeMatcher.end();
       String type = mediaTypeMatcher.group(1);
       String subtype = mediaTypeMatcher.group(2);
-      if (type.equals(WILDCARD) && !subtype.equals(WILDCARD)) {
+      if (type.equals(WILDCARD) && !subtype.equals(WILDCARD))
+      {
         throw new ProcessingException(String.format(
             "Invalid type/subtype combination \"%s/%s\" in media" +
                 " type \"%s\", type must be concrete if subtype is concrete.",
