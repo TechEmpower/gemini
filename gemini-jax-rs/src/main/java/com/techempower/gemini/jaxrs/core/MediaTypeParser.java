@@ -14,5 +14,5 @@ package com.techempower.gemini.jaxrs.core;
  */
 public interface MediaTypeParser
 {
-  MediaTypeDataGroup parse(String mediaType);
+  QMediaTypeGroup parse(String mediaType);
 }

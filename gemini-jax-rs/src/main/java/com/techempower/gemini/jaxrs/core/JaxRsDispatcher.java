@@ -793,9 +793,9 @@ public class JaxRsDispatcher
   static class Endpoint
   {
     private final Resource resource;
-    private final Method   method;
-    private final MediaTypeDataGroup mediaTypeConsumes;
-    private final MediaTypeDataGroup mediaTypeProduces;
+    private final Method          method;
+    private final QMediaTypeGroup mediaTypeConsumes;
+    private final QMediaTypeGroup mediaTypeProduces;
 
     // TODO: Change method to "callable" or some such.
     Endpoint(Resource resource, Method method)

@@ -1,7 +1,9 @@
 package com.techempower.gemini.jaxrs.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,9 +12,9 @@ class MediaTypeParserImpl
 {
   private final String qValueKey;
 
-  private static final String  WILDCARD = "*";
-  private static final Pattern mediaTypePattern;
-  private static final Pattern parametersPattern;
+  private static final CharSpan WILDCARD = new CharSpan("*");
+  private static final Pattern  MEDIA_TYPE_PATTERN;
+  private static final Pattern  PARAMETERS_PATTERN;
 
   static
   {
@@ -27,14 +29,14 @@ class MediaTypeParserImpl
     // Group 1: key
     // Group 2: unquoted value
     // Group 3: quoted value
-    parametersPattern = Pattern.compile(
-        ows + ";" + ows + "(" + token + ")=(?:(" + token + ")|(" + quotedStr + "))");
+    PARAMETERS_PATTERN = Pattern.compile(
+        ows + ";" + ows + "(" + token + ")=(?:(" + token + ")|(?:" + quotedStr + "))");
 
     // Group 1: type
     // Group 2: subtype
     // Group 3: parameters
-    mediaTypePattern = Pattern.compile(
-        ",?(" + token + ")/(" + token + ")((" + parametersPattern.pattern() + ")*)");
+    MEDIA_TYPE_PATTERN = Pattern.compile(
+        ",?(" + token + ")/(" + token + ")((" + PARAMETERS_PATTERN.pattern() + ")*)");
   }
 
   MediaTypeParserImpl(String qValueKey)
@@ -43,17 +45,19 @@ class MediaTypeParserImpl
   }
 
   @Override
-  public MediaTypeDataGroup parse(String mediaType)
+  public QMediaTypeGroup parse(String mediaType)
   {
-    // Immediately fail if a leading comma is present. For simplicity with
-    // capturing multiple groups, the regex allows a leading comma, but this is
-    // invalid for the first group.
+    // Immediately fail if a leading comma is present. The regex allows a
+    // leading comma for simplicity with capturing multiple matches, but this
+    // is invalid for the first match.
     if (mediaType.charAt(0) == ',')
     {
-      return new MediaTypeDataGroup(List.of());
+      throw new ProcessingException(String.format(
+          "Could not fully parse media type \"%s\"," +
+              " parsed up to position 0.", mediaType));
     }
-    Matcher mediaTypeMatcher = mediaTypePattern.matcher(mediaType);
-    List<MediaTypeData> dataList = new ArrayList<>(1);
+    Matcher mediaTypeMatcher = MEDIA_TYPE_PATTERN.matcher(mediaType);
+    List<QMediaType> mediaTypes = new ArrayList<>(1);
     int mediaTypeEnd = 0;
     while (mediaTypeMatcher.find())
     {
@@ -65,8 +69,10 @@ class MediaTypeParserImpl
             mediaType, mediaTypeEnd));
       }
       mediaTypeEnd = mediaTypeMatcher.end();
-      String type = mediaTypeMatcher.group(1);
-      String subtype = mediaTypeMatcher.group(2);
+      CharSpan type = new CharSpan(mediaType, mediaTypeMatcher.start(1),
+          mediaTypeMatcher.end(1));
+      CharSpan subtype = new CharSpan(mediaType, mediaTypeMatcher.start(2),
+          mediaTypeMatcher.end(2));
       if (type.equals(WILDCARD) && !subtype.equals(WILDCARD))
       {
         throw new ProcessingException(String.format(
@@ -75,25 +81,30 @@ class MediaTypeParserImpl
             type, subtype, mediaType));
       }
       double qValue = 1d;
-      String parameters = mediaTypeMatcher.group(3);
-      if (parameters != null)
+      int mediaTypeGroup3Start = mediaTypeMatcher.start(3);
+      Map<CharSpan, CharSpan> parametersMap;
+      if (mediaTypeGroup3Start != -1)
       {
-        Matcher parametersMatcher = parametersPattern.matcher(parameters);
+        CharSpan parameters = new CharSpan(mediaType, mediaTypeGroup3Start,
+            mediaTypeMatcher.end(3));
+        Matcher parametersMatcher = PARAMETERS_PATTERN.matcher(parameters);
+        parametersMap = new HashMap<>(0);
         while (parametersMatcher.find())
         {
-          String key = parametersMatcher.group(1);
-          String unquotedValue = parametersMatcher.group(2);
-          // quotedValue will be needed later for lazily-evaluated methods
-          String quotedValue = parametersMatcher.group(3);
-          if (unquotedValue == null && quotedValue == null)
-          {
-            break;
-          }
-          if (key.equalsIgnoreCase(qValueKey) && unquotedValue != null)
+          CharSpan key = new CharSpan(parameters,
+              parametersMatcher.start(1), parametersMatcher.end(1));
+          CharSpan unquotedValue = new CharSpan(parameters,
+              parametersMatcher.start(2), parametersMatcher.end(2));
+          CharSpan quotedValue = new CharSpan(parameters,
+              parametersMatcher.start(3), parametersMatcher.end(3));
+          CharSpan value = unquotedValue.getStart() != -1
+              ? unquotedValue : quotedValue;
+          parametersMap.put(key, value);
+          if (key.toString().equalsIgnoreCase(qValueKey))
           {
             try
             {
-              qValue = Double.parseDouble(unquotedValue);
+              qValue = Double.parseDouble(value.toString());
             }
             catch (NumberFormatException e)
             {
@@ -119,7 +130,11 @@ class MediaTypeParserImpl
           }
         }
       }
-      dataList.add(new MediaTypeData(type, subtype, qValue));
+      else
+      {
+        parametersMap = Map.of();
+      }
+      mediaTypes.add(new LazyQMediaType(type, subtype, qValue, parametersMap));
     }
     if (mediaTypeEnd != mediaType.length())
     {
@@ -128,6 +143,6 @@ class MediaTypeParserImpl
               " parsed up to position %s.",
           mediaType, mediaTypeEnd));
     }
-    return new MediaTypeDataGroup(dataList);
+    return new QMediaTypeGroup(mediaTypes);
   }
 }
