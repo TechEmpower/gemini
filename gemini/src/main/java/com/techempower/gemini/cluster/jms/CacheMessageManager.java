@@ -27,24 +27,17 @@
 
 package com.techempower.gemini.cluster.jms;
 
-import com.techempower.cache.*;
-import com.techempower.collection.relation.LongRelation;
-import com.techempower.data.EntityGroup;
-import com.techempower.gemini.GeminiApplication;
-import com.techempower.gemini.cluster.DistributionListener;
-import com.techempower.gemini.cluster.message.BroadcastMessage;
-import com.techempower.gemini.cluster.message.CacheMessage;
-import com.techempower.gemini.cluster.message.CachedRelationMessage;
-import com.techempower.util.Configurable;
-import com.techempower.util.EnhancedProperties;
-import com.techempower.util.Identifiable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.jms.*;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
+import org.slf4j.*;
+
+import com.techempower.cache.*;
+import com.techempower.collection.relation.*;
+import com.techempower.data.*;
+import com.techempower.gemini.*;
+import com.techempower.gemini.cluster.*;
+import com.techempower.gemini.cluster.message.*;
+import com.techempower.util.*;
 
 /**
  * Handles cache maintenance messages for both sending and handling updates.
@@ -66,11 +59,15 @@ public class CacheMessageManager
   private final GeminiApplication application;
   private final Logger            log = LoggerFactory.getLogger(getClass());
   private final EntityStore       store;
-  private Connection              connection;
+  private ConnectionFactory       publishConnectionFactory;
+  private Connection              publishConnection;
+  private ConnectionFactory       subscribeConnectionFactory;
+  private Connection              subscribeConnection;
   private GeminiPublisher         publisher;
   private AsyncSubscriber         subscriber;
   private String                  instanceID;
   private int                     maximumRelationSize     = 10000;
+  private int                     deliveryMode            = DeliveryMode.PERSISTENT;
 
   //
   // Methods.
@@ -80,11 +77,12 @@ public class CacheMessageManager
    * Constructor.
    */
   public CacheMessageManager(GeminiApplication application,
-      Connection connection)
+      ConnectionFactory publishConnectionFactory, ConnectionFactory subscribeConnectionFactory)
   {
     this.application = application;
     this.store = application.getStore();
-    this.connection = connection;
+    this.publishConnectionFactory = publishConnectionFactory;
+    this.subscribeConnectionFactory = subscribeConnectionFactory;
     this.application.getConfigurator().addConfigurable(this);
   }
 
@@ -94,6 +92,7 @@ public class CacheMessageManager
     String propsPrefix = "CacheMessageManager.";
     this.maximumRelationSize = props.getInt(
         propsPrefix + "MaximumRelationSize", this.maximumRelationSize);
+    this.deliveryMode = props.getInt(propsPrefix + "DeliveryMode", this.deliveryMode);
   }
 
   /**
@@ -103,17 +102,16 @@ public class CacheMessageManager
    */
   public CacheMessageManager start() throws JMSException
   {
-    connect(connection);
+    connect(publishConnectionFactory, subscribeConnectionFactory);
     return this;
   }
 
   /**
    * Restarts a connection
    */
-  public void connect(Connection newConnection) throws JMSException
+  public void connect(ConnectionFactory publishConnectionFactory, ConnectionFactory subscribeConnectionFactory) throws JMSException
   {
-    this.connection = newConnection;
-    instanceID = newConnection.getClientID();
+    // Close existing publisher or subscriber
     if (this.publisher != null)
     {
       this.publisher.close();
@@ -122,16 +120,23 @@ public class CacheMessageManager
     {
       this.subscriber.close();
     }
-    newConnection.start();
 
-    this.publisher = new GeminiPublisher(newConnection,
-        CacheMessageManager.CACHE_TOPIC_DESTINATION);
+    // Create publish connection
+    this.publishConnection = publishConnectionFactory.createConnection();
+    instanceID = publishConnection.getClientID();
+    publishConnection.start();
+    this.publisher = new GeminiPublisher(publishConnection,
+        CacheMessageManager.CACHE_TOPIC_DESTINATION, deliveryMode);
     publisher.start();
+    log.info("JMS publish connection established   @{}", publishConnection.getClientID());
 
-    this.subscriber = new AsyncSubscriber(newConnection,
+    // Create subscribe connection
+    this.subscribeConnection = subscribeConnectionFactory.createConnection();
+    subscribeConnection.start();
+    this.subscriber = new AsyncSubscriber(subscribeConnection,
         CacheMessageManager.CACHE_TOPIC_DESTINATION);
     subscriber.start(new CacheSignalListener(this.application));
-    log.info("JMS Connection established @{}", newConnection.getClientID());
+    log.info("JMS subscribe connection established @{}", subscribeConnection.getClientID());
   }
 
   /**
@@ -160,7 +165,7 @@ public class CacheMessageManager
     try
     {
       this.publisher.send(message, MESSAGE_PROPERTY_UUID,
-          connection.getClientID());
+          publishConnection.getClientID());
     }
     catch (JMSException e)
     {

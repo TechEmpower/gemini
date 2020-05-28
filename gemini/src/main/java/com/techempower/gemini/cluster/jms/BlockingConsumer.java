@@ -27,12 +27,9 @@
 
 package com.techempower.gemini.cluster.jms;
 
-import com.techempower.gemini.GeminiApplication;
-import org.slf4j.LoggerFactory;
+import javax.jms.*;
 
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Session;
+import org.slf4j.*;
 
 /**
  * BlockingConsumer wrapper/helper for a JMS Consumer (for use with
@@ -53,13 +50,6 @@ public class BlockingConsumer
   {
     super(connection, destination);
     this.log = LoggerFactory.getLogger(getClass());
-  }
-
-  @Deprecated(forRemoval = true)
-  public BlockingConsumer(GeminiApplication application,
-      Connection connection, String destination)
-  {
-    this(connection, destination);
   }
 
   /**

@@ -27,11 +27,7 @@
 
 package com.techempower.gemini.cluster.jms;
 
-import com.techempower.gemini.GeminiApplication;
-
-import javax.jms.Connection;
-import javax.jms.JMSException;
-import javax.jms.Session;
+import javax.jms.*;
 
 /**
  * GeminiPublisher implementation for a publisher-subscriber message queue.
@@ -39,6 +35,8 @@ import javax.jms.Session;
 public class GeminiPublisher
     extends GeminiSender
 {
+  private final int deliveryMode;
+
   /**
    * Constructor. This is of a type <b>AutoCloseable</b>, so this should be
    * used in a <b>try-with</b> construct.
@@ -47,16 +45,10 @@ public class GeminiPublisher
    * a different connection/socket, since different sessions can be built from
    * the same connection object. Connection objects are resource heavy
    */
-  public GeminiPublisher(Connection connection, String topic)
+  public GeminiPublisher(Connection connection, String topic, int deliveryMode)
   {
     super(connection, topic);
-  }
-
-  @Deprecated(forRemoval = true)
-  public GeminiPublisher(GeminiApplication application,
-      Connection connection, String topic)
-  {
-    this(connection, topic);
+    this.deliveryMode = deliveryMode;
   }
 
   /**
@@ -68,8 +60,9 @@ public class GeminiPublisher
     connection.start();
     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
     producer = session.createProducer(session.createTopic(destination));
+    producer.setDeliveryMode(deliveryMode);
 
-    log.info("{} publisher@'{}'", connection, destination);
+    log.info("{} publisher@'{}' delivery mode {}", connection, destination, deliveryMode);
     return this;
   }
 

@@ -27,11 +27,9 @@
 
 package com.techempower.gemini.cluster.jms;
 
-import com.techempower.gemini.GeminiApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.jms.*;
+
+import org.slf4j.*;
 
 /**
  * AsyncConsumer is a thin wrapper for a JMS Consumer with an attached
@@ -57,13 +55,6 @@ public class AsyncConsumer
   {
     this.connection = connection;
     this.destination = destination;
-  }
-
-  @Deprecated(forRemoval = true)
-  public AsyncConsumer(final GeminiApplication application,
-      final Connection connection, final String destination)
-  {
-    this(connection, destination);
   }
 
   /**
