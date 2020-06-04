@@ -105,6 +105,15 @@ public class EntityStore
   private boolean         cacheMethodValues = false;
 
   /**
+   * Whether to expect the return value from Statement.executeUpdate() to indicate
+   * whether the row was actually changed. If using MySQL and the connect string
+   * has useAffectedRows=true set on it, then this can be used. It defaults to
+   * false because it is MySQL-specific and requires explicitly enabling this in
+   * the connect string.
+   */
+  private boolean         useAffectedRows   = false;
+
+  /**
    * The registered method value caches.  These allow you to quickly find 
    * entities by the value of a given field.
    */
@@ -201,6 +210,14 @@ public class EntityStore
     cacheMethodValues = props.getBoolean("CacheController.CacheMethodValues", false);
     cacheMethodValues = props.getBoolean("EntityStore.CacheMethodValues", cacheMethodValues);
     
+    // Whether to expect the return value from Statement.executeUpdate() to indicate
+    // whether the row was actually changed.
+    useAffectedRows   = props.getBoolean("EntityStore.UseAffectedRows", useAffectedRows);
+    if (useAffectedRows)
+    {
+      log.warn("EntityStore.UseAffectedRows is enabled, which REQUIRES that the database connection be configured so update statements return the count of affected rows. If unsure, disable this.");
+    }
+
     methodValueCaches = new HashMap<>();
     
     // This should only happen when the application is reconfigured.
@@ -1061,20 +1078,25 @@ public class EntityStore
       throw new ControllerError("Cannot put null entity.");
     }
     
-    getGroupSafe((Class<T>)entity.getClass()).put(entity);
-    
-    // Update method value caches.
-    final MethodValueCache<?> methodValueCache = methodValueCaches.get(entity.getClass());
-    if (methodValueCache != null)
+    int rowsUpdated = getGroupSafe((Class<T>)entity.getClass()).put(entity);
+
+    // If useAffectedRows is enabled, then only update the methodValueCache and
+    // notify the listeners if an actual change was persisted.
+    if (!useAffectedRows || rowsUpdated > 0)
     {
-      methodValueCache.update(entity.getId());
-    }
-    
-    // Notify the listeners.
-    final CacheListener[] toNotify = listeners;
-    for (CacheListener listener : toNotify)
-    {
-      listener.cacheObjectExpired(entity.getClass(), entity.getId());
+      // Update method value caches.
+      final MethodValueCache<?> methodValueCache = methodValueCaches.get(entity.getClass());
+      if (methodValueCache != null)
+      {
+        methodValueCache.update(entity.getId());
+      }
+      
+      // Notify the listeners.
+      final CacheListener[] toNotify = listeners;
+      for (CacheListener listener : toNotify)
+      {
+        listener.cacheObjectExpired(entity.getClass(), entity.getId());
+      }
     }
   }
 
@@ -1631,28 +1653,33 @@ public class EntityStore
     {
       Class<T> type = entry.getKey();
       Collection<T> collection = entry.getValue();
-      
+
       // Update the group.
-      getGroupSafe(type).putAll(collection);
-      
-      // Update method value caches.
-      MethodValueCache<T> methodValueCache = 
-          (MethodValueCache<T>)methodValueCaches.get(type);
-      if (methodValueCache != null)
+      int rowsUpdated = getGroupSafe(type).putAll(collection);
+
+      // If useAffectedRows is enabled, then only update the methodValueCache and
+      // notify the listeners if an actual change was persisted.
+      if (!useAffectedRows || rowsUpdated > 0)
       {
-        for (T object : collection)
+        // Update method value caches.
+        MethodValueCache<T> methodValueCache = 
+            (MethodValueCache<T>)methodValueCaches.get(type);
+        if (methodValueCache != null)
         {
-          methodValueCache.update(object.getId());
+          for (T object : collection)
+          {
+            methodValueCache.update(object.getId());
+          }
         }
-      }
-      
-      // Notify the listeners.
-      final CacheListener[] toNotify = listeners;
-      for (CacheListener listener : toNotify)
-      {
-        for (T object : collection)
+        
+        // Notify the listeners.
+        final CacheListener[] toNotify = listeners;
+        for (CacheListener listener : toNotify)
         {
-          listener.cacheObjectExpired(object.getClass(), object.getId());
+          for (T object : collection)
+          {
+            listener.cacheObjectExpired(object.getClass(), object.getId());
+          }
         }
       }
     }

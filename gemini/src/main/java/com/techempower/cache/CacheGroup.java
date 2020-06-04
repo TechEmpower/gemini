@@ -241,7 +241,7 @@ public class CacheGroup<T extends Identifiable>
    * Add an object to the cache and the data store.
    */
   @Override
-  public void put(T object)
+  public int put(T object)
   {
     if (readOnly())
     {
@@ -255,7 +255,7 @@ public class CacheGroup<T extends Identifiable>
     final boolean persisted = isPersisted(object);
     
     // Persist the object.
-    putPersistent(object);
+    int rowsUpdated = putPersistent(object);
     
     if (persisted)
     {
@@ -268,6 +268,7 @@ public class CacheGroup<T extends Identifiable>
       // Object was not persisted, so let's add it to the cache.
       addToCache(object);
     }
+    return rowsUpdated;
   }
   
   /**
@@ -278,10 +279,10 @@ public class CacheGroup<T extends Identifiable>
    * This method is exposed as a protected class to allow subclasses to 
    * specialize the persistence behavior.  
    */
-  protected void putPersistent(T object)
+  protected int putPersistent(T object)
   {
     // Ask the EntityGroup parent to persist the changes.
-    super.put(object);
+    return super.put(object);
   }
 
   /**
@@ -289,7 +290,7 @@ public class CacheGroup<T extends Identifiable>
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void putAll(Collection<T> objectsToPut)
+  public int putAll(Collection<T> objectsToPut)
   {
     if (readOnly())
     {
@@ -315,7 +316,7 @@ public class CacheGroup<T extends Identifiable>
     }
     
     // Persist the changes.
-    putAllPersistent(objectsToPut);
+    int rowsUpdated = putAllPersistent(objectsToPut);
     
     // Reorder any previously-persisted objects in case the field we are 
     // ordered by was changed.
@@ -323,6 +324,8 @@ public class CacheGroup<T extends Identifiable>
     
     // Add any objects we did not previously know about.
     addToCache(nonPersisted.toArray((T[])Array.newInstance(type(), nonPersisted.size())));
+
+    return rowsUpdated;
   }
   
   /**
@@ -333,10 +336,10 @@ public class CacheGroup<T extends Identifiable>
    * This method is exposed as a protected class to allow subclasses to 
    * specialize the persistence behavior.  
    */
-  protected void putAllPersistent(Collection<T> objectsToPut)
+  protected int putAllPersistent(Collection<T> objectsToPut)
   {
     // Ask the EntityGroup parent to persist the objects.
-    super.putAll(objectsToPut);
+    return super.putAll(objectsToPut);
   }
 
   /**
