@@ -441,8 +441,9 @@ public class EntityGroup<T extends Identifiable>
    * 
    * @param object The object to put ("put" means persist to disk and update in 
    * cache if this is a cache group.)
+   * @return The JDBC Statement.executeUpdate() return value.
    */
-  public void put(T object)
+  public int put(T object)
   {
     if (readOnly)
     {
@@ -463,11 +464,11 @@ public class EntityGroup<T extends Identifiable>
     
     if (isPersisted(object))
     {
-      update(object);
+      return update(object);
     }
     else
     {
-      insert(object);
+      return insert(object);
     }
   }
 
@@ -478,11 +479,12 @@ public class EntityGroup<T extends Identifiable>
    * 
    * @param objects The objects to put ("put" means persist to disk and update
    * in cache if this is a cache group.)
+   * @return Sum of the positive JDBC Statement.executeUpdate() return values.
    */
   @SafeVarargs
-  public final void putAll(T... objects)
+  public final int putAll(T... objects)
   {
-    putAll(CollectionHelper.toList(objects));
+    return putAll(CollectionHelper.toList(objects));
   }
   
   /**
@@ -492,8 +494,9 @@ public class EntityGroup<T extends Identifiable>
    * 
    * @param objects The objects to put ("put" means persist to disk and update
    * in cache if this is a cache group.)
+   * @return Sum of the positive JDBC Statement.executeUpdate() return values.
    */
-  public void putAll(Collection<T> objects)
+  public int putAll(Collection<T> objects)
   {
     if (readOnly)
     {
@@ -505,9 +508,11 @@ public class EntityGroup<T extends Identifiable>
        || (objects.isEmpty())
        )
     {
-      return;
+      return 0;
     }
-    
+
+    int rowsUpdated = 0;
+
     // If the size of the collection is fewer than 100, just call put()
     // in a loop.  In testing, we've not observed a benefit to using batch
     // updates (as provided by updateAll).
@@ -515,7 +520,12 @@ public class EntityGroup<T extends Identifiable>
     {
       for (T object : objects)
       {
-        put(object);
+        int c = put(object);
+        if (c > 0)
+        {
+          // Only accumulate positive values;
+          rowsUpdated += c;
+        }
       }
     }
     else
@@ -542,9 +552,10 @@ public class EntityGroup<T extends Identifiable>
         }
       }
       
-      updateAll(persisted);
-      insertAll(nonPersisted);
+      rowsUpdated += updateAll(persisted);
+      rowsUpdated += insertAll(nonPersisted);
     }
+    return rowsUpdated;
   }
 
   /**
@@ -956,8 +967,10 @@ public class EntityGroup<T extends Identifiable>
    * identity is zero, it is assumed the database will generate and return an
    * auto-incremented id.  If its identity is greater than zero, the object 
    * will be inserted with that id.
+   * @return The number of affected rows returned by the JDBC connection.
+   * @return The JDBC Statement.executeUpdate() return value.
    */
-  protected void insert(T object)
+  protected int insert(T object)
   {
     // Include the ID field if it has been specified already by the object.
     final DataFieldToMethodMap[] fields = (object.getId() > 0)
@@ -987,7 +1000,7 @@ public class EntityGroup<T extends Identifiable>
         applyValueToStatement(field, value, statement, index++);
       }
       //this.log.debug(statement.toString());
-      statement.executeUpdate();
+      int rowsUpdated = statement.executeUpdate();
       
       // If the entity is persistence aware, let's inform it that it has been
       // persisted.
@@ -1011,6 +1024,7 @@ public class EntityGroup<T extends Identifiable>
           }
         }
       }
+      return rowsUpdated;
     }
     catch (SQLException e)
     {
@@ -1023,20 +1037,22 @@ public class EntityGroup<T extends Identifiable>
    * given object's identity is zero, it is assumed the database will generate
    * and return an auto-incremented id.  If its identity is greater than zero,
    * the object will be inserted with that id.
+   * @return Sum of the positive JDBC Statement.executeUpdate() return values.
    */
-  protected void insertAll(Collection<T> objects)
+  protected int insertAll(Collection<T> objects)
   {
     if (  (objects == null)
        || (objects.isEmpty())
        )
     {
-      return;
+      return 0;
     }
     
     // First, subdivide this into objects with id and those without.  Different
     // logic will be used to insert each.
     List<T> objectsWithId = new ArrayList<>(objects.size());
     List<T> objectsWithoutId = new ArrayList<>(objects.size());
+    int rowsUpdated = 0;
     for (T object : objects)
     {
       if (object.getId() > 0)
@@ -1122,13 +1138,13 @@ public class EntityGroup<T extends Identifiable>
           if (!objectsWithId.isEmpty())
           {
             //this.log.debug(statementWithId.toString());
-            statementWithId.executeBatch();
+            rowsUpdated += accumulatePositiveValues(statementWithId.executeBatch());
           }
           
           if (!objectsWithoutId.isEmpty())
           {
             //this.log.debug(statementWithoutId.toString());
-            statementWithoutId.executeBatch();
+            rowsUpdated += accumulatePositiveValues(statementWithoutId.executeBatch());
             
             // Gather the new ids from the Statement.
             try (ResultSet resultSet = statementWithoutId.getGeneratedKeys())
@@ -1157,6 +1173,7 @@ public class EntityGroup<T extends Identifiable>
           }
         }
       }
+      return rowsUpdated;
     }
     catch (SQLException e)
     {
@@ -1167,8 +1184,9 @@ public class EntityGroup<T extends Identifiable>
   /**
    * Called by put(object) to update the object in the database and returns 
    * its id.
+   * @return The JDBC Statement.executeUpdate() return value.
    */
-  protected void update(T object)
+  protected int update(T object)
   {
     // Include every field in the update except the id.
     final DataFieldToMethodMap[] fields = getGetMethodMappingCacheWithoutId();
@@ -1191,7 +1209,7 @@ public class EntityGroup<T extends Identifiable>
         applyValueToStatement(field, value, statement, index++);
       }
       //this.log.debug(statement.toString());
-      statement.executeUpdate();
+      return statement.executeUpdate();
     }
     catch (SQLException e)
     {
@@ -1201,16 +1219,17 @@ public class EntityGroup<T extends Identifiable>
 
   /**
    * Called by put(objects) to update the objects in the database.
+   * @return Sum of the positive JDBC Statement.executeUpdate() return values.
    */
-  protected void updateAll(Collection<T> objects)
+  protected int updateAll(Collection<T> objects)
   {
     if (  (objects == null) 
        || (objects.isEmpty())
        )
     {
-      return;
+      return 0;
     }
-    
+
     final DataFieldToMethodMap[] fields = getGetMethodMappingCacheWithoutId();
     final String fieldParts = getFieldPartsForUpdate();
 
@@ -1234,12 +1253,32 @@ public class EntityGroup<T extends Identifiable>
         }
         statement.addBatch();
       }
-      statement.executeBatch();
+      return accumulatePositiveValues(statement.executeBatch());
     }
     catch (SQLException e)
     {
       throw new EntityException("Exception during UPDATE.", e);
     }
+  }
+
+  /**
+   * The caller doesn't have the context to make use of the information in the
+   * array, so instead simply count up the total rows updated. Only sum values > 0
+   * because negative values can indicate "no information" and including those in
+   * the sum could misrepresent whether rows were affected.
+   * 
+   * @param rowUpdateCounts
+   * @return
+   */
+  private int accumulatePositiveValues(int[] rowUpdateCounts)
+  {
+    int rowsUpdated = 0;
+    for (int row : rowUpdateCounts) {
+      if (row > 0) {
+        rowsUpdated += row;
+      }
+    }
+    return rowsUpdated;
   }
 
   /**

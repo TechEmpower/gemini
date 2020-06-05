@@ -111,9 +111,10 @@ public class PureMemoryGroup<T extends Identifiable>
    * of entities.
    */
   @Override
-  protected void putPersistent(T object)
+  protected int putPersistent(T object)
   {
     // Does nothing.
+    return 0;
   }
   
   /**
@@ -121,9 +122,10 @@ public class PureMemoryGroup<T extends Identifiable>
    * of entities.
    */
   @Override
-  protected void putAllPersistent(Collection<T> objects)
+  protected int putAllPersistent(Collection<T> objects)
   {
     // Does nothing.
+    return 0;
   }
 
   /**

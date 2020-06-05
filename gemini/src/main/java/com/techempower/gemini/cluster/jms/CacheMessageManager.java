@@ -123,12 +123,12 @@ public class CacheMessageManager
 
     // Create publish connection
     this.publishConnection = publishConnectionFactory.createConnection();
-    instanceID = publishConnection.getClientID();
     publishConnection.start();
+    instanceID = publishConnection.getClientID();
     this.publisher = new GeminiPublisher(publishConnection,
         CacheMessageManager.CACHE_TOPIC_DESTINATION, deliveryMode);
     publisher.start();
-    log.info("JMS publish connection established   @{}", publishConnection.getClientID());
+    log.info("JMS publish connection established   @{}", instanceID);
 
     // Create subscribe connection
     this.subscribeConnection = subscribeConnectionFactory.createConnection();

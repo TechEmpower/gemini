@@ -144,19 +144,27 @@ public class LruCacheGroup<T extends Identifiable>
   }
   
   @Override
-  public void put(T object)
+  public int put(T object)
   {
-    super.put(object);
+    int rowsUpdated = super.put(object);
     objects.put(object.getId(), object);
+    return rowsUpdated;
   }
   
   @Override
-  public void putAll(Collection<T> objectsToPut)
+  public int putAll(Collection<T> objectsToPut)
   {
+    int rowsUpdated = 0;
     for (T object : objectsToPut) 
     {
-      put(object);
+      int c = put(object);
+      if (c > 0)
+      {
+        // Only accumulate positive values;
+        rowsUpdated += c;
+      }
     }
+    return rowsUpdated;
   }
   
   @Override
