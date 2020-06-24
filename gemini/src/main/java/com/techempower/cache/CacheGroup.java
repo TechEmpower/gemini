@@ -797,9 +797,12 @@ public class CacheGroup<T extends Identifiable>
       for (long id : ids)
       {
         // Remove the object with this id from the cache, if it's there.
-        if (comparator == EntityGroup.NO_COMPARATOR) {
+        if (comparator == EntityGroup.NO_COMPARATOR)
+        {
           map.remove(id);
-        } else {
+        }
+        else
+        {
           // Only update orderedList if sorting is desired.
           orderedList.remove(map.remove(id));
         }
@@ -810,7 +813,8 @@ public class CacheGroup<T extends Identifiable>
         {
           map.put(id, object);
           // Only update orderedList if sorting is desired.
-          if (comparator != EntityGroup.NO_COMPARATOR) {
+          if (comparator != EntityGroup.NO_COMPARATOR)
+          {
             // Use the comparator to insert it at the appropriate position.
             int search = Collections.binarySearch(orderedList, object, comparator);
             if (search < 0)
