@@ -114,6 +114,21 @@ public class EntityGroup<T extends Identifiable>
       };
 
   /**
+   * Skips sorting entirely. This is the comparator to specify if your application
+   * prefers to avoid the performance cost (both in synchronization locks and data
+   * structure updates) of maintaining a sorted list of these entities.
+   */
+  public static final Comparator<Identifiable> NO_COMPARATOR =
+      new Comparator<Identifiable>() {
+        @Override
+        public int compare(Identifiable o1, Identifiable o2)
+        {
+          // This should never be called.
+          throw new UnsupportedOperationException();
+        }
+      };
+
+  /**
    * Gets a suitable default Comparator for the group, using the natural order
    * if the type is Comparable, and the IDs if not.
    */
@@ -702,7 +717,11 @@ public class EntityGroup<T extends Identifiable>
     {
       throw new EntityException("Exception during SELECT (list).", e);
     }
-    Collections.sort(objects, this.comparator);
+    // Skip sorting if not desired.
+    if (this.comparator != NO_COMPARATOR)
+    {
+      Collections.sort(objects, this.comparator);
+    }
     return objects;
   }
 

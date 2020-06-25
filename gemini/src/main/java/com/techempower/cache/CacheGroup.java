@@ -159,7 +159,11 @@ public class CacheGroup<T extends Identifiable>
 
         // Replace the member variables.
         this.objects = workMap; 
-        this.objectsInOrder = new CopyOnWriteArrayList<>(workList);
+        // Avoid maintaining the sorted list if not needed.
+        if (comparator() != EntityGroup.NO_COMPARATOR)
+        {
+          this.objectsInOrder = new CopyOnWriteArrayList<>(workList);
+        }
 
         // If we're setting objects from somewhere else, we should assume
         // that this is initializing the cache group.
@@ -213,7 +217,11 @@ public class CacheGroup<T extends Identifiable>
   public List<T> list()
   {
     initializeIfNecessary();
-    
+    // If sorting is disabled, return values().
+    if (comparator() == EntityGroup.NO_COMPARATOR)
+    {
+      return new ArrayList<>(this.objects.values());
+    }
     return new ArrayList<>(this.objectsInOrder);
   }
   
@@ -384,42 +392,66 @@ public class CacheGroup<T extends Identifiable>
   {
     // Grab references.
     final ConcurrentMap<Long, T> map = this.objects;
-    final List<T> orderedList = this.objectsInOrder;
+    final Comparator<? super T> comparator = comparator();
     
-    synchronized (this)
+    // Avoid maintaining the sorted list if not needed.
+    if (comparator == EntityGroup.NO_COMPARATOR)
     {
       for (T object : objectsToAdd)
       {
-        // Only proceed if we don't already have this reference in the cache.
-        if (!map.containsValue(object))
+        map.put(object.getId(), object);
+
+        if (areHighLowIdentitiesInitialized())
         {
-          // If we already have a reference with the same ID, let's remove it.
-          if (map.containsKey(object.getId()))
+          if (object.getId() < this.lowestIdentity)
           {
-            // Remove the existing reference from the ordered list.
-            orderedList.remove(map.get(object.getId()));
+            this.lowestIdentity = object.getId();
           }
-          
-          map.put(object.getId(), object);
-          int search = Collections.binarySearch(orderedList, object, comparator());
-          if (search < 0)
+          if (object.getId() > this.highestIdentity)
           {
-            orderedList.add(-search - 1, object);
+            this.highestIdentity = object.getId();
           }
-          else
+        }
+      }
+    }
+    else
+    {
+      final List<T> orderedList = this.objectsInOrder;
+      synchronized (this)
+      {
+        for (T object : objectsToAdd)
+        {
+          // Only proceed if we don't already have this reference in the cache.
+          if (!map.containsValue(object))
           {
-            orderedList.add(object);
-          }
-    
-          if (areHighLowIdentitiesInitialized())
-          {
-            if (object.getId() < this.lowestIdentity)
+            // If we already have a reference with the same ID, let's remove it.
+            if (map.containsKey(object.getId()))
             {
-              this.lowestIdentity = object.getId();
+              // Remove the existing reference from the ordered list.
+              orderedList.remove(map.get(object.getId()));
             }
-            if (object.getId() > this.highestIdentity)
+
+            map.put(object.getId(), object);
+            int search = Collections.binarySearch(orderedList, object, comparator);
+            if (search < 0)
             {
-              this.highestIdentity = object.getId();
+              orderedList.add(-search - 1, object);
+            }
+            else
+            {
+              orderedList.add(object);
+            }
+
+            if (areHighLowIdentitiesInitialized())
+            {
+              if (object.getId() < this.lowestIdentity)
+              {
+                this.lowestIdentity = object.getId();
+              }
+              if (object.getId() > this.highestIdentity)
+              {
+                this.highestIdentity = object.getId();
+              }
             }
           }
         }
@@ -442,8 +474,19 @@ public class CacheGroup<T extends Identifiable>
   {
     // Grab references.
     final ConcurrentMap<Long, T> map = this.objects;
+
+    // Skip updating objectsInOrder if not using sorting.
+    if (comparator() == EntityGroup.NO_COMPARATOR)
+    {
+      for (long id : ids)
+      {
+        map.remove(id);
+      }
+      return true;
+    }
+
+    // Using sorting, so maintain objectsInOrder.
     final List<T> orderedList = this.objectsInOrder;
-    
     synchronized (this)
     {
       for (long id : ids)
@@ -546,8 +589,13 @@ public class CacheGroup<T extends Identifiable>
   {
     synchronized (this)
     {
-      this.objectsInOrder = new CopyOnWriteArrayList<>(fetchAllPersistedObjects());
-      copyOrderedObjectsToMap();
+      List<T> allObjects = fetchAllPersistedObjects();
+      // Avoid maintaining the sorted list if not needed.
+      if (comparator() != EntityGroup.NO_COMPARATOR)
+      {
+        this.objectsInOrder = new CopyOnWriteArrayList<>(allObjects);
+      }
+      copyListToObjectMap(allObjects);
       
       // Reset the high and low identities.
       resetHighLowIdentities();
@@ -582,13 +630,13 @@ public class CacheGroup<T extends Identifiable>
   /**
    * Copies ordered objects to the LongMap.
    */
-  protected void copyOrderedObjectsToMap()
+  protected void copyListToObjectMap(List<T> l)
   {
-    final Iterator<T> iter = this.objectsInOrder.iterator();
+    final Iterator<T> iter = l.iterator();
     
     // Create a new map, work, to populate.
     final ConcurrentMap<Long, T> work = new ConcurrentHashMap<>(
-        this.objectsInOrder.size());
+        l.size());
     T co;
     while (iter.hasNext())
     {
@@ -661,7 +709,9 @@ public class CacheGroup<T extends Identifiable>
    */
   protected void calculateHighLowIdentities()
   {
-    final Iterator<?> iter = this.objectsInOrder.iterator();
+    // Use objects instead of objectsInOrder in case NO_COMPARATOR is specified and
+    // objectsInOrder is not maintained.
+    final Iterator<?> iter = this.objects.values().iterator();
     
     Identifiable co;
     long id;
@@ -728,40 +778,53 @@ public class CacheGroup<T extends Identifiable>
   @Override
   public void refresh(long... ids)
   {
+    // If the group is not initialized, we're done.
+    if (!this.initialized)
+    {
+      return;
+    }
+
     // Grab references.
     final ConcurrentMap<Long, T> map = this.objects;
     final List<T> orderedList = this.objectsInOrder;
+    final Comparator<? super T> comparator = comparator();
 
     synchronized (this)
     {
-      // If the group is not initialized, we're done.
-      if (!this.initialized)
-      {
-        return;
-      }
-      
       // Fetch the new objects.
       final TLongObjectMap<T> objectsMap = super.map(CollectionHelper.toList(ids));
       
       for (long id : ids)
       {
         // Remove the object with this id from the cache, if it's there.
-        orderedList.remove(map.remove(id));
+        if (comparator == EntityGroup.NO_COMPARATOR)
+        {
+          map.remove(id);
+        }
+        else
+        {
+          // Only update orderedList if sorting is desired.
+          orderedList.remove(map.remove(id));
+        }
         final T object = objectsMap.get(id);
         
         // Put the newly loaded object into the cache.
         if (object != null)
         {
           map.put(id, object);
-          // Use the comparator to insert it at the appropriate position.
-          int search = Collections.binarySearch(orderedList, object, comparator());
-          if (search < 0)
+          // Only update orderedList if sorting is desired.
+          if (comparator != EntityGroup.NO_COMPARATOR)
           {
-            orderedList.add(-search - 1, object);
-          }
-          else
-          {
-            orderedList.add(object);
+            // Use the comparator to insert it at the appropriate position.
+            int search = Collections.binarySearch(orderedList, object, comparator);
+            if (search < 0)
+            {
+              orderedList.add(-search - 1, object);
+            }
+            else
+            {
+              orderedList.add(object);
+            }
           }
         }
       }
@@ -777,6 +840,12 @@ public class CacheGroup<T extends Identifiable>
   @Override
   public void reorder(long... ids)
   {
+    if (comparator() == EntityGroup.NO_COMPARATOR)
+    {
+      // Nothing to do.
+      return;
+    }
+
     // Grab references.
     final ConcurrentMap<Long, T> map = this.objects;
     final List<T> orderedList = this.objectsInOrder;

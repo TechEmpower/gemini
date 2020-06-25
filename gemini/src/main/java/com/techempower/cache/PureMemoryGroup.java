@@ -158,7 +158,11 @@ public class PureMemoryGroup<T extends Identifiable>
     // We sort whatever the initializer gives us because there is no
     // guarantee that it's in the right order.
     List<T> result = initializer.list();
-    Collections.sort(result, comparator());
+    // Skip sorting if not desired.
+    if (comparator() != EntityGroup.NO_COMPARATOR)
+    {
+      Collections.sort(result, comparator());
+    }
     return result;
   }
   
