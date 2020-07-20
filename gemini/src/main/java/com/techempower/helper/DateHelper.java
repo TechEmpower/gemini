@@ -114,10 +114,8 @@ public final class DateHelper
   private static final Calendar CALENDAR_INSTANCE = Calendar.getInstance();
 
   // Pre-calculated date utility values
-  private volatile static DateHelperPrecalculatedValues precalculatedValues;
-  
-  // Synchronization lock object.
-  private static final Object LOCK_OBJECT = new Object();
+  private static DateHelperPrecalculatedValues precalculatedValues = new DateHelperPrecalculatedValues(
+      System.currentTimeMillis());
 
   /**
    * The default set of permissible "Date Format Strings" that are
@@ -632,16 +630,12 @@ public final class DateHelper
     long currentTime = System.currentTimeMillis();
 
     // Determine if we need to recalculate (is it a new day?)
-    if (precalculatedValues == null || (currentTime > precalculatedValues.getNextDay()))
+    if (currentTime > precalculatedValues.getNextDay())
     {
-      // Double-checked locking here is safe because our field is volatile.
-      synchronized (LOCK_OBJECT)
-      {
-        if (precalculatedValues == null || (currentTime > precalculatedValues.getNextDay()))
-        {
-          precalculatedValues = new DateHelperPrecalculatedValues(currentTime);
-        }
-      }
+      // We don't bother doing double-checked locking here because the cost of
+      // multiple threads wastefully re-creating the DateHelperPrecalculatedValues is
+      // so low that it's not worth adding a sync lock.
+      precalculatedValues = new DateHelperPrecalculatedValues(currentTime);
     }
   }
   
