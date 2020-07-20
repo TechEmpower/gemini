@@ -155,9 +155,9 @@ public class Configurator
         throw new GeminiInitializationError("Unable to read configuration.");
       }
     }
-    catch (Exception exc)
+    catch (Throwable t)
     {
-      throw new GeminiInitializationError("Configuration failed.", exc);
+      throw new GeminiInitializationError("Configuration failed.", t);
     }
   }
 
@@ -494,7 +494,15 @@ public class Configurator
           if (configurable != null)
           {
             log.debug("CW{} configuring {}.", workerId, configurable);
-            configurable.configure(props);
+            try
+            {
+              configurable.configure(props);
+            }
+            catch (Throwable t)
+            {
+              log.error("CW{} configuring {} caught ", workerId, configurable, t);
+              throw t;
+            }
           }
         }
         while (configurable != null);
