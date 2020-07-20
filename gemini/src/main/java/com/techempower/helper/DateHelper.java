@@ -113,22 +113,9 @@ public final class DateHelper
   // Calendar
   private static final Calendar CALENDAR_INSTANCE = Calendar.getInstance();
 
-  // Date utility objects.
-  private static long     nextDay      = 0L;
-  private static int      currentYear  = 0;
-  private static int      currentMonth = 0;
-  private static int      currentDay   = 0;
-  private static Calendar startOfYear  = null;
-  private static Calendar startOfMonth = null;
-  private static Calendar startOfDay   = null;
-  private static Calendar endOfMonth   = null;
-  private static Calendar endOfDay     = null;
-  private static Calendar endOfYear    = null;
-  private static TimeZone systemTimeZone = null;
-  private static int      currentTimeZoneOffset = 0;
-  
-  // Synchronization lock object.
-  private static final Object LOCK_OBJECT = new Object();
+  // Pre-calculated date utility values
+  private static DateHelperPrecalculatedValues precalculatedValues = new DateHelperPrecalculatedValues(
+      System.currentTimeMillis());
 
   /**
    * The default set of permissible "Date Format Strings" that are
@@ -480,7 +467,7 @@ public final class DateHelper
   public static Calendar getStartOfMonth()
   {
     recalculateCalendarObjects();
-    return copy(startOfMonth);
+    return copy(precalculatedValues.getStartOfMonth());
   }
 
   /**
@@ -489,7 +476,7 @@ public final class DateHelper
   public static Calendar getEndOfMonth()
   {
     recalculateCalendarObjects();
-    return copy(endOfMonth);
+    return copy(precalculatedValues.getEndOfMonth());
   }
 
   /**
@@ -498,7 +485,7 @@ public final class DateHelper
   public static Calendar getStartOfYear()
   {
     recalculateCalendarObjects();
-    return copy(startOfYear);
+    return copy(precalculatedValues.getStartOfYear());
   }
 
   /**
@@ -507,7 +494,7 @@ public final class DateHelper
   public static Calendar getEndOfYear()
   {
     recalculateCalendarObjects();
-    return copy(endOfYear);
+    return copy(precalculatedValues.getEndOfYear());
   }
 
   /**
@@ -528,7 +515,7 @@ public final class DateHelper
   public static int getCurrentDay()
   {
     recalculateCalendarObjects();
-    return currentDay;
+    return precalculatedValues.getCurrentDay();
   }
   
   /**
@@ -537,7 +524,7 @@ public final class DateHelper
   public static int getCurrentMonth()
   {
     recalculateCalendarObjects();
-    return currentMonth;
+    return precalculatedValues.getCurrentMonth();
   }
   
   /**
@@ -546,7 +533,7 @@ public final class DateHelper
   public static int getCurrentYear()
   {
     recalculateCalendarObjects();
-    return currentYear;
+    return precalculatedValues.getCurrentYear();
   }
   
   /**
@@ -555,7 +542,7 @@ public final class DateHelper
   public static Calendar getStartOfDay()
   {
     recalculateCalendarObjects();
-    return copy(startOfDay);
+    return copy(precalculatedValues.getStartOfDay());
   }
 
   /**
@@ -564,7 +551,7 @@ public final class DateHelper
   public static Calendar getEndOfDay()
   {
     recalculateCalendarObjects();
-    return copy(endOfDay);
+    return copy(precalculatedValues.getEndOfDay());
   }
   
   /**
@@ -574,7 +561,7 @@ public final class DateHelper
   public static TimeZone getSystemTimeZone()
   {
     recalculateCalendarObjects();
-    return systemTimeZone;
+    return precalculatedValues.getSystemTimeZone();
   }
   
   /**
@@ -619,7 +606,7 @@ public final class DateHelper
   public static int getCurrentTimeZoneOFfset()
   {
     recalculateCalendarObjects();
-    return currentTimeZoneOffset;
+    return precalculatedValues.getCurrentTimeZoneOffset();
   }
   
   /**
@@ -643,54 +630,12 @@ public final class DateHelper
     long currentTime = System.currentTimeMillis();
 
     // Determine if we need to recalculate (is it a new day?)
-    if ((nextDay == 0) || (currentTime > nextDay))
+    if (currentTime > precalculatedValues.getNextDay())
     {
-      synchronized (LOCK_OBJECT)
-      {
-        Calendar cal = DateHelper.getCalendarInstance();
-
-        // Adjust the current time based on the current time zone.
-        currentTime += cal.getTimeZone().getOffset(currentTime);
-
-        // Round down the current time to the nearest day.
-        currentTime -= (currentTime % UtilityConstants.DAY);
-
-        // Capture current day, month, year.
-        currentDay = cal.get(Calendar.DAY_OF_MONTH);
-        currentMonth = cal.get(Calendar.MONTH) + 1; // Deal with 0 index.
-        currentYear = cal.get(Calendar.YEAR);
-        
-        // Calculate the start of the current day.
-        startOfDay = (Calendar)cal.clone();
-        adjustStartOfDay(startOfDay);
-
-        // Calculate the end of the current day.
-        endOfDay = (Calendar)startOfDay.clone();
-        adjustEndOfDay(endOfDay);
-
-        // Calculate the start of the current month.
-        startOfMonth = (Calendar)startOfDay.clone();
-        adjustStartOfMonth(startOfMonth);
-
-        // Calculate the end of the current month.
-        endOfMonth = (Calendar)startOfMonth.clone();
-        adjustEndOfMonth(endOfMonth);
-
-        // Calculate the start of the current year.
-        startOfYear = (Calendar)startOfMonth.clone();
-        adjustStartOfYear(startOfYear);
-
-        // Calculate the end of the current year.
-        endOfYear = (Calendar)startOfYear.clone();
-        adjustEndOfYear(endOfYear);
-
-        // Get the system Timezone and current UTC offset.
-        systemTimeZone = TimeZone.getDefault();
-        currentTimeZoneOffset = systemTimeZone.getOffset(currentTime);
-        
-        // Set the next day to one day ahead of the rounded-down time.
-        nextDay = currentTime + UtilityConstants.DAY;
-      }
+      // We don't bother doing double-checked locking here because the cost of
+      // multiple threads wastefully re-creating the DateHelperPrecalculatedValues is
+      // so low that it's not worth adding a sync lock.
+      precalculatedValues = new DateHelperPrecalculatedValues(currentTime);
     }
   }
   
@@ -1670,5 +1615,132 @@ public final class DateHelper
   {
     // Does nothing.
   }
+
+  /**
+   * Encapsulates pre-calculated values used by DateHelper.
+   */
+  private static class DateHelperPrecalculatedValues
+  {
+    // Date utility objects.
+    private final long nextDay;
+    private final int currentYear;
+    private final int currentMonth;
+    private final int currentDay;
+    private final Calendar startOfYear;
+    private final Calendar startOfMonth;
+    private final Calendar startOfDay;
+    private final Calendar endOfMonth;
+    private final Calendar endOfDay;
+    private final Calendar endOfYear;
+    private final TimeZone systemTimeZone;
+    private final int currentTimeZoneOffset;
+
+    public DateHelperPrecalculatedValues(long currentTime)
+    {
+      Calendar cal = DateHelper.getCalendarInstance();
+
+      // Adjust the current time based on the current time zone.
+      currentTime += cal.getTimeZone().getOffset(currentTime);
+
+      // Round down the current time to the nearest day.
+      currentTime -= (currentTime % UtilityConstants.DAY);
+
+      // Capture current day, month, year.
+      currentDay = cal.get(Calendar.DAY_OF_MONTH);
+      currentMonth = cal.get(Calendar.MONTH) + 1; // Deal with 0 index.
+      currentYear = cal.get(Calendar.YEAR);
+
+      // Calculate the start of the current day.
+      startOfDay = (Calendar)cal.clone();
+      adjustStartOfDay(startOfDay);
+
+      // Calculate the end of the current day.
+      endOfDay = (Calendar)startOfDay.clone();
+      adjustEndOfDay(endOfDay);
+
+      // Calculate the start of the current month.
+      startOfMonth = (Calendar)startOfDay.clone();
+      adjustStartOfMonth(startOfMonth);
+
+      // Calculate the end of the current month.
+      endOfMonth = (Calendar)startOfMonth.clone();
+      adjustEndOfMonth(endOfMonth);
+
+      // Calculate the start of the current year.
+      startOfYear = (Calendar)startOfMonth.clone();
+      adjustStartOfYear(startOfYear);
+
+      // Calculate the end of the current year.
+      endOfYear = (Calendar)startOfYear.clone();
+      adjustEndOfYear(endOfYear);
+
+      // Get the system Timezone and current UTC offset.
+      systemTimeZone = TimeZone.getDefault();
+      currentTimeZoneOffset = systemTimeZone.getOffset(currentTime);
+
+      // Set the next day to one day ahead of the rounded-down time.
+      nextDay = currentTime + UtilityConstants.DAY;
+    }
+
+    public long getNextDay()
+    {
+      return nextDay;
+    }
+
+    public int getCurrentYear()
+    {
+      return currentYear;
+    }
+
+    public int getCurrentMonth()
+    {
+      return currentMonth;
+    }
+
+    public int getCurrentDay()
+    {
+      return currentDay;
+    }
+
+    public Calendar getStartOfYear()
+    {
+      return startOfYear;
+    }
+
+    public Calendar getStartOfMonth()
+    {
+      return startOfMonth;
+    }
+
+    public Calendar getStartOfDay()
+    {
+      return startOfDay;
+    }
+
+    public Calendar getEndOfMonth()
+    {
+      return endOfMonth;
+    }
+
+    public Calendar getEndOfDay()
+    {
+      return endOfDay;
+    }
+
+    public Calendar getEndOfYear()
+    {
+      return endOfYear;
+    }
+
+    public TimeZone getSystemTimeZone()
+    {
+      return systemTimeZone;
+    }
+
+    public int getCurrentTimeZoneOffset()
+    {
+      return currentTimeZoneOffset;
+    }
+  } // End DateHelperPrecalculatedValues.
 
 }  // End DateHelper.
