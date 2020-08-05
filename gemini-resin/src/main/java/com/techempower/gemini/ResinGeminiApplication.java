@@ -95,17 +95,17 @@ public abstract class ResinGeminiApplication
    * return toReturn;
    * </pre>
    */
+  // TODO: It'd be nice if this was refactored so that you create the
+  //  dispatcher during the initialize method, rather than in the constructor.
   @Override
-  protected Dispatcher constructDispatcher()
-  {
-    return new BasicDispatcher(this);
-  }
+  protected abstract Dispatcher constructDispatcher();
 
   /**
    * Overload: Constructs an HttpSessionManager reference.  Overload to return a
    * custom object.  It is not likely that a application would need to subclass
    * HttpSessionManager.
    */
+  // TODO?: Need to refactor this so that it's just part of the (legacy?) dispatcher?
   @Override
   protected SessionManager constructSessionManager()
   {
@@ -127,12 +127,14 @@ public abstract class ResinGeminiApplication
    * LONGER necessary to overload this method if your application is not using
    * a special subclass of Context.
    */
+  // TODO: Need to refactor this so that it's just part of the (legacy?) dispatcher.
   @Override
   public Context getContext(Request request)
   {
     return new ResinContext(request, this);
   }
 
+  // TODO: Need to refactor this so that it's just part of the legacy dispatcher.
   @Override
   protected MustacheManager constructMustacheManager()
   {

@@ -24,44 +24,42 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************/
+package com.techempower.gemini.path.annotation;
 
-package com.techempower.gemini;
+import java.lang.annotation.*;
 
 /**
- * An interface allowing classes to monitor Dispatcher activity.
+ * Path annotation.  Identifies a method within a PathHandler to
+ * associate with a specified URI.  A method annotated as a 
+ * PathSegment may accept argments if there is a variable capture
+ * present in the passed value (example: "foo/{variable}" allows 
+ * the annotated method to have 1 parameter of simple type such
+ * as int, string, etc. Any number of variables are supported
+ * (example: "foo/{var1}/{var2}") and while the variable names are
+ * not used at all (technically, "foo/{}/{}" is the same as the
+ * previous example) they should be considered mandatory for the
+ * purposes of good self-document code (example, "foo/{userId}"
+ * is much more meaningful than "foo/{}" and the former should
+ * be favored).
+ *   <p>
+ * URIs are routed directly to a method annotated with @Path with
+ * specificity trumping. That is, @Path("foo/bar") will handle
+ * GET "foo/bar" before @Path("foo/{var}") and before @Path("foo/*"). 
+ *   <p>
+ * The method identified by this annotation will accept GET HTTP methods by
+ * default, but can accept additional http request method type annotations
+ * to specify which the annotated method supports (e.g. @Get or @Put).
+ *   <p>
+ * {@code @Path} with no arguments is synonymous with {@code @Path("")} and will handle
+ * the root URI of the handler. Example /api/users =&gt; UserHandler; {@code @Path}
+ * will handle `GET /api/users`.
  */
-// TODO?: Move this to gemini-legacy-dispatching. Might be hard, transitively
-//  is depended on by gemini-jdbc's JdbcMonitorListener among many other things
-//  in gemini, gemini-resin, etc.
-public interface DispatchListener
+// TODO: Roll back the addition of ElementType.TYPE. Only added for testing
+//  kain's stuff.
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Path
 {
-  
-  /**
-   * A dispatch process is starting.
-   */
-  void dispatchStarting(Dispatcher dispatcher, Context context, 
-      String command);
-  
-  /**
-   * A redispatch is occurring.  Note that this method should be deprecated
-   * once the legacy cmd-oriented Dispatcher is retired.
-   */
-  void redispatchOccurring(Dispatcher dispatcher, Context context, 
-      String previousCommand, String newCommand);
-  
-  /**
-   * Dispatching is complete for the current request.
-   */
-  void dispatchComplete(Dispatcher dispatcher, Context context);
-
-  /**
-   * A server-side rendering (e.g., JSP or Mustache) is starting.
-   */
-  void renderStarting(Dispatcher dispatcher, String jspName);
-  
-  /**
-   * A server-side rendering (e.g., JSP or Mustache) is completed.
-   */
-  void renderComplete(Dispatcher dispatcher, Context context);
-  
+  // Path uri to associate.
+  String value() default "";
 }

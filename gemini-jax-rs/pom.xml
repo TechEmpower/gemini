@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>jar</packaging>
+
+  <organization>
+    <name>TechEmpower, Inc.</name>
+    <url>https://www.techempower.com/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Revised BSD License, 3-clause</name>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <parent>
+    <artifactId>gemini-parent</artifactId>
+    <groupId>com.techempower</groupId>
+    <version>3.1.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>gemini-jax-rs</artifactId>
+  <description>
+    An extension for Gemini that provides dispatching implemented as a subset of JAX-RS.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.techempower</groupId>
+      <artifactId>gemini</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!--
+        TODO: Remove this once performance testing is done, or can be done from the unit tests
+              where this can be a test dependency
+      -->
+      <groupId>com.caucho</groupId>
+      <artifactId>resin</artifactId>
+      <optional>false</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
