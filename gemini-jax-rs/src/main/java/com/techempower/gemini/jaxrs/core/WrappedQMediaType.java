@@ -5,7 +5,9 @@ import java.util.Map;
 
 public class WrappedQMediaType extends QMediaType
 {
+  static final WrappedQMediaType DEFAULT_WILDCARD = new WrappedQMediaType(MediaType.WILDCARD_TYPE);
   private final MediaType mediaType;
+  private final double qValue;
 
   /**
    * Creates a QMediaType wrapping the given media type, associating it with
@@ -13,13 +15,23 @@ public class WrappedQMediaType extends QMediaType
    */
   public WrappedQMediaType(MediaType mediaType)
   {
+    this(mediaType, 1);
+  }
+
+  /**
+   * Creates a QMediaType wrapping the given media type, associating it with
+   * the given q value.
+   */
+  public WrappedQMediaType(MediaType mediaType, double qValue)
+  {
     this.mediaType = mediaType;
+    this.qValue = qValue;
   }
 
   @Override
   public double getQValue()
   {
-    return 1;
+    return qValue;
   }
 
   @Override

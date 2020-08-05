@@ -42,6 +42,7 @@ public class MediaTypeParserTest
           {group(mediaType("text", "html", 0.8d, Map.of("f", "d,o", "q", "0.8")), mediaType("text", "xml", 0.9d, Map.of("q", "0.9"))), "q", "text/html;f=\"d,o\";q=0.8,text/xml;q=0.9"},
           // Should respect proper whitespace rules
           {group(mediaType("text", "html", 1.0d, Map.of()), mediaType("text", "xml", 0.9d, Map.of("q", "0.9"))), "q", "text/html,text/xml;   \tq=0.9"},
+          {group(mediaType("application", "xml", 0.2d, Map.of("q", "0.2")), mediaType("application", "json", 0.7d, Map.of("q", "0.7"))), "q", "application/xml; q=0.2, application/json; q=0.7"},
       };
     }
 
@@ -62,14 +63,7 @@ public class MediaTypeParserTest
 
     private static QMediaType mediaType(String type, String subtype, double qValue, Map<String, String> parameters)
     {
-      return new WrappedQMediaType(new MediaType(type, subtype, parameters))
-      {
-        @Override
-        public double getQValue()
-        {
-          return qValue;
-        }
-      };
+      return new WrappedQMediaType(new MediaType(type, subtype, parameters), qValue);
     }
 
     private static QMediaTypeGroup group(QMediaType... mediaTypes)

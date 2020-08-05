@@ -873,6 +873,14 @@ public class JaxRsDispatcher
   //public void dispatch(Context context)
   public Object dispatch(String httpMethod, String uri)
   {
+    return dispatch(httpMethod, uri, List.of());
+  }
+
+  public Object dispatch(String httpMethod,
+                         String uri,
+                         // TODO: Eventually this will all be in a lazy-loaded UriInfo
+                         List<Map.Entry<String, String>> headers)
+  {
     // TODO: Add `getServletPath` as a method in Context so that this can
     //       only match the URI relative to where the servlet is hosted.
     //       `getServletPath` is a method of HttpServletRequest. For

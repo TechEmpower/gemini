@@ -5,6 +5,8 @@ import java.util.Objects;
 
 class QMediaTypeGroup
 {
+  public static final QMediaTypeGroup DEFAULT_WILDCARD_GROUP = new QMediaTypeGroup(List.of(WrappedQMediaType.DEFAULT_WILDCARD));
+
   private final List<QMediaType> mediaTypes;
 
   public QMediaTypeGroup(List<QMediaType> mediaTypes)

@@ -36,7 +36,7 @@ class MediaTypeParserImpl
     // Group 2: subtype
     // Group 3: parameters
     MEDIA_TYPE_PATTERN = Pattern.compile(
-        ",?(" + token + ")/(" + token + ")((" + PARAMETERS_PATTERN.pattern() + ")*)");
+        ",?" + ows + "(" + token + ")/(" + token + ")((" + PARAMETERS_PATTERN.pattern() + ")*)");
   }
 
   MediaTypeParserImpl(String qValueKey)
