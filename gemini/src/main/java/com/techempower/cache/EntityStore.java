@@ -281,6 +281,45 @@ public class EntityStore
   }
 
   /**
+   * Whether the provided class uses the @Indexed annotation and therefore uses
+   * the method value cache.
+   */
+  public boolean usesMethodValueCache(Class<? extends Identifiable> type)
+  {
+    return methodValueCaches.get(type) != null;
+  }
+
+  /**
+   * Update the specified method value cache.
+   */
+  public void methodValueCacheUpdate(Class<? extends Identifiable> type, long... ids)
+  {
+    final MethodValueCache<?> methodValueCache = methodValueCaches.get(type);
+    if (methodValueCache != null)
+    {
+      for (long id : ids)
+      {
+        methodValueCache.update(id);
+      }
+    }
+  }
+
+  /**
+   * Delete from the specified method value cache.
+   */
+  public void methodValueCacheDelete(Class<? extends Identifiable> type, long... ids)
+  {
+    final MethodValueCache<?> methodValueCache = methodValueCaches.get(type);
+    if (methodValueCache != null)
+    {
+      for (long id : ids)
+      {
+        methodValueCache.delete(id);
+      }
+    }
+  }
+
+  /**
    * Reset all entity groups controlled by this controller.
    */
   public void reset()
@@ -1028,14 +1067,9 @@ public class EntityStore
   public void refresh(Class<? extends Identifiable> type, long... ids)
   {
     getGroupSafe(type).refresh(ids);
-    
-    final MethodValueCache<?> methodValueCache = methodValueCaches.get(type);
-    if (methodValueCache != null)
-    {
-      for (long id : ids) {
-        methodValueCache.update(id);
-      }
-    }
+
+    // Update index/methodValueCache.
+    methodValueCacheUpdate(type, ids);
 
     // Notify the listeners.
     notifyListenersCacheObjectExpired(true, type, ids);
@@ -1085,11 +1119,7 @@ public class EntityStore
     if (!useAffectedRows || rowsUpdated > 0)
     {
       // Update method value caches.
-      final MethodValueCache<?> methodValueCache = methodValueCaches.get(entity.getClass());
-      if (methodValueCache != null)
-      {
-        methodValueCache.update(entity.getId());
-      }
+      methodValueCacheUpdate(entity.getClass(), entity.getId());
       
       // Notify the listeners.
       final CacheListener[] toNotify = listeners;
@@ -1133,12 +1163,8 @@ public class EntityStore
     }
     
     // Update method value cache.
-    final MethodValueCache<?> methodValueCache = methodValueCaches.get(entity.getClass());
-    if (methodValueCache != null)
-    {
-      methodValueCache.delete(entity.getId());
-    }
-    
+    methodValueCacheDelete(entity.getClass(), entity.getId());
+
     // Notify the listeners.
     final CacheListener[] toNotify = listeners;
     for (CacheListener listener : toNotify)

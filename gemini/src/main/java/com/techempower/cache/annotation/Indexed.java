@@ -29,10 +29,18 @@ package com.techempower.cache.annotation;
 import java.lang.annotation.*;
 
 /**
- * This annotation is used to mark entity classes or methods as indexed.  
- * Classes or methods marked as @Indexed should always cache method values, 
- * even if method value caching is turned off.
+ * This annotation is used to mark entity classes or methods as indexed. Classes
+ * or methods marked as @Indexed should always cache method values, even if
+ * method value caching is turned off.
+ * <p>
+ * <b>IMPORTANT</b>: If you use this annotation in an application that uses the
+ * CacheMessageManager to distribute cache updates to other instances, it is
+ * your responsibility to ensure that your corresponding EntityGroup
+ * ("distribute" defaulting to false) or CacheGroup ("distribute" defaulting to
+ * true) has the "distribute" flag set to true. Otherwise each instance will
+ * risk having a stale method value cache and you'll get wrong answers from
+ * EntityStore.get() and list() and honestly it won't be very fun.
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Indexed { }

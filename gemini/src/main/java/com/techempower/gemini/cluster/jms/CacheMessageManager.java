@@ -489,6 +489,9 @@ public class CacheMessageManager
               log.info("Receiving 'cache object expired' but group id is invalid:{}, group: {}",
                   cacheMessage, group);
             }
+            // Now that the object is updated in the cache, update the method value cache if
+            // needed.
+            store.methodValueCacheUpdate(group.getType(), cacheMessage.getObjectId());
 
             break;
           }
@@ -514,6 +517,9 @@ public class CacheMessageManager
                   "invalid: {}, group: {}, cacheMessage: {}",
                   cacheMessage.getGroupId(), group, cacheMessage);
             }
+            // Now that the object is deleted from the cache, also delete from the method
+            // value cache if needed.
+            store.methodValueCacheDelete(group.getType(), cacheMessage.getObjectId());
             break;
           }
           case (CacheMessage.ACTION_GROUP_RESET):

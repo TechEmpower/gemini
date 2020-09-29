@@ -2269,6 +2269,13 @@ public class EntityGroup<T extends Identifiable>
      * need to notify DistributionListeners. However, if some instances use a
      * CacheGroup for this entity, then it may be useful to set this to true so
      * those instances can update their cache.
+     * <p>
+     * <b>IMPORTANT</b>: If you use the @Indexed annotation on this entity in an
+     * application that uses the CacheMessageManager to distribute cache updates to
+     * other instances, it is your responsibility to ensure that "distribute" is set
+     * to true. Otherwise each instance will risk having a stale method value cache
+     * and you'll get wrong answers from EntityStore.get() and list() and it
+     * honestly won't be very fun.
      */
     protected boolean distribute = false;
 
@@ -2364,6 +2371,13 @@ public class EntityGroup<T extends Identifiable>
     /**
      * Specifies updates to the resulting EntityGroup should be passed to
      * DistributionListeners.
+     * <p>
+     * <b>IMPORTANT</b>: If you use the @Indexed annotation on this entity in an
+     * application that uses the CacheMessageManager to distribute cache updates to
+     * other instances, it is your responsibility to ensure that "distribute" is set
+     * to true. Otherwise each instance will risk having a stale method value cache
+     * and you'll get wrong answers from EntityStore.get() and list() and it
+     * honestly won't be very fun.
      */
     public Builder<T> distribute(boolean distribute)
     {
