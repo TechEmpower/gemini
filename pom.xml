@@ -62,7 +62,7 @@
     <javax-mail.version>1.6.2</javax-mail.version>
     <jbcrypt.version>0.4</jbcrypt.version>
     <jsp.version>2.2.1-b03</jsp.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
     <kryo.version>5.0.0-RC2</kryo.version>
     <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
     <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
