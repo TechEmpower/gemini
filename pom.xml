@@ -84,9 +84,9 @@
     <trove4j.version>3.0.3</trove4j.version>
     <jsonwebtoken.version>0.10.6</jsonwebtoken.version>
     <jms.version>2.0.1</jms.version>
-    <hikaricp.version>3.4.2</hikaricp.version>
+    <hikaricp.version>3.4.5</hikaricp.version>
     <slf4j.version>1.8.0-beta4</slf4j.version>
-    <flyway.version>6.0.0</flyway.version>
+    <flyway.version>7.3.1</flyway.version>
     <log4j2.version>2.13.3</log4j2.version>
     <logback.version>1.3.0-alpha2</logback.version>
   </properties>

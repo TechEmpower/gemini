@@ -27,13 +27,15 @@
 package com.techempower.gemini.lifecycle;
 
 import java.sql.*;
+import java.util.*;
+
+import org.slf4j.*;
 
 import com.techempower.data.*;
 import com.techempower.gemini.*;
 import com.techempower.gemini.data.*;
+import com.techempower.helper.*;
 import com.techempower.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Applies any pending database migrations.
@@ -42,12 +44,16 @@ public class InitDatabaseMigrations implements InitializationTask, Configurable
 {
   private Logger  log     = LoggerFactory.getLogger(getClass());
   private boolean enabled = false;
+  private boolean applyMigrations = false;
+  private boolean abortStartupIfPending = true;
+  private GeminiApplication app;
 
   /**
    * Constructor.
    */
   public InitDatabaseMigrations(GeminiApplication app)
   {
+    this.app = app;
     app.getConfigurator().addConfigurable(this);
   }
 
@@ -74,17 +80,48 @@ public class InitDatabaseMigrations implements InitializationTask, Configurable
       return;
     }
 
-    log.info("Applying database migrations.");
+    if (applyMigrations)
+    {
+      log.info("Applying database migrations.");
 
-    try (ConnectionMonitor monitor = cf.getConnectionMonitor())
-    {
-      // Start the migration
-      int migrationsApplied = migrator.migrate(monitor);
-      log.info("Database migrations applied: {}", migrationsApplied);
+      try (ConnectionMonitor monitor = cf.getConnectionMonitor())
+      {
+        // Start the migration
+        int migrationsApplied = migrator.migrate(monitor);
+        log.info("Database migrations applied: {}", migrationsApplied);
+      }
+      catch (SQLException e)
+      {
+        log.error("Database migrations caught exception ", e);
+      }
     }
-    catch (SQLException e)
+
+    if (abortStartupIfPending)
     {
-      log.error("Database migrations caught exception ", e);
+      log.info("Checking for pending migrations...");
+
+      try (ConnectionMonitor monitor = cf.getConnectionMonitor())
+      {
+        // Start the migration
+        List<String> pendingMigrations = migrator.listPendingMigrations(monitor);
+        if (CollectionHelper.isNonEmpty(pendingMigrations))
+        {
+          log.error("Aborting application startup because of these pending migrations:");
+          for (String s : pendingMigrations)
+          {
+            log.error("Pending migration: {}", s);
+          }
+          throw new GeminiInitializationError("There are pending database migrations; cannot start.");
+        }
+        else
+        {
+          log.info("There are no pending migrations.");
+        }
+      }
+      catch (SQLException e)
+      {
+        log.error("Database migrations caught exception ", e);
+      }
     }
   }
 
@@ -92,6 +129,9 @@ public class InitDatabaseMigrations implements InitializationTask, Configurable
   public void configure(EnhancedProperties props)
   {
     enabled = props.getBoolean("Initialization.DbMigrations.Enabled", false);
+    // Default to applying migrations everywhere except production.
+    applyMigrations = props.getBoolean("Initialization.DbMigrations.ApplyMigrations", !app.getVersion().isProduction());
+    abortStartupIfPending = props.getBoolean("Initialization.DbMigrations.AbortStartupIfPending", true);
   }
 
 }

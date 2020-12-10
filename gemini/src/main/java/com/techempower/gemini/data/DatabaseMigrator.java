@@ -26,6 +26,8 @@
  *******************************************************************************/
 package com.techempower.gemini.data;
 
+import java.util.*;
+
 import javax.sql.*;
 
 import com.techempower.util.*;
@@ -42,4 +44,9 @@ public interface DatabaseMigrator extends Configurable
    * @return The number of successfully applied migrations.
    */
   int migrate(DataSource dataSource);
+
+  /**
+   * Get a list of descriptions of pending migrations. If there are none, returns an empty array.
+   */
+  List<String> listPendingMigrations(DataSource dataSource);
 }
