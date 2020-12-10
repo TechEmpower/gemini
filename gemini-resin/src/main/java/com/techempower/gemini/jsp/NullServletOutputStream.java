@@ -222,17 +222,4 @@ public class NullServletOutputStream
     // Does nothing.
   }
 
-  @Override
-  public boolean isReady()
-  {
-    // Always ready to do nothing.
-    return true;
-  }
-
-  @Override
-  public void setWriteListener(WriteListener writeListener)
-  {
-    // Does nothing.
-  }
-
 }   // End NullServletOutputStream.
