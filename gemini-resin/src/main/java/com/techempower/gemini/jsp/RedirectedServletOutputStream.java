@@ -255,16 +255,4 @@ public class RedirectedServletOutputStream
     this.destination.flush();
   }
 
-  @Override
-  public boolean isReady()
-  {
-    return true;
-  }
-
-  @Override
-  public void setWriteListener(WriteListener writeListener)
-  {
-    // Do nothing.
-  }
-
 }   // End RedirectedServletOutputStream.
