@@ -34,12 +34,12 @@ import javax.sql.*;
 import org.flywaydb.core.*;
 import org.flywaydb.core.api.*;
 import org.flywaydb.core.api.configuration.*;
+import org.flywaydb.core.api.output.*;
+import org.slf4j.*;
 
 import com.techempower.gemini.*;
 import com.techempower.helper.*;
 import com.techempower.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of DatabaseMigrator that uses the Flyway library.
@@ -103,9 +103,28 @@ public class FlywayMigrator implements DatabaseMigrator
       {
         log.info("Pending migration: {}", i.getScript());
       }
-      return f.migrate();
+      MigrateResult r = f.migrate();
+      return r.migrationsExecuted;
     }
     log.info("Flyway not initialized. Skipping database migrations.");
     return 0;
+  }
+
+  @Override
+  public List<String> listPendingMigrations(DataSource dataSource)
+  {
+    if (flywayConfig != null)
+    {
+      Flyway f = flywayConfig.dataSource(dataSource).load();
+      MigrationInfo[] pending = f.info().pending();
+      List<String> s = new ArrayList<>(pending.length);
+      for (MigrationInfo i : pending)
+      {
+        s.add(i.getScript());
+      }
+      return s;
+    }
+    log.info("Flyway not initialized. Unable to list pending migrations.");
+    return Collections.emptyList();
   }
 }

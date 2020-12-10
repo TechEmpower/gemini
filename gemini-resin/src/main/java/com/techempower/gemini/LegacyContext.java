@@ -709,7 +709,7 @@ public abstract class LegacyContext
   /**
    * Respond with the given text.
    */
-  protected boolean respondWithText(String responseText)
+  public boolean respondWithText(String responseText)
   {
     if (responseText != null)
     {
