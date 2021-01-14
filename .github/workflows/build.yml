@@ -1,0 +1,51 @@
+name: build
+on: [ push, pull_request ]
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Cache local Maven repository
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+      - name: Build Gemini
+        run: mvn clean compile install -Dgpg.skip
+      - name: Setup host name
+        run: echo "127.0.0.1   GITHUB_ACTIONS" | sudo tee -a /etc/hosts
+      - name: Setup integration test
+        run: |
+          mvn archetype:update-local-catalog
+          # Reading the version from the pom from https://stackoverflow.com/a/50906059
+          GEMINI_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          mvn archetype:generate -DarchetypeVersion=$GEMINI_VERSION -DarchetypeCatalog=local \
+            -DarchetypeGroupId=com.techempower -DarchetypeArtifactId=gemini-resin-archetype \
+            -Dpackage=foo.test -DartifactId=test-artifact-id -Dversion=1.0 \
+            -DmachineName=GITHUB_ACTIONS -DinteractiveMode=false
+          cd test-artifact-id && mvn clean compile war:war
+          curl -sL http://caucho.com/download/resin-4.0.63.tar.gz | tar xz --strip-components=1
+          rm -rf webapps/*
+          cp target/test-artifact-id-1.0.war webapps/ROOT.war
+      - name: Run integration test
+        run: |
+          cd test-artifact-id
+          java -jar lib/resin.jar console &
+          sleep 10
+          n=1;
+          while true; do
+            curl localhost:8080 && break || {
+              if [[ $n -lt 10 ]]; then
+                ((n++))
+                sleep 10
+              else
+                exit 1
+              fi
+            }
+          done;
+
