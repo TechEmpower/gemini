@@ -370,6 +370,17 @@ public class EntityGroup<T extends Identifiable>
   }
 
   /**
+   * Synchronously resets and re-initializes this group of entities.  In
+   * the base class, this doesn't do anything, but subclasses such as
+   * CacheGroup act differently.
+   */
+  public void resetSynchronous()
+  {
+    // Call reset() at least, for subclasses besides CacheGroup.
+    reset();
+  }
+
+  /**
    * Returns the comparator to use when sorting entities of this type.
    */
   public Comparator<? super T> comparator()
