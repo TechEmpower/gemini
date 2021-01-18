@@ -179,6 +179,9 @@ public class CacheGroup<T extends Identifiable>
   /**
    * Resets this group, removing all the objects, and setting the initialized
    * flag to false.  The group will be rebuilt from the database on next use.
+   * Can lead to temporary stale data in certain edge cases. See
+   * <a href="https://github.com/TechEmpower/gemini/issues/105">this issue</a>
+   * for details.
    */
   @Override
   public void reset()
@@ -186,13 +189,25 @@ public class CacheGroup<T extends Identifiable>
     synchronized (this)
     {
       setInitialized(false);
-      // Instantiate a new object so that any threads currently working with
-      // an old reference outside of a synchronized block will not be
-      // affected.
-      this.objects = new ConcurrentHashMap<>();
-      this.objectsInOrder = new CopyOnWriteArrayList<>();
       setErrorOnInitialize(false);
       resetHighLowIdentities();
+    }
+  }
+
+  /**
+   * Synchronously resets and re-initializes this group, removing all the
+   * objects, and setting the initialized flag to false.  The group will
+   * is then rebuilt from the database before the synchronization block
+   * ends. To avoids stale data in certain edge cases that {@link #reset()}
+   * can lead to.
+   */
+  @Override
+  public void resetSynchronous()
+  {
+    synchronized (this)
+    {
+      reset();
+      initializeIfNecessary();
     }
   }
 
