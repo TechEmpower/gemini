@@ -125,7 +125,7 @@ public class LiquibaseMigrator implements DatabaseMigrator
       int countUnrunChangesetsAfter = liquibase.listUnrunChangeSets(c, labels).size();
       return countUnrunChangesetsBefore - countUnrunChangesetsAfter;
     } catch (SQLException | LiquibaseException e) {
-      log.error("Liquibase update caught ", e);
+      log.error("migrate caught ", e);
       return 0;
     }
   }
@@ -147,8 +147,12 @@ public class LiquibaseMigrator implements DatabaseMigrator
       }
       return toReturn;
     } catch (SQLException | LiquibaseException e) {
-      log.error("Liquibase update caught ", e);
-      return Collections.emptyList();
+      log.error("listPendingMigrations caught ", e);
+      // Returning an empty list implies success, so we must return a non-empty list
+      // since we don't know the migration state.
+      List<String> toReturn = new ArrayList<>();
+      toReturn.add("Unable to determine pending migrations, caught: " + e);
+      return toReturn;
     }
   }
 }
