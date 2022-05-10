@@ -61,12 +61,23 @@ public class Message
   /**
    * The message to display to the user
    */
-  private final String        message;
+  private String              message;
   
   /**
    * The type of message
    */
   private final MessageType   type;
+
+  /**
+   * A default constructor for using by serializers.
+   */
+  public Message()
+  {
+    super();
+    this.id = null;
+    this.type = MessageType.NORMAL;
+    addClass(this.type.getClassName());
+  }
 
   /**
    * Create a new message to be displayed to the user.  The type of the 
