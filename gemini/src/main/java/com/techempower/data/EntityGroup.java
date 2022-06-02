@@ -1667,16 +1667,35 @@ public class EntityGroup<T extends Identifiable>
           }
           else if (fieldType == DataFieldToMethodMap.Type.Date)
           {
-            // Reduce Timestamp objects to java.util.Date objects.
-            final Date temporary = new Date();
-            temporary.setTime(((Date)value).getTime());
-            value = temporary;
+            if (value instanceof Date)
+            {
+              // Reduce Timestamp objects to java.util.Date objects.
+              final Date temporary = new Date();
+              temporary.setTime(((Date) value).getTime());
+              value = temporary;
+            }
+            else if (value instanceof LocalDateTime)
+            {
+              // Newer versions of the MySQL driver return a LocalDateTime for this field type.
+              LocalDateTime ldt = (LocalDateTime) value;
+              ZonedDateTime zdt = ldt.atZone(ZoneId.systemDefault());
+              value = Date.from(zdt.toInstant());
+            }
           }
-          else if (fieldType == DataFieldToMethodMap.Type.Calendar)
-          {
-            // Calendars are stored as dates.
-            value = DateHelper.getCalendarInstance(
-                ((java.util.Date)value).getTime());
+          else if (fieldType == DataFieldToMethodMap.Type.Calendar)          {
+            if (value instanceof Date)
+            {
+              // Calendars are stored as dates.
+              value = DateHelper.getCalendarInstance(
+                  ((java.util.Date) value).getTime());
+            }
+            else if (value instanceof LocalDateTime)
+            {
+              // Newer versions of the MySQL driver return a LocalDateTime for this field type.
+              LocalDateTime ldt = (LocalDateTime)value;
+              ZonedDateTime zdt = ldt.atZone(ZoneId.systemDefault());
+              value = GregorianCalendar.from(zdt);
+            }
           }
           else if (fieldType == DataFieldToMethodMap.Type.LocalDate)
           {
@@ -2194,8 +2213,7 @@ public class EntityGroup<T extends Identifiable>
 
         // Sometimes a table name is escaped with backquotes, but those
         // break this call to getColumns.
-
-        ResultSet resultSet = metaData.getColumns(null, null, StringHelper.replaceSubstrings(tableName, "`", ""), "%");
+        ResultSet resultSet = metaData.getColumns(connection.getCatalog(), null, StringHelper.replaceSubstrings(tableName, "`", ""), "%");
 
         while (resultSet.next())
         {
