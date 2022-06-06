@@ -70,13 +70,13 @@ public class Messages
       if (messages == null)
       {
         messages = new CopyOnWriteArrayList<>();
-        session.putObject(SO_MESSAGE_QUEUE, messages);
       }
       
       // As a failsafe, do not store a large number of messages.
       if (messages.size() < MAXIMUM_MESSAGE_COUNT)
       {
         messages.add(message);
+        session.putObject(SO_MESSAGE_QUEUE, messages);
       }      
     }
     
