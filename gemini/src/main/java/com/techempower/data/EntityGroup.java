@@ -453,7 +453,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (Exception e)
     {
-      throw new EntityException("Exception during SELECT.", e);
+      throw new EntityException(this.name() + " Exception during SELECT.", e);
     }
     return null;
   }
@@ -608,7 +608,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (Exception e)
     {
-      throw new EntityException("Exception during DELETE.", e);
+      throw new EntityException(this.name() + " Exception during DELETE.", e);
     }
   }
 
@@ -647,7 +647,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (Exception e)
     {
-      throw new EntityException("Exception during DELETE (removeAll).", e);
+      throw new EntityException(this.name() + " Exception during DELETE (removeAll).", e);
     }
   }
 
@@ -684,7 +684,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (Exception e)
     {
-      throw new EntityException("Exception during SELECT (size).", e);
+      throw new EntityException(this.name() + " Exception during SELECT (size).", e);
     }
   }
 
@@ -726,7 +726,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (Exception e)
     {
-      throw new EntityException("Exception during SELECT (list).", e);
+      throw new EntityException(this.name() + " Exception during SELECT (list).", e);
     }
     // Skip sorting if not desired.
     if (this.comparator != NO_COMPARATOR)
@@ -802,7 +802,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (Exception e)
     {
-      throw new EntityException("Exception during SELECT (map).", e);
+      throw new EntityException(this.name() + " Exception during SELECT (map).", e);
     }
     return objects;
   }
@@ -856,7 +856,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (Exception e)
     {
-      throw new EntityException("Exception during SELECT (map).", e);
+      throw new EntityException(this.name() + " Exception during SELECT (map).", e);
     }
     return objects;
   }
@@ -1050,7 +1050,7 @@ public class EntityGroup<T extends Identifiable>
           }
           else
           {
-            throw new EntityException("Identity not returned from INSERT.");
+            throw new EntityException(this.name() + " Identity not returned from INSERT.");
           }
         }
       }
@@ -1058,7 +1058,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (SQLException e)
     {
-      throw new EntityException("Exception during INSERT.", e);
+      throw new EntityException(this.name() + " Exception during INSERT.", e);
     }
   }
 
@@ -1187,7 +1187,7 @@ public class EntityGroup<T extends Identifiable>
               }
               if (i != objectsWithoutId.size())
               {
-                throw new EntityException("One or more identities not returned after INSERT.");
+                throw new EntityException(this.name() + " One or more identities not returned after INSERT.");
               }
             }
           }
@@ -1207,7 +1207,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (SQLException e)
     {
-      throw new EntityException("Exception during INSERT.", e);
+      throw new EntityException(this.name() + " Exception during INSERT.", e);
     }
   }
 
@@ -1243,7 +1243,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (SQLException e)
     {
-      throw new EntityException("Exception during UPDATE.", e);
+      throw new EntityException(this.name() + " Exception during UPDATE.", e);
     }
   }
 
@@ -1287,7 +1287,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (SQLException e)
     {
-      throw new EntityException("Exception during UPDATE.", e);
+      throw new EntityException(this.name() + " Exception during UPDATE.", e);
     }
   }
 
@@ -1337,7 +1337,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (SQLException e)
     {
-      throw new EntityException("Exception during identity aggregate.", e);
+      throw new EntityException(this.name() + " Exception during identity aggregate.", e);
     }
     return result;  
   }
@@ -1667,16 +1667,35 @@ public class EntityGroup<T extends Identifiable>
           }
           else if (fieldType == DataFieldToMethodMap.Type.Date)
           {
-            // Reduce Timestamp objects to java.util.Date objects.
-            final Date temporary = new Date();
-            temporary.setTime(((Date)value).getTime());
-            value = temporary;
+            if (value instanceof Date)
+            {
+              // Reduce Timestamp objects to java.util.Date objects.
+              final Date temporary = new Date();
+              temporary.setTime(((Date) value).getTime());
+              value = temporary;
+            }
+            else if (value instanceof LocalDateTime)
+            {
+              // Newer versions of the MySQL driver return a LocalDateTime for this field type.
+              LocalDateTime ldt = (LocalDateTime) value;
+              ZonedDateTime zdt = ldt.atZone(ZoneId.systemDefault());
+              value = Date.from(zdt.toInstant());
+            }
           }
-          else if (fieldType == DataFieldToMethodMap.Type.Calendar)
-          {
-            // Calendars are stored as dates.
-            value = DateHelper.getCalendarInstance(
-                ((java.util.Date)value).getTime());
+          else if (fieldType == DataFieldToMethodMap.Type.Calendar)          {
+            if (value instanceof Date)
+            {
+              // Calendars are stored as dates.
+              value = DateHelper.getCalendarInstance(
+                  ((java.util.Date) value).getTime());
+            }
+            else if (value instanceof LocalDateTime)
+            {
+              // Newer versions of the MySQL driver return a LocalDateTime for this field type.
+              LocalDateTime ldt = (LocalDateTime)value;
+              ZonedDateTime zdt = ldt.atZone(ZoneId.systemDefault());
+              value = GregorianCalendar.from(zdt);
+            }
           }
           else if (fieldType == DataFieldToMethodMap.Type.LocalDate)
           {
@@ -1878,7 +1897,7 @@ public class EntityGroup<T extends Identifiable>
     // If neither the table or result set has worked, let's fail.
     if (CollectionHelper.isEmpty(metaData))
     {
-      throw new EntityException("Could not read meta data for table \""
+      throw new EntityException(this.name() + " Could not read meta data for table \""
             + this.table + "\".");
     }
     
@@ -2079,7 +2098,7 @@ public class EntityGroup<T extends Identifiable>
     }
     catch (SQLException e)
     {
-      throw new EntityException("Exception while fetching identity during object initialization.", e);
+      throw new EntityException(this.name() + " Exception while fetching identity during object initialization.", e);
     }
     
     final DataFieldToMethodMap[] mappings = getSetMethodMappingCache(resultSet);
@@ -2099,7 +2118,7 @@ public class EntityGroup<T extends Identifiable>
       }
       catch (Exception e)
       {
-        throw new EntityException("Exception during object initialization (" + map.getMethod().getName() + ").", e);
+        throw new EntityException("Exception during " + this.name() + " object initialization (" + map.getMethod().getName() + ").", e);
       }
     }
     
@@ -2194,8 +2213,7 @@ public class EntityGroup<T extends Identifiable>
 
         // Sometimes a table name is escaped with backquotes, but those
         // break this call to getColumns.
-
-        ResultSet resultSet = metaData.getColumns(null, null, StringHelper.replaceSubstrings(tableName, "`", ""), "%");
+        ResultSet resultSet = metaData.getColumns(connection.getCatalog(), null, StringHelper.replaceSubstrings(tableName, "`", ""), "%");
 
         while (resultSet.next())
         {
