@@ -27,7 +27,6 @@
 
 package com.techempower.cache;
 
-import gnu.trove.iterator.*;
 import gnu.trove.map.*;
 import gnu.trove.map.hash.*;
 import gnu.trove.set.*;
@@ -211,16 +210,10 @@ public class MethodValueCache<T extends Identifiable>
         {
           return new ArrayList<>(0);
         }
-        
-        List<T> values = new ArrayList<>();
-        
-        for (TLongIterator iterator = ids.iterator(); iterator.hasNext();)
-        {
-          long id = iterator.next();
-          values.add(this.cache.get(this.type, id));
-        }
-        
-        return values;
+
+        // Provide the list of desired IDs to map() so that, if this is an EntityGroup, we can
+        // efficiently build all of them from a single query.
+        return new ArrayList<>(this.cache.map(this.type, ids.toArray()).valueCollection());
       }
     }
     finally
