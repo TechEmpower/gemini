@@ -1139,6 +1139,7 @@ public abstract class GeminiApplication
   private void handleError(Context context, String error) throws IOException
   {
     context.setContentType("text/html");
+    context.setStatus(500);
     final Writer writer = context.getWriter();
     writer.write("<html>");
     writer.write("<head><title>Temporarily Unavailable</title>");
