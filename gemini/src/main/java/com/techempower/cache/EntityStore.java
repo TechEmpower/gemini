@@ -27,30 +27,26 @@
 
 package com.techempower.cache;
 
-import com.google.common.primitives.*;
-import gnu.trove.map.*;
-import gnu.trove.map.hash.*;
-
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
-
 import org.reflections.*;
-
+import org.slf4j.*;
+import com.google.common.primitives.*;
 import com.techempower.*;
 import com.techempower.cache.annotation.*;
 import com.techempower.classloader.*;
 import com.techempower.collection.*;
 import com.techempower.data.*;
-import com.techempower.data.EntityGroup.Builder;
+import com.techempower.data.EntityGroup.*;
 import com.techempower.data.annotation.*;
 import com.techempower.gemini.cluster.*;
 import com.techempower.gemini.configuration.*;
 import com.techempower.helper.*;
 import com.techempower.reflect.*;
 import com.techempower.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import gnu.trove.map.*;
+import gnu.trove.map.hash.*;
 
 /**
  * This class serves as a storage manager for several entity groups and the
@@ -133,7 +129,7 @@ public class EntityStore
    * communicating about cache resets, only affect cached relations, so this
    * list is provided (in addition to the other) as a convenience.
    */
-  private final List<CachedRelation<? extends Identifiable,? extends Identifiable>> cachedRelations = new ArrayList<>();
+  private final List<CachingEntityRelation<? extends Identifiable,? extends Identifiable>> cachedRelations = new ArrayList<>();
 
   /**
    * A map from definition classes (in practice, any arbitrary class) to
@@ -346,7 +342,7 @@ public class EntityStore
     }
 
     // Reset relations.
-    for (CachedRelation<?,?> relation : cachedRelations)
+    for (CachingEntityRelation<?,?> relation : cachedRelations)
     {
       relation.reset(notifyListeners, notifyDistributionListeners);
     }
@@ -389,7 +385,7 @@ public class EntityStore
       boolean notifyListeners, 
       boolean notifyDistributionListeners)
   {
-    for (CachedRelation<?,?> relation : cachedRelations)
+    for (CachingEntityRelation<?,?> relation : cachedRelations)
     {
       relation.reset(type, notifyListeners, notifyListeners);
     }
@@ -515,7 +511,7 @@ public class EntityStore
    * This method is intended for internal use within the Gemini core, not broad
    * use within Gemini applications.
    */
-  public CachedRelation<? extends Identifiable,? extends Identifiable> getCachedRelation(long relationId)
+  public CachingEntityRelation<? extends Identifiable,? extends Identifiable> getCachedRelation(long relationId)
   {
     return cachedRelations.get(Ints.saturatedCast(relationId - 1));
   }
@@ -1228,9 +1224,9 @@ public class EntityStore
   {
     relations.add(relation);
 
-    if (relation instanceof CachedRelation)
+    if (relation instanceof CachingEntityRelation)
     {
-      final CachedRelation<?, ?> cr = (CachedRelation<?, ?>) relation;
+      final CachingEntityRelation<?, ?> cr = (CachingEntityRelation<?, ?>) relation;
       cachedRelations.add(cr);
       // Give the relation a unique ID.
       cr.setId(cachedRelations.size());
@@ -1504,7 +1500,7 @@ public class EntityStore
    * Returns a copy of the list of all cached relations in the cache.  
    * This is a subset of the relations returned by {@link #getRelations()}.
    */
-  public List<CachedRelation<? extends Identifiable, ? extends Identifiable>>
+  public List<CachingEntityRelation<? extends Identifiable, ? extends Identifiable>>
     getCachedRelations()
   {
     return new ArrayList<>(cachedRelations);

@@ -26,14 +26,17 @@
  *******************************************************************************/
 package com.techempower.cache;
 
-import gnu.trove.map.*;
-
+import java.sql.*;
 import java.util.*;
-
 import com.google.common.cache.*;
+import com.google.common.collect.*;
 import com.google.common.primitives.*;
 import com.techempower.data.*;
+import com.techempower.helper.*;
 import com.techempower.util.*;
+import gnu.trove.iterator.*;
+import gnu.trove.map.*;
+import gnu.trove.map.hash.*;
 
 /**
  * A least-recently-used style caching EntityGroup based on the Guava
@@ -129,6 +132,47 @@ public class LruCacheGroup<T extends Identifiable>
   public void reset()
   {
     objects.invalidateAll();
+  }
+
+  /**
+   * Tries to satisfy first from the LRU cache, only querying the database if required.
+   */
+  @Override
+  public TLongObjectMap<T> map(Collection<Long> ids) {
+    if (CollectionHelper.isEmpty(ids)) {
+      return new TLongObjectHashMap<>(0);
+    }
+    TLongObjectMap<T> toReturn = new TLongObjectHashMap<>(ids.size());
+    // Fetch all the objects that are already cached.
+    ImmutableMap<Long, T> present = this.objects.getAllPresent(ids);
+    toReturn.putAll(present);
+    if (ids.size() > present.size()) {
+      // We need to fetch more to get all the requested IDs. This could be implemented with
+      // this.objects.getAll(ids) instead, but that would result in a separate individual query for
+      // each missing value. For performance reasons, we use EntityGroup.map() to get all missing
+      // values in a single query.
+      Set<Long> neededIds = new HashSet<>(ids);
+      neededIds.removeAll(present.keySet());
+      for (TLongObjectIterator<T> it = super.map(neededIds).iterator(); it.hasNext();) {
+        it.advance();
+        long key = it.key();
+        T value = it.value();
+        toReturn.put(key, value);
+        // Cache our fetched items for use next time.
+        this.objects.put(key, value);
+      }
+    }
+    return toReturn;
+  }
+
+  @Override
+  public T querySingle(String query, Object... arguments) throws SQLException {
+    T object = super.querySingle(query, arguments);
+    if (object != null) {
+      // Store in the LRU cache.
+      objects.put(object.getId(), object);
+    }
+    return object;
   }
   
   @Override
@@ -230,7 +274,7 @@ public class LruCacheGroup<T extends Identifiable>
       extends EntityGroup.Builder<T>
   {
     /**
-     * The default size limit is 10000.
+     * The default size limit is 10,000.
      */
     public static final int DEFAULT_SIZE = 10000;
     private int size = DEFAULT_SIZE;
@@ -238,6 +282,9 @@ public class LruCacheGroup<T extends Identifiable>
     protected Builder(Class<T> type)
     {
       super(type);
+      // LruCacheGroups default to true since they maintain a partial cache and need to both send
+      // and receive cache updates.
+      super.distribute = true;
     }
     
     @Override

@@ -79,7 +79,7 @@ import org.slf4j.LoggerFactory;
  * @see com.techempower.collection.relation.LongRelation
  */
 public class CachedRelation<L extends Identifiable, R extends Identifiable>
-  implements EntityRelation<L, R>, Identifiable
+  implements EntityRelation<L, R>, CachingEntityRelation<L, R>
 {
   // TODO: Consider whether database-level uniqueness constraints and "INSERT
   // IGNORE" behavior should be supported. This shouldn't matter for
@@ -224,17 +224,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     return add(leftID, rightID, true, true, true);
   }
 
-  /**
-   * Adds the specified pair to the relation. 
-   * 
-   * @param leftID the ID of the left value of the pair to be added
-   * @param rightID the ID of the right value of the pair to be added
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   * @return <tt>true</tt> if the relation changed as a result of the call
-   */
+  @Override
   public boolean add(long leftID, long rightID, boolean updateDatabase, boolean notifyListeners, boolean notifyDistributionListeners)
   {
     if (!this.loaded)
@@ -319,16 +309,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     return addAll(relationToAdd, true, true, true);
   }
 
-  /**
-   * Adds the given pairs to the relation and updates the database.
-   * 
-   * @param relationToAdd the pairs to be added
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   * @return <tt>true</tt> if the relation changed as a result of the call
-   */
+  @Override
   public boolean addAll(LongRelation relationToAdd, boolean updateDatabase,
       boolean notifyListeners, boolean notifyDistributionListeners)
   {
@@ -474,11 +455,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
   }
 
-  /**
-   * Adds the given listener to the relation.
-   * 
-   * @param listener the listener to be added
-   */
+  @Override
   public void addListener(CachedRelationListener listener)
   {
     this.listeners.add(listener);
@@ -490,14 +467,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     clear(true, true, true);
   }
 
-  /**
-   * Clears the relation of all pairs.
-   * 
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   */
+  @Override
   public void clear(boolean updateDatabase, boolean notifyListeners, boolean notifyDistributionListeners)
   {
     this.lock.writeLock().lock();
@@ -790,11 +760,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
         : leftValueSet(right.getId());
   }
 
-  /**
-   * Returns a copy of the list of listeners to this relation.
-   * 
-   * @return A copy of the list of listeners to this relation.
-   */
+  @Override
   public List<CachedRelationListener> listeners()
   {
     return new ArrayList<>(this.listeners);
@@ -894,17 +860,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     return changed;
   }
 
-  /**
-   * Removes the specified pair of values from this relation.
-   * 
-   * @param leftID the id of the left value of the pair to be removed
-   * @param rightID the id of the right value of the pair to be removed
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   * @return <tt>true</tt> if the relation was modified as a result of the call
-   */
+  @Override
   public boolean remove(long leftID, long rightID, boolean updateDatabase, boolean notifyListeners, boolean notifyDistributionListeners)
   {
     if (!this.loaded)
@@ -990,16 +946,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     return removeAll(relationToRemove, true, true, true);
   }
 
-  /**
-   * Removes the given pairs from the relation and updates the database.
-   * 
-   * @param relationToRemove the pairs to be removed
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   * @return <tt>true</tt> if the relation changed as a result of the call
-   */
+  @Override
   public boolean removeAll(LongRelation relationToRemove, boolean updateDatabase,
       boolean notifyListeners, boolean notifyDistributionListeners)
   {
@@ -1119,7 +1066,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
           if (!(listener instanceof DistributionListener)
               || notifyDistributionListeners)
           {
-            listener.addAll(this.id, relationToRemove);
+            listener.removeAll(this.id, relationToRemove);
           }
         }
       }
@@ -1151,16 +1098,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     return removeLeftValue(leftID, true, true, true);
   }
 
-  /**
-   * Removes the specified left value from this relation.
-   * 
-   * @param leftID the id of the left value to be removed from this relation
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   * @return <tt>true</tt> if the relation was modified as a result of the call
-   */
+  @Override
   public boolean removeLeftValue(long leftID, boolean updateDatabase, boolean notifyListeners, boolean notifyDistributionListeners)
   {
     if (!this.loaded)
@@ -1228,17 +1166,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     return removeRightValue(rightID, true, true, true);
   }
 
-  /**
-   * Removes the specified right value from this relation.
-   * 
-   * @param rightID the id of the right value to be removed from this 
-   *    relation
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   * @return <tt>true</tt> if the relation was modified as a result of the call
-   */
+  @Override
   public boolean removeRightValue(long rightID, boolean updateDatabase, boolean notifyListeners, boolean notifyDistributionListeners)
   {
     if (!this.loaded)
@@ -1313,41 +1241,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     return replaceAll(relationToReplace, true, true, true);
   }
 
-  /**
-   * <p>Clears the existing relation, then sets the relation to the passed in
-   * relation.</p>
-   * 
-   * <p>Note that this is generally preferable to doing the following:</p>
-   * 
-   * <pre>
-   * {@code
-   * // foo is a CachedRelation.
-   * foo.clear();
-   * foo.addAll( .. );
-   * }
-   * </pre>
-   * 
-   * <p>The above will cause foo to be empty for a certain window of time.  
-   * Using replaceAll( .. ) will achieve the same end goal of clearing the
-   * current relation and then adding the passed in relation, but will never 
-   * result in a call to this object seeing an empty relation.</p>
-   * 
-   * <p>This call will only block reads very briefly while switching to the
-   * new cached relation and notifying listeners.  If deferDatabaseUpdates is
-   * false, then this blocking extends until the database writes have 
-   * completed.</p>
-   * 
-   * <p>If called with a relation that is equivalent to the current relation, 
-   * this function will immediately return with a value of false and will
-   * not hit the db or notify listeners.</p>
-   * 
-   * @param relationToReplace the pairs to be added
-   * @param updateDatabase whether to update the database
-   * @param notifyListeners whether to notify the listeners of the change
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   * @return <tt>true</tt> if the relation changed as a result of the call
-   */
+  @Override
   public boolean replaceAll(LongRelation relationToReplace, boolean updateDatabase,
       boolean notifyListeners, boolean notifyDistributionListeners)
   {
@@ -1484,7 +1378,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
           if (!(listener instanceof DistributionListener)
               || notifyDistributionListeners)
           {
-            listener.addAll(this.id, relationToReplace);
+            listener.replaceAll(this.id, relationToReplace);
           }
         }
       }
@@ -1519,15 +1413,7 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     reset(true, true);
   }
 
-  /**
-   * Internally marks this relation as "not loaded", which is understood to
-   * mean that it should be reloaded from the database before being used
-   * again.
-   * 
-   * @param notifyListeners whether to notify the listeners of the reset
-   * @param notifyDistributionListeners Whether to notify any
-   * DistributionListeners; only used When notifyListeners is true.
-   */
+  @Override
   public void reset(boolean notifyListeners, boolean notifyDistributionListeners)
   {
     this.lock.writeLock().lock();
@@ -1553,22 +1439,13 @@ public class CachedRelation<L extends Identifiable, R extends Identifiable>
     }
   }
 
-  /**
-   * Resets this relation if it maps objects of the specified type.
-   * 
-   * @param type The type of the cache group being reset.
-   */
+  @Override
   public <T extends Identifiable> void reset(Class<T> type)
   {
     reset(type, true, true);
   }
 
-  /**
-   * Resets this relation if it maps objects of the specified type.
-   * 
-   * @param type The type of the cache group being reset.
-   * @param notifyListeners whether to notify the listeners of the reset
-   */
+  @Override
   public <T extends Identifiable> void reset(Class<T> type, boolean notifyListeners, boolean notifyDistributionListeners)
   {
     if (type.equals(this.leftType)

@@ -572,26 +572,7 @@ public class SqlEntityRelation<L extends Identifiable, R extends Identifiable>
   @Override
   public List<L> leftValueList(long rightID)
   {
-    try (ConnectionMonitor monitor = this.cf.getConnectionMonitor();
-         PreparedStatement selectStatement = monitor.getConnection().prepareStatement(
-             "SELECT " + quotedLeftColumn + " FROM " + quotedTable
-                 + " WHERE " + quotedRightColumn + " = ?;",
-             ResultSet.TYPE_FORWARD_ONLY,
-             ResultSet.CONCUR_READ_ONLY))
-    {
-      selectStatement.setLong(1, rightID);
-      ResultSet resultSet = selectStatement.executeQuery();
-      Set<Long> leftIDs = new HashSet<>();
-      while (resultSet.next())
-      {
-        leftIDs.add(resultSet.getLong(leftColumn));
-      }
-      return store.list(leftType, leftIDs);
-    }
-    catch (SQLException e)
-    {
-      throw new EntityException(e);
-    }
+    return store.list(leftType, leftIDs(rightID));
   }
 
   @Override
@@ -605,26 +586,7 @@ public class SqlEntityRelation<L extends Identifiable, R extends Identifiable>
   @Override
   public Set<L> leftValueSet(long rightID)
   {
-    try (ConnectionMonitor monitor = this.cf.getConnectionMonitor();
-         PreparedStatement selectStatement = monitor.getConnection().prepareStatement(
-             "SELECT " + quotedLeftColumn + " FROM " + quotedTable
-                 + " WHERE " + quotedRightColumn + " = ?;",
-             ResultSet.TYPE_FORWARD_ONLY,
-             ResultSet.CONCUR_READ_ONLY))
-    {
-      selectStatement.setLong(1, rightID);
-      ResultSet resultSet = selectStatement.executeQuery();
-      Set<Long> leftIDs = new HashSet<>();
-      while (resultSet.next())
-      {
-        leftIDs.add(resultSet.getLong(leftColumn));
-      }
-      return new HashSet<>(store.list(leftType, leftIDs));
-    }
-    catch (SQLException e)
-    {
-      throw new EntityException(e);
-    }
+    return new HashSet<>(store.list(leftType, leftIDs(rightID)));
   }
 
   @Override
@@ -1176,26 +1138,7 @@ public class SqlEntityRelation<L extends Identifiable, R extends Identifiable>
   @Override
   public List<R> rightValueList(long leftID)
   {
-    try (ConnectionMonitor monitor = this.cf.getConnectionMonitor();
-         PreparedStatement selectStatement = monitor.getConnection().prepareStatement(
-             "SELECT " + quotedRightColumn + " FROM " + quotedTable
-                 + " WHERE " + quotedLeftColumn + " = ?;",
-             ResultSet.TYPE_FORWARD_ONLY,
-             ResultSet.CONCUR_READ_ONLY))
-    {
-      selectStatement.setLong(1, leftID);
-      ResultSet resultSet = selectStatement.executeQuery();
-      Set<Long> rightIDs = new HashSet<>();
-      while (resultSet.next())
-      {
-        rightIDs.add(resultSet.getLong(rightColumn));
-      }
-      return store.list(rightType, rightIDs);
-    }
-    catch (SQLException e)
-    {
-      throw new EntityException(e);
-    }
+    return store.list(rightType, rightIDs(leftID));
   }
 
   @Override
@@ -1209,26 +1152,7 @@ public class SqlEntityRelation<L extends Identifiable, R extends Identifiable>
   @Override
   public Set<R> rightValueSet(long leftID)
   {
-    try (ConnectionMonitor monitor = this.cf.getConnectionMonitor();
-         PreparedStatement selectStatement = monitor.getConnection().prepareStatement(
-             "SELECT " + quotedRightColumn + " FROM " + quotedTable
-                 + " WHERE " + quotedLeftColumn + " = ?;",
-             ResultSet.TYPE_FORWARD_ONLY,
-             ResultSet.CONCUR_READ_ONLY))
-    {
-      selectStatement.setLong(1, leftID);
-      ResultSet resultSet = selectStatement.executeQuery();
-      Set<Long> rightIDs = new HashSet<>();
-      while (resultSet.next())
-      {
-        rightIDs.add(resultSet.getLong(rightColumn));
-      }
-      return new HashSet<>(store.list(rightType, rightIDs));
-    }
-    catch (SQLException e)
-    {
-      throw new EntityException(e);
-    }
+    return new HashSet<>(store.list(rightType, rightIDs(leftID)));
   }
 
   @Override
@@ -1264,6 +1188,15 @@ public class SqlEntityRelation<L extends Identifiable, R extends Identifiable>
     return this.table;
   }
 
+  @Override
+  public String toString()
+  {
+    return "SqlEntityRelation ["
+        + leftType.getSimpleName()
+        + "," + rightType.getSimpleName()
+        + "]";
+  }
+
   //
   // Inner classes
   //
@@ -1277,11 +1210,11 @@ public class SqlEntityRelation<L extends Identifiable, R extends Identifiable>
   public static class Builder<L extends Identifiable, R extends Identifiable>
       implements EntityRelation.Builder<L, R, SqlEntityRelation<L, R>>
   {
-    private final Class<L> leftType;
-    private final Class<R> rightType;
-    private String table;
-    private String leftColumn;
-    private String rightColumn;
+    protected final Class<L> leftType;
+    protected final Class<R> rightType;
+    protected String table;
+    protected String leftColumn;
+    protected String rightColumn;
 
     /**
      * Returns a new builder of {@link SqlEntityRelation} instances.
@@ -1342,4 +1275,5 @@ public class SqlEntityRelation<L extends Identifiable, R extends Identifiable>
       return this;
     }
   }
+
 }
