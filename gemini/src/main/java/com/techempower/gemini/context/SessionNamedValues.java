@@ -306,11 +306,7 @@ public class SessionNamedValues
    */
   public SessionNamedValues invalidate()
   {
-    final Session session = context.getSession(false);
-    if (session != null)
-    {
-      session.invalidate();
-    }
+    context.invalidateSession();
     return this;
   }
 
