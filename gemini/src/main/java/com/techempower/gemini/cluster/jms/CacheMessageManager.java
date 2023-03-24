@@ -502,6 +502,29 @@ public class CacheMessageManager
                     cacheMessage, entity);
               }
             }
+            else if (group instanceof LruCacheGroup)
+            {
+              final LruCacheGroup<Identifiable> cg = (LruCacheGroup<Identifiable>)group;
+              Identifiable entity = cg.get(cacheMessage.getObjectId());
+
+              if (entity == null)
+              {
+                // This is a new entity, so ignore this message and the LruCacheGroup will pull it
+                // from the database when needed.
+                log.info(
+                    "Received 'cache object expired' for LruCacheGroup:{}, new entity so ignoring.",
+                    cacheMessage);
+              }
+              else
+              {
+                // This entity is already in our LRU cache, so update it.
+                cg.updateObjectFromMap(entity, cacheMessage.getObjectProperties());
+                store.notifyListenersCacheObjectExpired(false, cg.getType(), entity.getId());
+                log.info(
+                    "Received 'cache object expired' for LruCacheGroup: {}, existing entity: {}",
+                    cacheMessage, entity);
+              }
+            }
             else if (group instanceof EntityGroup)
             {
               // No problem! Some instance has this as a CacheGroup, thus it is
@@ -527,6 +550,13 @@ public class CacheMessageManager
             {
               ((CacheGroup<Identifiable>)group).removeFromCache(cacheMessage.getObjectId());
               log.info("Received 'cache object remove' for: {}", cacheMessage);
+            }
+            else if (group instanceof LruCacheGroup)
+            {
+              // LruCacheGroup.refresh() simply invalidates requested IDs from the LRU cache, which
+              // is all we want to do here.
+              ((LruCacheGroup<Identifiable>) group).refresh(cacheMessage.getObjectId());
+              log.info("Received 'cache object remove' for LruCacheGroup: {}", cacheMessage);
             }
             else if (group instanceof EntityGroup)
             {
@@ -563,7 +593,7 @@ public class CacheMessageManager
       else if (broadcastMessage instanceof CachedRelationMessage)
       {
         final CachedRelationMessage cachedRelationMessage = (CachedRelationMessage)broadcastMessage;
-        final CachedRelation<?, ?> relation = store.getCachedRelation(cachedRelationMessage.getRelationId());
+        final CachingEntityRelation<?, ?> relation = store.getCachedRelation(cachedRelationMessage.getRelationId());
         statsKey = "r" + cachedRelationMessage.getRelationId();
         switch (cachedRelationMessage.getAction())
         {
