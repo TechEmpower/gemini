@@ -387,6 +387,20 @@ public abstract class Context
   }
 
   /**
+   * In addition to invalidating the session, also sets the Context.session member variable to null
+   * so it is re-created as needed and is available for immediate use.
+   */
+  public void invalidateSession()
+  {
+    if (this.session != null)
+    {
+      this.session.invalidate();
+    }
+    // Rely on getSession() to create a new session as needed.
+    this.session = null;
+  }
+
+  /**
    * Gets the full standard (non-secure) URL to the Servlet.
    */
   public String getStandardUrl()
