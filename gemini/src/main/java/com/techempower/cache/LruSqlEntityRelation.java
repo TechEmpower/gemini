@@ -80,6 +80,15 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
     }
   }
 
+  /**
+   * Override to call our version that updates listeners as well.
+   */
+  @Override
+  public boolean remove(long leftID, long rightID)
+  {
+    return remove(leftID, rightID, true, true, true);
+  }
+
   @Override
   public boolean remove(long leftID, long rightID, boolean updateDatabase, boolean notifyListeners,
       boolean notifyDistributionListeners) {
@@ -132,6 +141,15 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
     return toReturn;
   }
 
+  /**
+   * Override to call our version that updates listeners as well.
+   */
+  @Override
+  public boolean removeRightValue(long rightID)
+  {
+    return removeRightValue(rightID, true, true, true);
+  }
+
   @Override
   public boolean removeRightValue(long rightID, boolean updateDatabase, boolean notifyListeners,
       boolean notifyDistributionListeners) {
@@ -160,6 +178,15 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
       }
     }
     return toReturn;
+  }
+
+  /**
+   * Override to call our version that updates listeners as well.
+   */
+  @Override
+  public boolean replaceAll(LongRelation relationToReplace)
+  {
+    return replaceAll(relationToReplace, true, true, true);
   }
 
   @Override
@@ -199,12 +226,19 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
   @Override
   public <T extends Identifiable> void reset(Class<T> type, boolean notifyListeners,
       boolean notifyDistributionListeners) {
-    reset(notifyListeners, notifyDistributionListeners);
+    if (type.equals(this.leftType())
+        || type.equals(this.rightType()))
+    {
+      reset(notifyListeners, notifyDistributionListeners);
+    }
   }
 
+  /**
+   * Override to call our version that updates listeners as well.
+   */
   @Override
   public <T extends Identifiable> void reset(Class<T> type) {
-    reset(true, true);
+    reset(type, true, true);
   }
 
   @Override
@@ -227,6 +261,15 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
     this.id = identity;
   }
 
+  /**
+   * Override to call our version that updates listeners as well.
+   */
+  @Override
+  public boolean removeAll(LongRelation relationToRemove)
+  {
+    return removeAll(relationToRemove, true, true, true);
+  }
+
   @Override
   public boolean removeAll(LongRelation relationToRemove, boolean updateDatabase,
       boolean notifyListeners, boolean notifyDistributionListeners) {
@@ -247,6 +290,15 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
     return toReturn;
   }
 
+  /**
+   * Override to call our version that updates listeners as well.
+   */
+  @Override
+  public void clear()
+  {
+    clear(true, true, true);
+  }
+
   @Override
   public void clear(boolean updateDatabase, boolean notifyListeners,
       boolean notifyDistributionListeners) {
@@ -265,13 +317,30 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
     }
   }
 
+  /**
+   * Override to call our version that updates listeners as well.
+   */
+  @Override
+  public boolean addAll(LongRelation relationToAdd)
+  {
+    return addAll(relationToAdd, true, true, true);
+  }
+
   @Override
   public boolean addAll(LongRelation relationToAdd, boolean updateDatabase, boolean notifyListeners,
       boolean notifyDistributionListeners) {
     if (relationToAdd == null) {
       return false;
     }
-    // Do not update our LRU cache. Wait until a relationship is requested before caching it.
+    // Do not add these new relations to our LRU cache because we cannot know if they are complete
+    // without checking the database. We need to avoid a situation where our LRU cache contains an
+    // incomplete mapping (e.g., only caches the mapping [A,B] when the database also contains
+    // [A,C]) because then our LRU cache would confidently return wrong answers. Rather than the
+    // complexity and performance hit of checking the database and loading the LRU cache with
+    // mappings that may or may not be used, we'll simply invalidate the LRU cache.
+    this.leftMap.invalidateAll();
+    this.rightMap.invalidateAll();
+
     boolean toReturn = false; // Not important for this to be strictly accurate.
     if (updateDatabase) {
       toReturn = super.addAll(relationToAdd);
@@ -286,10 +355,30 @@ public class LruSqlEntityRelation<L extends Identifiable, R extends Identifiable
     return toReturn;
   }
 
+  /**
+   * Override to call our version that updates listeners as well.
+   */
+  @Override
+  public boolean add(long leftID, long rightID)
+  {
+    return add(leftID, rightID, true, true, true);
+  }
+
   @Override
   public boolean add(long leftID, long rightID, boolean updateDatabase, boolean notifyListeners,
       boolean notifyDistributionListeners) {
-    // Do not update our LRU cache. Wait until a relationship is requested before caching it.
+    // Do not add these new relations to our LRU cache because we cannot know if they are complete
+    // without checking the database. We need to avoid a situation where our LRU cache contains an
+    // incomplete mapping (e.g., only caches the mapping [A,B] when the database also contains
+    // [A,C]) because then our LRU cache would confidently return wrong answers. Rather than the
+    // complexity and performance hit of checking the database and loading the LRU cache with
+    // mappings that may or may not be used, we'll simply invalidate the LRU cache.
+
+    // This is potentially invalidating more than required (in the case of many-to-many relations)
+    // but it's not worth the complexity to be exact about these invalidations.
+    this.leftMap.invalidate(leftID);
+    this.rightMap.invalidate(rightID);
+
     boolean toReturn = false; // Not important for this to be strictly accurate.
     if (updateDatabase) {
       toReturn = super.add(leftID, rightID);
