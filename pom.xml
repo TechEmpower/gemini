@@ -89,7 +89,7 @@
     <flyway.version>7.3.1</flyway.version>
     <liquibase.version>4.8.0</liquibase.version>
     <log4j2.version>2.17.1</log4j2.version>
-    <logback.version>1.3.0-alpha2</logback.version>
+    <logback.version>1.3.12</logback.version>
   </properties>
 
   <scm>
